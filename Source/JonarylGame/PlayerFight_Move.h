@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PlayerFight_Classes.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -53,8 +54,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void MoveForward(float Value);
-	//void MoveForward(const FInputActionValue& Value);
+	//void MoveForward(float Value);
+	void MoveForward(const FInputActionValue& Value);
+	void TurnCamera(const FInputActionValue& Value);
 
 	void MoveRight(float Value);
 
@@ -63,9 +65,13 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-		//UInputMappingContext* PlayerMappingContext;
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-		//UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputMappingContext* PlayerMappingContext;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* MoveCamera;
+
+	APlayerController* PlayerController;
 	
 };

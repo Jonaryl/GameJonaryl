@@ -2,10 +2,14 @@
 
 
 #include "PlayerFight_Move.h"
-#include "GameFramework/PlayerController.h"
+
+
+
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "Math/UnrealMathUtility.h"
 
 
 APlayerFight_Move::APlayerFight_Move()
@@ -30,17 +34,18 @@ void APlayerFight_Move::BeginPlay()
 {
     Super::BeginPlay();
 
-    //APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    //if (PlayerController)
-    //{
-       // UEnhancedInputLocalPlayerSubSystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubSystem>(PlayerController->GetLocalPlayer());
-       // if (Subsystem)
-       // {
-           // Subsystem->AddMappingContext(PlayerMappingContext, 0)
-       // }
-   // }
+    PlayerController = Cast<APlayerController>(GetController());
+    if (PlayerController)
+    {
+        UEnhancedInputLocalPlayerSubsystem * Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+        if (Subsystem)
+        {
+            Subsystem->AddMappingContext(PlayerMappingContext, 0);
+        }
+    }
     // Initialisez le contrôleur de personnage
    //Controller = ACharacterController->GetController();
+    //Controller = PlayerController->GetController();
 }
 
 void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -48,10 +53,11 @@ void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     
-    //if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-   // {
-       // EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerFight_Move::MoveForward);
-    //}
+    if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+    {
+        EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerFight_Move::MoveForward);
+        EnhancedInputComponent->BindAction(MoveCamera, ETriggerEvent::Triggered, this, &APlayerFight_Move::TurnCamera);
+    }
     
     //PlayerInputComponent->BindAxis("LeftJsY", this, &APlayerFight_Move::MoveForward);
     //PlayerInputComponent->BindAxis("RightJsX", this, &APawn::AddControllerYawInput);
@@ -72,18 +78,17 @@ void APlayerFight_Move::Tick(float DeltaTime)
     }
 }
 
-//void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
-void APlayerFight_Move::MoveForward(float Value)
+void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
 {
-    //const CurrentValue = Value.Get<FVector2D>();
+    const FVector2D CurrentValue = Value.Get<FVector2D>();
 
-    //valueSpeed += (CurrentValue.y + CurrentValue.x *100) * 100.2f * GetWorld()->DeltaTimeSeconds;
-    //valueSpeed = FMath::Clamp(valueSpeed, 0.f, 2000.0f);
+    valueSpeed += (FMath::Abs(CurrentValue.Y) + FMath::Abs(CurrentValue.X) * 10) * 10.2f * GetWorld()->DeltaTimeSeconds;
+    valueSpeed = FMath::Clamp(valueSpeed, 0.f, 20.0f);
 
-    //valueSpeedJoy = CurrentValue.y + CurrentValue.x;
+    valueSpeedJoy = CurrentValue.Y + CurrentValue.X;
 
-    //if (Controller && CurrentValue.y + CurrentValue.x != 0.0f)
-    //{
+    if (Controller && CurrentValue.Y + CurrentValue.X != 0.0f)
+    {
         bEnableInterpolation = true;
         if (bEnableInterpolation)
         {
@@ -92,8 +97,8 @@ void APlayerFight_Move::MoveForward(float Value)
             const FRotator Rotation = Controller->GetControlRotation();
             const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
 
-            const FVector TargetLocation = GetActorLocation() + (Direction * Value * (runSpeed + valueSpeed) * GetWorld()->DeltaTimeSeconds);
-            const FRotator TargetRotation = Direction.Rotation();
+            const FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+            const FRotator TargetRotation = (TargetLocation - GetActorLocation()).Rotation();
 
             SetActorLocationAndRotation(
                 FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
@@ -102,7 +107,15 @@ void APlayerFight_Move::MoveForward(float Value)
         }
         else 
         {
-            AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
+            AddMovementInput(FVector(1.0f, 0.0f, 0.0f), valueSpeedJoy);
         }
-   // }
+   }
+}
+
+void APlayerFight_Move::TurnCamera(const FInputActionValue& Value)
+{
+    const FVector2D CurrentValue = Value.Get<FVector2D>();
+
+    PlayerController->AddYawInput(CurrentValue.X * 40.0f * GetWorld()->GetDeltaSeconds());
+    PlayerController->AddPitchInput(CurrentValue.Y * 40.0f * GetWorld()->GetDeltaSeconds());
 }
