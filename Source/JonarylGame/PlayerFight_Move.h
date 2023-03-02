@@ -14,6 +14,12 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "Components/InputComponent.h"
+
+
 #include "inputActionValue.h"
 
 #include "PlayerFight_Move.generated.h"
@@ -73,5 +79,7 @@ protected:
 		UInputAction* MoveCamera;
 
 	APlayerController* PlayerController;
+	UEnhancedInputComponent* EnhancedInputComponent;
+	bool isMoveInput;
 	
 };
