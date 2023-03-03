@@ -92,12 +92,11 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
     const float XValue = CurrentValue.X;
     const float YValue = CurrentValue.Y * -1;
 
-    if (CurrentValue.IsNearlyZero()) // Si l'utilisateur ne presse aucune touche de mouvement
+    if (CurrentValue.IsNearlyZero()) 
     {
-        // Décélération graduelle de la vitesse jusqu'à l'arrêt complet
         valueSpeed = FMath::FInterpTo(valueSpeed, 0.f, GetWorld()->DeltaTimeSeconds, 10.0f);
     }
-    else // Si l'utilisateur presse une touche de mouvement
+    else
     {
         valueSpeed += (FMath::Abs(YValue) + FMath::Abs(XValue) * 10) * (10.2f * GetWorld()->DeltaTimeSeconds);
         valueSpeed = FMath::Clamp(valueSpeed, 0.f, 50.0f);
@@ -110,17 +109,13 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
         bEnableInterpolation = true;
         if (bEnableInterpolation)
         {
-
-            FVector Direction = FVector(XValue, YValue, 0.0f);
-
-            // Obtient une référence à la direction cible
-            //MyMeshTest->AddRelativeLocation(TargetLocation);
+            FVector Direction = FVector(XValue, -YValue, 0.0f);
 
             FRotator CamRotation = FollowCamera->GetComponentRotation();
             Direction = CamRotation.RotateVector(Direction);
             Direction.Z = 0.0f;
 
-            FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * valueSpeed) * GetWorld()->DeltaTimeSeconds * 20.0f);
+            FVector TargetLocation = GetActorLocation() + (Direction + 20.0f);
 
             FVector DirectionToTarget = TargetLocation - GetActorLocation();
             DirectionToTarget.Normalize();
@@ -131,28 +126,13 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
 
             FQuat InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
             SetActorRotation(InterpolatedRotation.Rotator());
-            //FQuat CurrentRotation = GetActorRotation().Quaternion();
-
-            //FQuat NewRotation = FQuat::FindBetweenNormals(GetActorForwardVector(), DirectionToTarget);
-            //FQuat InterpolatedRotation = FQuat::Slerp(CurrentRotation, NewRotation, GetWorld()->DeltaTimeSeconds * runRotationSpeed);
-            //SetActorRotation(InterpolatedRotation.Rotator());
 
             MyMeshTest->SetRelativeLocation(TargetLocation);
 
-            // UE_LOG(LogTemp, Warning, TEXT("MoveForward pressed with value %f"), Value);
-            //UE_LOG(LogTemp, Warning, TEXT("CurrentSpeed pressed with value %f"), valueSpeed);
-
-            //const FVector Direction = FVector(XValue, YValue, 0.0f).GetSafeNormal();
-            //const FRotator Rotation = FRotationMatrix::MakeFromXZ(Direction, FVector::CrossProduct(Direction, FVector::RightVector)).Rotator();
-
-            //const FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * valueSpeed) * GetWorld()->DeltaTimeSeconds);
-
-            //const FRotator TargetRotation = (TargetLocation - GetActorLocation()).Rotation();
-
-            //SetActorLocationAndRotation(
-                //FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
-                //FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 100.0f)
-            //);
+            SetActorLocationAndRotation(
+                FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
+                FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 100.0f)       
+            );
         }
         else
         {
