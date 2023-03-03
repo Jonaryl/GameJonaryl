@@ -106,6 +106,19 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
         bEnableInterpolation = true;
         if (bEnableInterpolation)
         {
+
+            FVector Direction = FVector(XValue, YValue, 0.0f);
+
+            FRotator CamRotation = FollowCamera->GetComponentRotation();
+            Direction = CamRotation.RotateVector(Direction);
+            Direction.Z = 0.0f;
+
+            FQuat CurrentRotation = GetActorRotation().Quaternion();
+            FQuat NewRotation = FQuat::FindBetweenNormals(GetActorForwardVector(), Direction);
+            FQuat InterpolatedRotation = FQuat::Slerp(CurrentRotation, NewRotation, GetWorld()->DeltaTimeSeconds * runRotationSpeed);
+            SetActorRotation(InterpolatedRotation.Rotator());
+
+
             // UE_LOG(LogTemp, Warning, TEXT("MoveForward pressed with value %f"), Value);
             //UE_LOG(LogTemp, Warning, TEXT("CurrentSpeed pressed with value %f"), valueSpeed);
 
@@ -113,6 +126,7 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
             //const FRotator Rotation = FRotationMatrix::MakeFromXZ(Direction, FVector::CrossProduct(Direction, FVector::RightVector)).Rotator();
 
             //const FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+
             //const FRotator TargetRotation = (TargetLocation - GetActorLocation()).Rotation();
 
             //SetActorLocationAndRotation(
