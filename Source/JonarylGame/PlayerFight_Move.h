@@ -81,5 +81,9 @@ protected:
 	APlayerController* PlayerController;
 	UEnhancedInputComponent* EnhancedInputComponent;
 	bool isMoveInput;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TEST")
+		UStaticMeshComponent* MyMeshTest;
 	
 };
