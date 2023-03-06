@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "PlayerFight_Move.h"
+
+#include "Components/PrimitiveComponent.h"
+#include "PlayerFight_States.h"
+
 #include "PlayerFight_Actions.generated.h"
 
 /**
@@ -26,11 +30,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	float jumpSpeed;
+	float forwardSpeed;
 
-	virtual void AButton();
-	virtual void BButton();
-	virtual void XButton();
-	virtual void YButton();
+	virtual void ABtnAction() override;
+	//virtual void BButton() override;
+	//virtual void XButton() override;
+	//virtual void YButton() override;
 	
 };
 
