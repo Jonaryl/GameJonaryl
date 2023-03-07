@@ -24,6 +24,9 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
     {
+        //UE_LOG(LogTemp, Warning, TEXT("A button pressed with value %f"), jumpSpeed);
+        //UE_LOG(LogTemp, Warning, TEXT("forwardSpeed %f"), forwardSpeed);
+
         int sens = 1;
         if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
         {
@@ -65,6 +68,15 @@ void APlayerFight_Actions::Tick(float DeltaTime)
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
         }
         /////////////////// raycast ///////////////////////////////////////////////////////// 
+        const FVector force = (upvector * jumpSpeed) + (forwardVector * forwardSpeed) + (worldMoveVector * 1000);
+
+
+        //UE_LOG(LogTemp, Warning, TEXT("__________________________________________________________"), "e");
+        //UE_LOG(LogTemp, Warning, TEXT("upvector %s"), *upvector.ToString());
+        //UE_LOG(LogTemp, Warning, TEXT("forwardVector %s"), *forwardVector.ToString());
+        //UE_LOG(LogTemp, Warning, TEXT("moveVector %s"), *moveVector.ToString());
+        //UE_LOG(LogTemp, Warning, TEXT("force %s"), *force.ToString());
+        //UE_LOG(LogTemp, Warning, TEXT("__________________________________________________________"), "e");
 
         PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
 
