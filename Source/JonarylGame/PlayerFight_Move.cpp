@@ -80,7 +80,8 @@ void APlayerFight_Move::StartMoving()
 void APlayerFight_Move::StopMoving()
 {
     isMoveInput = false;
-    SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::Run)
+        SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
     //UE_LOG(LogTemp, Warning, TEXT("StopMoving %d"), "value");
 }
 

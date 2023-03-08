@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include  "DrawDebugHelpers.h"
 #include "PlayerFight_Actions.h"
 
 APlayerFight_Actions::APlayerFight_Actions()
@@ -21,18 +22,46 @@ void APlayerFight_Actions::BeginPlay()
 void APlayerFight_Actions::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+    
+    switch (CurrentState)
+    {
+    case APlayerFight_States::EPlayerFight_State::Idle: 
+        UE_LOG(LogTemp, Warning, TEXT("Idle state: %s"), "Idle");
+        break;
+
+    case APlayerFight_States::EPlayerFight_State::Run: 
+        UE_LOG(LogTemp, Warning, TEXT("Run state: %s"), "Run");
+        break;
+
+    case APlayerFight_States::EPlayerFight_State::SuperRun:
+        UE_LOG(LogTemp, Warning, TEXT("SuperRun state: %s"), "SuperRun");
+        break;
+
+    case APlayerFight_States::EPlayerFight_State::Jump: 
+        UE_LOG(LogTemp, Warning, TEXT("Jump state: %s"), "Jump");
+        break;
+    case APlayerFight_States::EPlayerFight_State::IdleJump: 
+        UE_LOG(LogTemp, Warning, TEXT("IdleJump state: %s"), "IdleJump");
+        break;
+    case APlayerFight_States::EPlayerFight_State::DashJump:
+        UE_LOG(LogTemp, Warning, TEXT("DashJump state: %s"), "DashJump");
+        break;
+
+        // Ajoute des cas pour chaque état de l'énumération EPlayerFight_State
+
+    default:
+        UE_LOG(LogTemp, Warning, TEXT("Unknown state: %s (%d)"), "StateName");
+        break;
+    }
+
 
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
     {
-        //UE_LOG(LogTemp, Warning, TEXT("A button pressed with value %f"), jumpSpeed);
-        //UE_LOG(LogTemp, Warning, TEXT("forwardSpeed %f"), forwardSpeed);
-
         int sens = 1;
         if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
         {
             sens = -1;
-            if (forwardSpeed != 0)
-                forwardSpeed = forwardSpeed * 20;
+            forwardSpeed = 5000;
         }
 
         const FVector upvector = GetActorUpVector() * sens;
@@ -48,62 +77,53 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         const FVector relativeMoveVector = FVector(XMoveDirection*20, -YMoveDirection*20, 0);
         FVector worldMoveVector = GetActorRotation().RotateVector(relativeMoveVector);
 
-        /////////////////// raycast ///////////////////////////////////////////////////////// 
+
         const FVector force = (upvector * jumpSpeed) + (forwardVector * forwardSpeed) + (worldMoveVector * 1000);
 
-        float GroundCheckDistance = 1.0f;
-        // Raycast pour détecter si le personnage est en collision avec le sol
+        /////////////////// raycast ///////////////////////////////////////////////////////// 
+
+        float GroundCheckDistance = 300.0f;
         FVector StartLocation = GetActorLocation();
         FVector EndLocation = StartLocation - FVector(0.0f, 0.0f, GroundCheckDistance);
         FHitResult HitResult;
         FCollisionQueryParams QueryParams;
         QueryParams.AddIgnoredActor(this);
 
+        //DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
         bool bIsGrounded = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams);
 
         if (bIsGrounded)
         {
             float DistanceToGround = HitResult.Distance;
-            UE_LOG(LogTemp, Warning, TEXT("raycast On %f"), DistanceToGround);
-            SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
+            if (DistanceToGround < 120)
+            {
+               // UE_LOG(LogTemp, Warning, TEXT("raycast - 120"));
+                //SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
+            }
         }
         /////////////////// raycast ///////////////////////////////////////////////////////// 
-        const FVector force = (upvector * jumpSpeed) + (forwardVector * forwardSpeed) + (worldMoveVector * 1000);
-
-
-        //UE_LOG(LogTemp, Warning, TEXT("__________________________________________________________"), "e");
-        //UE_LOG(LogTemp, Warning, TEXT("upvector %s"), *upvector.ToString());
-        //UE_LOG(LogTemp, Warning, TEXT("forwardVector %s"), *forwardVector.ToString());
-        //UE_LOG(LogTemp, Warning, TEXT("moveVector %s"), *moveVector.ToString());
-        //UE_LOG(LogTemp, Warning, TEXT("force %s"), *force.ToString());
-        //UE_LOG(LogTemp, Warning, TEXT("__________________________________________________________"), "e");
 
         PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
 
         // Contrôler la vitesse du saut
-        if (jumpSpeed > 2000000.0f)
+        if (jumpSpeed > 2000000.0f && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
         {
             jumpSpeed = 50000.0f;
             if (forwardSpeed != 0)
-            {
                 forwardSpeed = 90000.0f;
-            }
         }
-        else if (jumpSpeed > 0.0f) {
+        else if (jumpSpeed > 0.0f) 
+        {
             jumpSpeed -= 50000.0f * GetWorld()->GetDeltaSeconds();
-            if (forwardSpeed != 0)
-            {
+            if (forwardSpeed != 0 && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
                 forwardSpeed -= 50000.0f * GetWorld()->GetDeltaSeconds();
-            }
+            else if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+                forwardSpeed -= 5000.0f * GetWorld()->GetDeltaSeconds();
         }
         else {
             jumpSpeed = 0.0f;
             SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump);
         }
-    }
-    else if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
-    {
-
     }
 }
 
@@ -124,13 +144,12 @@ void APlayerFight_Actions::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void APlayerFight_Actions::ABtnAction()
 {
-    UE_LOG(LogTemp, Warning, TEXT(" CurrentState action = %d"), CurrentState);
-
+    //UE_LOG(LogTemp, Warning, TEXT(" CurrentState action = %d"), CurrentState);
 
     if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump && 
         CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
     {
-        UE_LOG(LogTemp, Warning, TEXT(" Jump action = %d"), CurrentState);
+        //UE_LOG(LogTemp, Warning, TEXT(" Jump action = %d"), CurrentState);
         jumpSpeed = 2400000.0f;
         if (FMath::Abs(XMoveDirection) + FMath::Abs(YMoveDirection) > 0.0f)
         {
@@ -143,35 +162,26 @@ void APlayerFight_Actions::ABtnAction()
 
         if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement()) 
         {
-            UE_LOG(LogTemp, Warning, TEXT(" Jump PlayerController = %d"), CurrentState);
+            //UE_LOG(LogTemp, Warning, TEXT(" Jump PlayerController = %d"), CurrentState);
             XMoveDirection = 0.0f;
             YMoveDirection = 0.0f;
-            UE_LOG(LogTemp, Error, TEXT("Jump"));
+            //UE_LOG(LogTemp, Error, TEXT("Jump"));
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump);
         }
         else {
             UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
         }
     }
-    else if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump)
+    else if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump || CurrentState == APlayerFight_States::EPlayerFight_State::Jump)
     {
-        UE_LOG(LogTemp, Warning, TEXT(" CurrentState IdleJump = %d"), CurrentState);
-        jumpSpeed = 2400000.0f;
-        if (FMath::Abs(XMoveDirection) + FMath::Abs(YMoveDirection) > 0.0f)
-        {
-            forwardSpeed = 180000.0f;
-        }
-        else
-        {
-            forwardSpeed = 0.0f;
-        }
+        //UE_LOG(LogTemp, Warning, TEXT(" CurrentState IdleJump = %d"), CurrentState);
+        jumpSpeed = 3600000.0f;
+ 
+        forwardSpeed = 0.0f;
 
         if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement())
         {
             UE_LOG(LogTemp, Warning, TEXT(" CurrentState PlayerController = %d"), CurrentState);
-
-            XMoveDirection = 0.0f;
-            YMoveDirection = 0.0f;
             UE_LOG(LogTemp, Error, TEXT("DashJump"));
             SetCharacterState(APlayerFight_States::EPlayerFight_State::DashJump);
         }
