@@ -23,38 +23,6 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
     
-    switch (CurrentState)
-    {
-    case APlayerFight_States::EPlayerFight_State::Idle: 
-        UE_LOG(LogTemp, Warning, TEXT("Idle state: %s"), "Idle");
-        break;
-
-    case APlayerFight_States::EPlayerFight_State::Run: 
-        UE_LOG(LogTemp, Warning, TEXT("Run state: %s"), "Run");
-        break;
-
-    case APlayerFight_States::EPlayerFight_State::SuperRun:
-        UE_LOG(LogTemp, Warning, TEXT("SuperRun state: %s"), "SuperRun");
-        break;
-
-    case APlayerFight_States::EPlayerFight_State::Jump: 
-        UE_LOG(LogTemp, Warning, TEXT("Jump state: %s"), "Jump");
-        break;
-    case APlayerFight_States::EPlayerFight_State::IdleJump: 
-        UE_LOG(LogTemp, Warning, TEXT("IdleJump state: %s"), "IdleJump");
-        break;
-    case APlayerFight_States::EPlayerFight_State::DashJump:
-        UE_LOG(LogTemp, Warning, TEXT("DashJump state: %s"), "DashJump");
-        break;
-
-        // Ajoute des cas pour chaque état de l'énumération EPlayerFight_State
-
-    default:
-        UE_LOG(LogTemp, Warning, TEXT("Unknown state: %s (%d)"), "StateName");
-        break;
-    }
-
-
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
     {
         int sens = 1;
