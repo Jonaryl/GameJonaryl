@@ -37,6 +37,12 @@ protected:
 	//virtual void BButton() override;
 	//virtual void XButton() override;
 	//virtual void YButton() override;
+
+
+	virtual bool GetisStartJump();
+	virtual bool GetisIdleJump();
+	virtual bool GetisDashJump();
+
 	
 };
 

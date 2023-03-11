@@ -90,6 +90,8 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         }
         else {
             jumpSpeed = 0.0f;
+            isStartJump = false;
+            isIdleJump = true;
             SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump);
         }
     }
@@ -135,6 +137,7 @@ void APlayerFight_Actions::ABtnAction()
             YMoveDirection = 0.0f;
             //UE_LOG(LogTemp, Error, TEXT("Jump"));
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump);
+            isStartJump = true;
         }
         else {
             UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
@@ -157,4 +160,19 @@ void APlayerFight_Actions::ABtnAction()
             UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
         }
     }
+}
+
+
+
+bool APlayerFight_Actions::GetisStartJump()
+{
+    return isStartJump;
+}
+bool APlayerFight_Actions::GetisIdleJump()
+{
+    return isIdleJump;
+}
+bool APlayerFight_Actions::GetisDashJump()
+{
+    return isDashJump;
 }

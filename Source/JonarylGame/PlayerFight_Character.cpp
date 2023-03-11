@@ -3,3 +3,31 @@
 
 #include "PlayerFight_Character.h"
 
+
+
+
+
+float APlayerFight_Character::GetSpeed()
+{
+	return Super::GetSpeed(); 
+}
+
+
+bool APlayerFight_Character::GetisStartJump()
+{
+	return Super::GetisStartJump();
+}
+bool APlayerFight_Character::GetisIdleJump()
+{
+	return Super::GetisIdleJump();
+}
+bool APlayerFight_Character::GetisDashJump()
+{
+	return Super::GetisDashJump();
+}
+
+
+bool APlayerFight_Character::GetisIdle()
+{
+	return Super::GetisIdle();
+}

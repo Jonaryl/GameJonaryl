@@ -76,7 +76,9 @@ public:
 
 	void MoveRight(float Value);
 
+
 protected:
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -133,5 +135,13 @@ protected:
 	//virtual void BButton();
 	//virtual void XButton();
 	//virtual void YButton();
-	
+
+	virtual float GetSpeed();
+	virtual bool GetisIdle();
+
+	bool isStartJump;
+	bool isIdleJump;
+	bool isDashJump;
+
+	bool isIdle;
 };

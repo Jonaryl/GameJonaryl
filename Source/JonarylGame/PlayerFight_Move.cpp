@@ -113,6 +113,9 @@ void APlayerFight_Move::Landed(const FHitResult& Hit)
 {
     Super::Landed(Hit);
     SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
+    isStartJump = false;
+    isIdleJump = false;
+    isDashJump = false;
     //UE_LOG(LogTemp, Warning, TEXT("Landed"));
     // Votre code ici pour détecter que le personnage touche le sol
 }
@@ -208,4 +211,16 @@ void APlayerFight_Move::SetCharacterState(APlayerFight_States::EPlayerFight_Stat
 //void APlayerFight_Move::YButton() {}
 
 void APlayerFight_Move::ABtnAction(){}
+
+
+
+
+float APlayerFight_Move::GetSpeed()
+{
+    return valueSpeed;
+}
+bool APlayerFight_Move::GetisIdle()
+{
+    return isIdle;
+}
 
