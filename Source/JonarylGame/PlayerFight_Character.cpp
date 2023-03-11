@@ -31,3 +31,7 @@ bool APlayerFight_Character::GetisIdle()
 {
 	return Super::GetisIdle();
 }
+bool APlayerFight_Character::GetisNearGround()
+{
+	return Super::GetisNearGround();
+}

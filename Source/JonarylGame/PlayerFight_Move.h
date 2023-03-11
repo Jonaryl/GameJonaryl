@@ -69,7 +69,6 @@ public:
 
 	//void MoveForward(float Value);
 	void MoveForward(const FInputActionValue& Value);
-	void dddddMoveForward(const FInputActionValue& Value);
 	void TurnCamera(const FInputActionValue& Value);
 	void StartMoving();
 	void StopMoving();
@@ -138,10 +137,12 @@ protected:
 
 	virtual float GetSpeed();
 	virtual bool GetisIdle();
+	virtual bool GetisNearGround();
 
 	bool isStartJump;
 	bool isIdleJump;
 	bool isDashJump;
+	bool isNearGround;
 
 	bool isIdle;
 };

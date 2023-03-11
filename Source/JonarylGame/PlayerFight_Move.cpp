@@ -120,13 +120,7 @@ void APlayerFight_Move::Landed(const FHitResult& Hit)
     // Votre code ici pour détecter que le personnage touche le sol
 }
 
-//  void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
-void APlayerFight_Move::dddddMoveForward(const FInputActionValue& Value)
-{
-    UE_LOG(LogTemp, Warning, TEXT("s ndhdehjd ededdcc"));
-}
 
-//  void APlayerFight_Move::dddddMoveForward(const FInputActionValue& Value)
 void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
 {
     FVector2D CurrentValue = Value.Get<FVector2D>();
@@ -222,5 +216,9 @@ float APlayerFight_Move::GetSpeed()
 bool APlayerFight_Move::GetisIdle()
 {
     return isIdle;
+}
+bool APlayerFight_Move::GetisNearGround()
+{
+    return isNearGround;
 }
 

@@ -21,5 +21,6 @@ public:
 	bool GetisIdleJump() override;
 	bool GetisDashJump() override;
 	bool GetisIdle() override;
+	bool GetisNearGround() override;
 	
 };

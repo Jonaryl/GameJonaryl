@@ -41,6 +41,8 @@ protected:
 		bool isIdleJump;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isDashJump;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isNearGround;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")

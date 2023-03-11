@@ -23,6 +23,34 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
     
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump || CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump)
+    {
+        /////////////////// raycast ///////////////////////////////////////////////////////// 
+
+        float GroundCheckDistance = 3000.0f;
+        FVector StartLocation = GetActorLocation();
+        FVector EndLocation = StartLocation - FVector(0.0f, 0.0f, GroundCheckDistance);
+        FHitResult HitResult;
+        FCollisionQueryParams QueryParams;
+        QueryParams.AddIgnoredActor(this);
+
+        DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
+        bool bIsGrounded = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams);
+
+        if (bIsGrounded)
+        {
+            float DistanceToGround = HitResult.Distance;
+            if (DistanceToGround < 150)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("raycast %f"), DistanceToGround);
+                isNearGround = true;
+                isDashJump = false;
+                //SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
+            }
+        }
+        /////////////////// raycast ///////////////////////////////////////////////////////// 
+    }
+
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
     {
         int sens = 1;
@@ -48,28 +76,6 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 
         const FVector force = (upvector * jumpSpeed) + (forwardVector * forwardSpeed) + (worldMoveVector * 1000);
 
-        /////////////////// raycast ///////////////////////////////////////////////////////// 
-
-        float GroundCheckDistance = 300.0f;
-        FVector StartLocation = GetActorLocation();
-        FVector EndLocation = StartLocation - FVector(0.0f, 0.0f, GroundCheckDistance);
-        FHitResult HitResult;
-        FCollisionQueryParams QueryParams;
-        QueryParams.AddIgnoredActor(this);
-
-        //DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
-        bool bIsGrounded = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams);
-
-        if (bIsGrounded)
-        {
-            float DistanceToGround = HitResult.Distance;
-            if (DistanceToGround < 120)
-            {
-               // UE_LOG(LogTemp, Warning, TEXT("raycast - 120"));
-                //SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
-            }
-        }
-        /////////////////// raycast ///////////////////////////////////////////////////////// 
 
         PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
 
@@ -121,6 +127,7 @@ void APlayerFight_Actions::ABtnAction()
     {
         //UE_LOG(LogTemp, Warning, TEXT(" Jump action = %d"), CurrentState);
         jumpSpeed = 2400000.0f;
+        jumpSpeed = 5400000.0f;
         if (FMath::Abs(XMoveDirection) + FMath::Abs(YMoveDirection) > 0.0f)
         {
             forwardSpeed = 180000.0f;
@@ -138,6 +145,7 @@ void APlayerFight_Actions::ABtnAction()
             //UE_LOG(LogTemp, Error, TEXT("Jump"));
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump);
             isStartJump = true;
+            isNearGround = false;
         }
         else {
             UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
@@ -145,19 +153,24 @@ void APlayerFight_Actions::ABtnAction()
     }
     else if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump || CurrentState == APlayerFight_States::EPlayerFight_State::Jump)
     {
-        //UE_LOG(LogTemp, Warning, TEXT(" CurrentState IdleJump = %d"), CurrentState);
-        jumpSpeed = 3600000.0f;
- 
-        forwardSpeed = 0.0f;
-
-        if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement())
+        if (isNearGround == false)
         {
-            UE_LOG(LogTemp, Warning, TEXT(" CurrentState PlayerController = %d"), CurrentState);
-            UE_LOG(LogTemp, Error, TEXT("DashJump"));
-            SetCharacterState(APlayerFight_States::EPlayerFight_State::DashJump);
-        }
-        else {
-            UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
+            //UE_LOG(LogTemp, Warning, TEXT(" CurrentState IdleJump = %d"), CurrentState);
+            jumpSpeed = 3600000.0f;
+ 
+            forwardSpeed = 0.0f;
+
+            if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement())
+            {
+                UE_LOG(LogTemp, Warning, TEXT(" CurrentState PlayerController = %d"), CurrentState);
+                UE_LOG(LogTemp, Error, TEXT("DashJump"));
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::DashJump);
+                isDashJump = true;
+                isStartJump = false;
+            }
+            else {
+                UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
+            }
         }
     }
 }
