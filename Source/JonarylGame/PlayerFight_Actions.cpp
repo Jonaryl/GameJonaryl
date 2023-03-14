@@ -39,10 +39,17 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 
         if (bIsGrounded)
         {
-            float DistanceToGround = HitResult.Distance;
+            float oldDistanceToGround = DistanceToGround;
+            DistanceToGround = HitResult.Distance;
+
+            if (DistanceToGround < oldDistanceToGround)
+            {
+                isIdleJump = true;
+            }
+            
             if (DistanceToGround < 150)
             {
-                UE_LOG(LogTemp, Warning, TEXT("raycast %f"), DistanceToGround);
+                //UE_LOG(LogTemp, Warning, TEXT("raycast %f"), DistanceToGround);
                 isNearGround = true;
                 isDashJump = false;
                 //SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
@@ -97,7 +104,6 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         else {
             jumpSpeed = 0.0f;
             isStartJump = false;
-            isIdleJump = true;
             SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump);
         }
     }

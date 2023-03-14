@@ -32,6 +32,7 @@ protected:
 	virtual void BeginPlay() override;
 	float jumpSpeed;
 	float forwardSpeed;
+	float DistanceToGround;
 
 	virtual void ABtnAction() override;
 	//virtual void BButton() override;
