@@ -7,9 +7,9 @@
 /**
  * 
  */
-class JONARYLGAME_API del04
+class JONARYLGAME_API del05
 {
 public:
-	del04();
-	~del04();
+	del05();
+	~del05();
 };

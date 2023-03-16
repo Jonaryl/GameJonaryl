@@ -2,6 +2,7 @@
 
 
 #include  "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "PlayerFight_Actions.h"
 
 APlayerFight_Actions::APlayerFight_Actions()
@@ -22,8 +23,13 @@ void APlayerFight_Actions::BeginPlay()
 void APlayerFight_Actions::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    
-    if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump || CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump)
+
+    if (CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
+        ActionTurn(false);
+
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump || CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump 
+        || CurrentState == APlayerFight_States::EPlayerFight_State::Idle && isNearGround == false
+        || CurrentState == APlayerFight_States::EPlayerFight_State::Run && isNearGround == false)
     {
         /////////////////// raycast ///////////////////////////////////////////////////////// 
 
@@ -42,17 +48,15 @@ void APlayerFight_Actions::Tick(float DeltaTime)
             float oldDistanceToGround = DistanceToGround;
             DistanceToGround = HitResult.Distance;
 
-            if (DistanceToGround < oldDistanceToGround)
+            if (DistanceToGround < oldDistanceToGround && DistanceToGround > 150)
             {
                 isIdleJump = true;
             }
             
             if (DistanceToGround < 150)
             {
-                //UE_LOG(LogTemp, Warning, TEXT("raycast %f"), DistanceToGround);
                 isNearGround = true;
                 isDashJump = false;
-                //SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle);
             }
         }
         /////////////////// raycast ///////////////////////////////////////////////////////// 
@@ -64,7 +68,7 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
         {
             sens = -1;
-            forwardSpeed = 5000;
+            forwardSpeed = 500000;
         }
 
         const FVector upvector = GetActorUpVector() * sens;
@@ -93,18 +97,28 @@ void APlayerFight_Actions::Tick(float DeltaTime)
             if (forwardSpeed != 0)
                 forwardSpeed = 90000.0f;
         }
+        else if (loopTurn < 4 && CurrentState == APlayerFight_States::EPlayerFight_State::DashJump && FMath::Abs(XMoveDirection) + FMath::Abs(YMoveDirection) != 0.0f)
+        {
+            loopTurn++;
+            ActionTurn(true);
+
+        }
         else if (jumpSpeed > 0.0f) 
         {
             jumpSpeed -= 50000.0f * GetWorld()->GetDeltaSeconds();
             if (forwardSpeed != 0 && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
                 forwardSpeed -= 50000.0f * GetWorld()->GetDeltaSeconds();
-            else if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
-                forwardSpeed -= 5000.0f * GetWorld()->GetDeltaSeconds();
+            //else if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+            //    forwardSpeed -= 5000.0f * GetWorld()->GetDeltaSeconds();
         }
         else {
             jumpSpeed = 0.0f;
-            isStartJump = false;
-            SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump);
+
+            if (isStartJump == true)
+            {
+                isStartJump = false;
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.8f);
+            }
         }
     }
 }
@@ -112,22 +126,11 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 void APlayerFight_Actions::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    if (EnhancedInputComponent)
-    {
-        //EnhancedInputComponent->BindAction(ABtn, ETriggerEvent::Triggered, this, &APlayerFight_Actions::ABtnAction); // space
-        //EnhancedInputComponent->BindAction(BBtn, ETriggerEvent::Triggered, this, &APlayerFight_Actions::BButton); // A
-        //EnhancedInputComponent->BindAction(XBtn, ETriggerEvent::Triggered, this, &APlayerFight_Actions::XButton); // E
-        //EnhancedInputComponent->BindAction(YBtn, ETriggerEvent::Triggered, this, &APlayerFight_Actions::YButton); // R
-
-    }
 }
 
 
 void APlayerFight_Actions::ABtnAction()
 {
-    //UE_LOG(LogTemp, Warning, TEXT(" CurrentState action = %d"), CurrentState);
-
     if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump && 
         CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
     {
@@ -149,7 +152,8 @@ void APlayerFight_Actions::ABtnAction()
             XMoveDirection = 0.0f;
             YMoveDirection = 0.0f;
             //UE_LOG(LogTemp, Error, TEXT("Jump"));
-            SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump);
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump, 0.0f);
+            UE_LOG(LogTemp, Warning, TEXT("Jump "));
             isStartJump = true;
             isNearGround = false;
         }
@@ -168,9 +172,9 @@ void APlayerFight_Actions::ABtnAction()
 
             if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement())
             {
-                UE_LOG(LogTemp, Warning, TEXT(" CurrentState PlayerController = %d"), CurrentState);
                 UE_LOG(LogTemp, Error, TEXT("DashJump"));
-                SetCharacterState(APlayerFight_States::EPlayerFight_State::DashJump);
+                loopTurn = 0;
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::DashJump, 0.0f);
                 isDashJump = true;
                 isStartJump = false;
             }
@@ -179,6 +183,44 @@ void APlayerFight_Actions::ABtnAction()
             }
         }
     }
+}
+
+
+void APlayerFight_Actions::BBtnAction()
+{
+    UE_LOG(LogTemp, Warning, TEXT(" isStartJump = %s"), isStartJump ? TEXT("True") : TEXT("False")); 
+    UE_LOG(LogTemp, Warning, TEXT(" isIdleJump = %s"), isIdleJump ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Warning, TEXT(" isDashJump = %s"), isDashJump ? TEXT("True") : TEXT("False"));  
+    UE_LOG(LogTemp, Warning, TEXT(" isNearGround = %s"), isNearGround ? TEXT("True") : TEXT("False")); 
+
+
+}
+
+void APlayerFight_Actions::ActionTurn(bool canTurn)
+{
+    FVector Direction = FVector(XMoveDirection, -YMoveDirection, 0.0f);
+
+    FRotator CamRotation = FollowCamera->GetComponentRotation();
+    Direction = CamRotation.RotateVector(Direction);
+    Direction.Z = 0.0f;
+
+    FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * 500) * GetWorld()->DeltaTimeSeconds);
+
+    FVector DirectionToTarget = TargetLocation - GetActorLocation();
+    DirectionToTarget.Normalize();
+
+    const FVector WorldUp(0.0f, 0.0f, 1.0f);
+
+    FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
+
+    FVector CurrentLocation = GetActorLocation();
+    FRotator ActionTurnTargetRotations = (TargetLocation - CurrentLocation).Rotation();
+ 
+    if (canTurn == true)
+    {
+        SetActorRotation(ActionTurnTargetRotations);
+    }
+
 }
 
 

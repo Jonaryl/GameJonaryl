@@ -26,6 +26,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void ActionTurn(bool isRotation);
+	FRotator ActionTurnTargetRotation;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,8 +35,10 @@ protected:
 	float jumpSpeed;
 	float forwardSpeed;
 	float DistanceToGround;
+	int loopTurn;
 
 	virtual void ABtnAction() override;
+	virtual void BBtnAction() override;
 	//virtual void BButton() override;
 	//virtual void XButton() override;
 	//virtual void YButton() override;

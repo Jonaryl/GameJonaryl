@@ -18,7 +18,7 @@
 #include "EnhancedInputComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Components/InputComponent.h"
-
+#include "TimerManager.h"
 
 #include "inputActionValue.h"
 
@@ -81,7 +81,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetCharacterState(APlayerFight_States::EPlayerFight_State NewState);
+	virtual void SetCharacterState(APlayerFight_States::EPlayerFight_State NewState, float Time);
+	virtual void ChangeCharacterState(APlayerFight_States::EPlayerFight_State NewState);
+	//virtual void ChangeCharacterState(void* NewStatePtr);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputMappingContext* PlayerMappingContext;
@@ -131,6 +133,7 @@ protected:
 
 
 	virtual void ABtnAction();
+	virtual void BBtnAction();
 	//virtual void BButton();
 	//virtual void XButton();
 	//virtual void YButton();
