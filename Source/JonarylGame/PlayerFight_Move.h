@@ -122,6 +122,7 @@ protected:
 
 	APlayerController* PlayerController;
 	UEnhancedInputComponent* EnhancedInputComponent;
+	UPrimitiveComponent* PlayerMesh;
 	bool isMoveInput;
 
 	float XMoveDirection;
@@ -131,9 +132,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TEST")
 		UStaticMeshComponent* MyMeshTest;
 
+	bool canDash = true;
+	bool bIsGrounded;
+	virtual void CancelGravity();
+	virtual void ActivateGravity();
 
 	virtual void ABtnAction();
 	virtual void BBtnAction();
+
+	virtual void RBBtnAction();
 	//virtual void BButton();
 	//virtual void XButton();
 	//virtual void YButton();
@@ -145,7 +152,9 @@ protected:
 	bool isStartJump;
 	bool isIdleJump;
 	bool isDashJump;
+	bool isDash;
 	bool isNearGround;
+
 
 	bool isIdle;
 };

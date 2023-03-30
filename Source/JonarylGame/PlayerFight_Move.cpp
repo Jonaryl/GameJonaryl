@@ -38,6 +38,7 @@ void APlayerFight_Move::BeginPlay()
     Super::BeginPlay();
 
     PlayerController = Cast<APlayerController>(GetController());
+    PlayerMesh = Cast<UPrimitiveComponent>(PlayerController->GetCharacter()->GetMesh());
     //PlayerMesh = Cast<UStaticMeshComponent>(GetOwner()->GetRootComponent());
     //PlayerMesh = PlayerController->GetComponentByClass(UStaticMeshComponent::StaticClass());
 
@@ -66,6 +67,8 @@ void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
         EnhancedInputComponent->BindAction(ABtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::ABtnAction);
         EnhancedInputComponent->BindAction(BBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::BBtnAction);
+
+        EnhancedInputComponent->BindAction(RBBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::RBBtnAction);  
     }
 
 }
@@ -73,7 +76,7 @@ void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void APlayerFight_Move::StartMoving()
 {
     if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump 
-        && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
+        && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
     {
         SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
         //UE_LOG(LogTemp, Warning, TEXT("StartMoving %d"), CurrentState);
@@ -122,6 +125,8 @@ void APlayerFight_Move::Landed(const FHitResult& Hit)
     isStartJump = false;
     isIdleJump = false;
     isDashJump = false;
+    isDash = false;
+    canDash = true;
     //UE_LOG(LogTemp, Warning, TEXT("Landed"));
     // Votre code ici pour détecter que le personnage touche le sol
 }
@@ -136,7 +141,7 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
     YMoveDirection = YValue;
 
     if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
+        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
     {
         isMoveInput = true;
 
@@ -203,7 +208,7 @@ void APlayerFight_Move::ChangeCharacterState(APlayerFight_States::EPlayerFight_S
     //UE_LOG(LogTemp, Warning, TEXT("02 avant CurrentState = %d"), CurrentState);
     //APlayerFight_States::EPlayerFight_State NewState = static_cast<APlayerFight_States::EPlayerFight_State>(reinterpret_cast<uintptr_t>(NewStatePtr));
     CurrentState = NewState;
-    //UE_LOG(LogTemp, Warning, TEXT("03 change d'etat CurrentState = %d"), CurrentState);
+    UE_LOG(LogTemp, Warning, TEXT("03 change d'etat CurrentState = %d"), CurrentState);
 }
 
 
@@ -221,12 +226,29 @@ void APlayerFight_Move::SetCharacterState(APlayerFight_States::EPlayerFight_Stat
 
 }
 
+void APlayerFight_Move::CancelGravity()
+{   
+    //const FVector upvector = GetActorUpVector();
+   // const FVector force = (upvector * 200000.0f);
+    //PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force); 
+    //GetCharacterMovement()->GravityScale = 0.f;
+    PlayerController->GetCharacter()->GetCharacterMovement()->StopMovementImmediately();
+    PlayerController->GetCharacter()->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+}
+void APlayerFight_Move::ActivateGravity() 
+{   
+    GetCharacterMovement()->GravityScale = 1.0f; 
+}
+
 //void APlayerFight_Move::BButton() {} 
 //void APlayerFight_Move::XButton() {}
 //void APlayerFight_Move::YButton() {}
 
+
 void APlayerFight_Move::ABtnAction(){}
 void APlayerFight_Move::BBtnAction(){}
+
+void APlayerFight_Move::RBBtnAction(){}
 
 
 

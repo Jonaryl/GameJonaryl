@@ -25,6 +25,10 @@ bool APlayerFight_Character::GetisDashJump()
 {
 	return Super::GetisDashJump();
 }
+bool APlayerFight_Character::GetisDash()
+{
+	return Super::GetisDash();
+}
 
 
 bool APlayerFight_Character::GetisIdle()

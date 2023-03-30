@@ -44,6 +44,7 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isStartJump = playerClass->GetisStartJump();
 	isIdleJump = playerClass->GetisIdleJump();
 	isDashJump = playerClass->GetisDashJump();
+	isDash = playerClass->GetisDash();
 	isNearGround = playerClass->GetisNearGround();
 	isIdle = playerClass->GetisIdle();
 }

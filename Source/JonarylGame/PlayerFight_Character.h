@@ -20,6 +20,7 @@ public:
 	bool GetisStartJump() override;
 	bool GetisIdleJump() override;
 	bool GetisDashJump() override;
+	bool GetisDash() override;
 	bool GetisIdle() override;
 	bool GetisNearGround() override;
 	
