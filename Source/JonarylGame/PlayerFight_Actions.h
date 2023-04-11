@@ -32,13 +32,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void CancelGravity() override;
+	virtual void ActivateGravity() override;
 	float jumpSpeed;
 	float forwardSpeed;
+	float dashSpeed;
 	float DistanceToGround;
 	int loopTurn;
 
 	virtual void ABtnAction() override;
 	virtual void BBtnAction() override;
+
+	virtual void RBBtnAction() override;
 	//virtual void BButton() override;
 	//virtual void XButton() override;
 	//virtual void YButton() override;
@@ -47,6 +52,7 @@ protected:
 	virtual bool GetisStartJump();
 	virtual bool GetisIdleJump();
 	virtual bool GetisDashJump();
+	virtual bool GetisDash();
 
 	
 };
