@@ -47,4 +47,36 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isDash = playerClass->GetisDash();
 	isNearGround = playerClass->GetisNearGround();
 	isIdle = playerClass->GetisIdle();
+	isSprint = playerClass->GetisSprint();
+	isAttacking = playerClass->GetisAttacking();
+	isStrongAttacking = playerClass->GetisStrongAttacking();
+	currentCombo = playerClass->GetcurrentCombo();
+
+	isCounterStance = playerClass->GetisCounterStance();
+	isCounter = playerClass->GetisCounter();
+	isCounterLeft = playerClass->GetisCounterLeft();
+
+	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
+	}
+
+
+void UPlayerFIght_Animation::CanAttackEvent_Implementation()
+{
+	playerClass->CanAttack();
+}
+void UPlayerFIght_Animation::EndCombo_Implementation()
+{
+	playerClass->EndCombo();
+}
+void UPlayerFIght_Animation::FinalComboAttack_Implementation()
+{
+	playerClass->FinalComboAttack();
+}
+void UPlayerFIght_Animation::CanCounterStanceEvent_Implementation()
+{
+	playerClass->CanCounterStance();
+}
+void UPlayerFIght_Animation::EndCounterStanceEvent_Implementation()
+{
+	playerClass->EndCounterStance();
 }

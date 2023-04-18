@@ -41,7 +41,7 @@ protected:
 	int loopTurn;
 
 	virtual void ABtnAction() override;
-	virtual void BBtnAction() override;
+	virtual void DebugBtnAction() override;
 
 	virtual void RBBtnAction() override;
 	//virtual void BButton() override;

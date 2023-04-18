@@ -19,6 +19,7 @@ public:
     {
         Idle,
         Run,
+        Sprint,
         SuperRun,
         Jump,
         IdleJump,

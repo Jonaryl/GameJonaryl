@@ -101,7 +101,16 @@ void APlayerFight_Actions::Tick(float DeltaTime)
                     forwardSpeed -= 5000000.0f * GetWorld()->GetDeltaSeconds();
                 else
                 {
-                    SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+                    UE_LOG(LogTemp, Warning, TEXT(" isMoveInput = %s"), isMoveInput ? TEXT("True") : TEXT("False"));
+                    UE_LOG(LogTemp, Warning, TEXT(" isSprintInput = %s"), isSprintInput ? TEXT("True") : TEXT("False"));
+
+                    if (isSprintInput == true && isMoveInput == true)
+                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
+                    else if (isSprintInput == false && isMoveInput == true)
+                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+                    else
+                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+
                     isDash = false;
                     canDash = true;
                     forwardSpeed = 0;
@@ -118,8 +127,10 @@ void APlayerFight_Actions::Tick(float DeltaTime)
                 else
                 {
                     UE_LOG(LogTemp, Warning, TEXT(" bIsGrounded = %s"), bIsGrounded ? TEXT("True") : TEXT("False"));
-                    if(bIsGrounded)
-                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+                    if (bIsGrounded)
+                    {
+                         SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+                    }
                     else
                     {
                         SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.0f);
@@ -233,13 +244,15 @@ void APlayerFight_Actions::ABtnAction()
 }
 
 
-void APlayerFight_Actions::BBtnAction()
+void APlayerFight_Actions::DebugBtnAction()
 {
     UE_LOG(LogTemp, Warning, TEXT(" isStartJump = %s"), isStartJump ? TEXT("True") : TEXT("False")); 
     UE_LOG(LogTemp, Warning, TEXT(" isIdleJump = %s"), isIdleJump ? TEXT("True") : TEXT("False"));
     UE_LOG(LogTemp, Warning, TEXT(" isDashJump = %s"), isDashJump ? TEXT("True") : TEXT("False"));  
     UE_LOG(LogTemp, Warning, TEXT(" isDash = %s"), isDash ? TEXT("True") : TEXT("False"));  
     UE_LOG(LogTemp, Warning, TEXT(" isNearGround = %s"), isNearGround ? TEXT("True") : TEXT("False"));  
+    UE_LOG(LogTemp, Warning, TEXT(" isSprint = %s"), isSprint ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Warning, TEXT(" isSprintInput = %s"), isSprintInput ? TEXT("True") : TEXT("False"));
     UE_LOG(LogTemp, Warning, TEXT(" currentState = %d"), CurrentState ); 
 
 }

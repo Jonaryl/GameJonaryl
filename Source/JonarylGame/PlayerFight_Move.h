@@ -101,8 +101,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputAction* YBtn;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputAction* RBBtn;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* RBBtnHold;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* RBBtnEnd;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputAction* LBBtn;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -117,13 +123,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputAction* LeftBtn;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-		UInputAction* RightBtn;
+		UInputAction* RightBtn;	
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* DebugBtn;
 
 
 	APlayerController* PlayerController;
 	UEnhancedInputComponent* EnhancedInputComponent;
 	UPrimitiveComponent* PlayerMesh;
 	bool isMoveInput;
+	bool isSprintInput;
 
 	float XMoveDirection;
 	float YMoveDirection;
@@ -139,14 +150,22 @@ protected:
 
 	virtual void ABtnAction();
 	virtual void BBtnAction();
+	virtual void XBtnAction();
+	virtual void YBtnAction();
 
 	virtual void RBBtnAction();
+	virtual void RBBtnActionHold();
+	virtual void RBBtnActionEnd();
+
+
+	virtual void DebugBtnAction();
 	//virtual void BButton();
 	//virtual void XButton();
 	//virtual void YButton();
 
 	virtual float GetSpeed();
 	virtual bool GetisIdle();
+	virtual bool GetisSprint();
 	virtual bool GetisNearGround();
 
 	bool isStartJump;
@@ -154,6 +173,7 @@ protected:
 	bool isDashJump;
 	bool isDash;
 	bool isNearGround;
+	bool isSprint;
 
 
 	bool isIdle;
