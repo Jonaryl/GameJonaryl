@@ -29,6 +29,17 @@ protected:
 
 	void UpdateAnimProperties();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void CanAttackEvent();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndCombo();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void FinalComboAttack();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void CanCounterStanceEvent();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndCounterStanceEvent();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
 		APlayerFight_Character* playerClass;
 
@@ -45,6 +56,22 @@ protected:
 		bool isDash;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isNearGround;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isSprint;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isAttacking;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isStrongAttacking;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int currentCombo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterStance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounter;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterLeft;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")

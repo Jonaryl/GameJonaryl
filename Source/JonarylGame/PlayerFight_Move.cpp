@@ -67,16 +67,25 @@ void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
         EnhancedInputComponent->BindAction(ABtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::ABtnAction);
         EnhancedInputComponent->BindAction(BBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::BBtnAction);
+        EnhancedInputComponent->BindAction(XBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::XBtnAction);
+        EnhancedInputComponent->BindAction(YBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::YBtnAction);
 
         EnhancedInputComponent->BindAction(RBBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::RBBtnAction);  
+        EnhancedInputComponent->BindAction(RBBtnHold, ETriggerEvent::Ongoing, this, &APlayerFight_Move::RBBtnActionHold); 
+        EnhancedInputComponent->BindAction(RBBtnEnd, ETriggerEvent::Triggered, this, &APlayerFight_Move::RBBtnActionEnd); 
+
+
+        EnhancedInputComponent->BindAction(DebugBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::DebugBtnAction);
     }
 
 }
 
 void APlayerFight_Move::StartMoving()
 {
-    if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump 
-        && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+    if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
     {
         SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
         //UE_LOG(LogTemp, Warning, TEXT("StartMoving %d"), CurrentState);
@@ -140,7 +149,9 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
     XMoveDirection = XValue;
     YMoveDirection = YValue;
 
-    if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
+    if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump  &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
         CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
     {
         isMoveInput = true;
@@ -168,7 +179,14 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                 Direction = CamRotation.RotateVector(Direction);
                 Direction.Z = 0.0f;
 
-                FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+                float sprintSpeed = 1.0;
+                if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint)
+                {
+                    isSprint = true;
+                    sprintSpeed = 2.0f;
+                }
+
+                FVector TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
 
                 FVector DirectionToTarget = TargetLocation - GetActorLocation();
                 DirectionToTarget.Normalize();
@@ -247,8 +265,38 @@ void APlayerFight_Move::ActivateGravity()
 
 void APlayerFight_Move::ABtnAction(){}
 void APlayerFight_Move::BBtnAction(){}
+void APlayerFight_Move::XBtnAction(){}
+void APlayerFight_Move::YBtnAction(){}
 
 void APlayerFight_Move::RBBtnAction(){}
+void APlayerFight_Move::DebugBtnAction(){}
+
+
+void APlayerFight_Move::RBBtnActionHold()
+{
+    isSprintInput = true;
+    if (isMoveInput == true && CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+        isMoveInput == true && CurrentState == APlayerFight_States::EPlayerFight_State::Sprint)
+    {
+        SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
+        isSprint = true;
+        UE_LOG(LogTemp, Warning, TEXT("isSprint isSprint isSprint isSprint = true"));
+    }
+    UE_LOG(LogTemp, Warning, TEXT("isSprintInput = true"));
+}
+
+void APlayerFight_Move::RBBtnActionEnd()
+{
+    isSprintInput = false;
+    if (isMoveInput == true && CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+        isMoveInput == true && CurrentState == APlayerFight_States::EPlayerFight_State::Sprint)
+    {
+        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+        UE_LOG(LogTemp, Warning, TEXT("isSprint isSprint isSprint isSprint = false"));
+    }
+    isSprint = false;
+    UE_LOG(LogTemp, Warning, TEXT("isSprintInput = false"));
+}
 
 
 
@@ -260,6 +308,10 @@ float APlayerFight_Move::GetSpeed()
 bool APlayerFight_Move::GetisIdle()
 {
     return isIdle;
+}
+bool APlayerFight_Move::GetisSprint()
+{
+    return isSprint;
 }
 bool APlayerFight_Move::GetisNearGround()
 {
