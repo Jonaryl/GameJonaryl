@@ -21,6 +21,7 @@ void APlayerFight_Attacks::BeginPlay()
 	canCounterStance = true;
 	canCounter = false;
 
+	dashNumber = 0;
 }
 
 void APlayerFight_Attacks::Tick(float DeltaTime)
@@ -76,6 +77,16 @@ void APlayerFight_Attacks::XBtnAction()
 			isStrongAttacking = false;
 			SetCharacterState(APlayerFight_States::EPlayerFight_State::Attack, 0.0f);
 
+			if (currentCombo == 1)
+			{
+				AttackOneNumber++;
+				if (AttackOneNumber == 4)
+					AttackOneNumber = 1;
+			}
+			else
+				AttackOneNumber = 0;
+
+			UE_LOG(LogTemp, Warning, TEXT("XBtnAction AttackOneNumber %d"), AttackOneNumber);
 			//UE_LOG(LogTemp, Warning, TEXT("XBtnAction %d"), currentCombo);
 			//UE_LOG(LogTemp, Warning, TEXT("XBtnAction currentCombo %d"), currentCombo);
 			//UE_LOG(LogTemp, Warning, TEXT("XBtnAction currentAttack %d"), currentAttack);
@@ -102,6 +113,16 @@ void APlayerFight_Attacks::YBtnAction()
 				canAttack = false;
 				SetCharacterState(APlayerFight_States::EPlayerFight_State::Attack, 0.0f);
 
+				if (currentCombo == 1)
+				{
+					AttackOneNumber++;
+					if (AttackOneNumber == 4)
+						AttackOneNumber = 1;
+				}
+				else
+					AttackOneNumber = 0;
+
+				UE_LOG(LogTemp, Warning, TEXT("YBtnAction AttackOneNumber %d"), AttackOneNumber);
 				//UE_LOG(LogTemp, Warning, TEXT("YBtnAction %d"), currentCombo);
 				//UE_LOG(LogTemp, Warning, TEXT("YBtnAction currentCombo %d"), currentCombo);
 				//UE_LOG(LogTemp, Warning, TEXT("YBtnAction currentAttack %d"), currentAttack);
@@ -122,6 +143,13 @@ void APlayerFight_Attacks::BBtnAction()
 		isCounterStance = true;
 		UE_LOG(LogTemp, Warning, TEXT(" BBtnAction isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 	}
+}
+
+void APlayerFight_Attacks::DebugBtnAction()
+{
+	Super::DebugBtnAction();
+	UE_LOG(LogTemp, Warning, TEXT(" currentCombo = %d"), currentCombo);
+
 }
 
 bool APlayerFight_Attacks::GetisAttacking()

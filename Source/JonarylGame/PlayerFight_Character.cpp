@@ -26,6 +26,10 @@ bool APlayerFight_Character::GetisDash()
 {
 	return Super::GetisDash();
 }
+int APlayerFight_Character::GetdashNumber()
+{
+	return Super::GetdashNumber();
+}
 
 bool APlayerFight_Character::GetisSprint()
 {
@@ -53,6 +57,10 @@ int APlayerFight_Character::GetcurrentCombo()
 {
 	return Super::GetcurrentCombo();
 }
+int APlayerFight_Character::GetAttackOneNumber()
+{
+	return AttackOneNumber;
+}
 
 bool APlayerFight_Character::GetisCounterStance()
 {
@@ -75,7 +83,7 @@ void APlayerFight_Character::CanAttack()
 		canAttack = true;
 
 	currentAttack++;
-	if (currentAttack == 6)
+	if (currentAttack == 6 && currentCombo != 6 || currentAttack == 7)
 		currentAttack = 1;
 
 	UE_LOG(LogTemp, Warning, TEXT(" CanAttack canAttack = %s"), canAttack ? TEXT("True") : TEXT("False"));
@@ -86,6 +94,7 @@ void APlayerFight_Character::FinalComboAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("FinalComboAttack"));
 	canFinalComboAttack = false;
+	canAttack = false;
 }
 
 void APlayerFight_Character::EndCombo()
@@ -134,6 +143,15 @@ void APlayerFight_Character::CanCounterStanceMethod()
 		SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
 	else
 		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+}
+void APlayerFight_Character::ResetEvent()
+{
+	dashNumber = 0;
+}
+void APlayerFight_Character::ResetEventMethod()
+{
+	dashNumber = 0;
+
 }
 
 

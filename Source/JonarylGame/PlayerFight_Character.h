@@ -22,6 +22,7 @@ public:
 	bool GetisIdleJump() override;
 	bool GetisDashJump() override;
 	bool GetisDash() override;
+	int GetdashNumber() override;
 	bool GetisIdle() override;
 	bool GetisSprint() override;
 	bool GetisNearGround() override;
@@ -29,6 +30,7 @@ public:
 	bool GetisAttacking() override;
 	bool GetisStrongAttacking() override;
 	int GetcurrentCombo() override;
+	int GetAttackOneNumber();
 	
 	bool GetisCounterStance() override;
 	bool GetisCounter() override;
@@ -40,9 +42,12 @@ public:
 	void FinalComboAttack();
 
 	void CanCounterStance();
-	void EndCounterStance();
 	void CanCounterStanceMethod();
+	void EndCounterStance();
 	void EndCounterStanceMethod();
+
+	void ResetEvent();
+	void ResetEventMethod();
 
 	void CanCounter();
 	void EndCounter();

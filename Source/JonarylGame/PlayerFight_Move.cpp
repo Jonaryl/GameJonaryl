@@ -129,7 +129,10 @@ void APlayerFight_Move::Landed(const FHitResult& Hit)
 {
     Super::Landed(Hit);
     UE_LOG(LogTemp, Warning, TEXT("Landed %d"), CurrentState);
-    SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.30f);
+    if(isMoveInput == true)
+        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.30f);
+    else
+        SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.30f);
     UE_LOG(LogTemp, Warning, TEXT("Landed après %d"), CurrentState);
     isStartJump = false;
     isIdleJump = false;
@@ -149,12 +152,13 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
     XMoveDirection = XValue;
     YMoveDirection = YValue;
 
-    if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump  &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
+    if (CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
         CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
         CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
     {
         isMoveInput = true;
+        if (CurrentState == APlayerFight_States::EPlayerFight_State::Idle)
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
 
         if (CurrentValue.IsNearlyZero()) 
         {
@@ -186,7 +190,13 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                     sprintSpeed = 2.0f;
                 }
 
-                FVector TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+                FVector TargetLocation;
+                if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+                    CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+                    TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+                else
+                    TargetLocation = GetActorLocation() + (Direction * ((runSpeed /1.5) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+
 
                 FVector DirectionToTarget = TargetLocation - GetActorLocation();
                 DirectionToTarget.Normalize();
@@ -195,7 +205,13 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
 
                 FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
 
-                FQuat InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
+                FQuat InterpolatedRotation;
+                if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+                    CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+                    InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
+                else
+                    InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed/10);
+
                 SetActorRotation(InterpolatedRotation.Rotator());
 
                 MyMeshTest->SetRelativeLocation(TargetLocation);
@@ -258,10 +274,6 @@ void APlayerFight_Move::ActivateGravity()
     GetCharacterMovement()->GravityScale = 1.0f; 
 }
 
-//void APlayerFight_Move::BButton() {} 
-//void APlayerFight_Move::XButton() {}
-//void APlayerFight_Move::YButton() {}
-
 
 void APlayerFight_Move::ABtnAction(){}
 void APlayerFight_Move::BBtnAction(){}
@@ -280,9 +292,7 @@ void APlayerFight_Move::RBBtnActionHold()
     {
         SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
         isSprint = true;
-        UE_LOG(LogTemp, Warning, TEXT("isSprint isSprint isSprint isSprint = true"));
     }
-    UE_LOG(LogTemp, Warning, TEXT("isSprintInput = true"));
 }
 
 void APlayerFight_Move::RBBtnActionEnd()
@@ -292,10 +302,8 @@ void APlayerFight_Move::RBBtnActionEnd()
         isMoveInput == true && CurrentState == APlayerFight_States::EPlayerFight_State::Sprint)
     {
         SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
-        UE_LOG(LogTemp, Warning, TEXT("isSprint isSprint isSprint isSprint = false"));
     }
     isSprint = false;
-    UE_LOG(LogTemp, Warning, TEXT("isSprintInput = false"));
 }
 
 

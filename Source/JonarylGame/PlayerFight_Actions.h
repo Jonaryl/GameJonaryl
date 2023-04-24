@@ -39,6 +39,7 @@ protected:
 	float dashSpeed;
 	float DistanceToGround;
 	int loopTurn;
+	int dashNumber;
 
 	virtual void ABtnAction() override;
 	virtual void DebugBtnAction() override;
@@ -53,7 +54,12 @@ protected:
 	virtual bool GetisIdleJump();
 	virtual bool GetisDashJump();
 	virtual bool GetisDash();
+	virtual int GetdashNumber();
 
+private:
+		void JumpAction();
+		void JumpDown();
+		void DashAction();
 	
 };
 

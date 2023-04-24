@@ -30,9 +30,12 @@ protected:
 	virtual void YBtnAction() override;
 	virtual void BBtnAction() override;
 
+	void DebugBtnAction() override;
+
 
 	int currentCombo;
 	int currentAttack;
+	int AttackOneNumber;
 
 	bool isAttacking;
 	bool isStrongAttacking;
