@@ -24,15 +24,73 @@ void APlayerFight_Actions::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-
-    if (CurrentState != APlayerFight_States::EPlayerFight_State::DashJump  && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump) 
+    {
+        loopTurn++;
+        JumpAction();
         ActionTurn(false);
+        if (loopTurn == 25)
+        {
+            isStartJump = false;
+            isIdleJump = true;
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.0f);
+            CancelGravity();
+        }
+    }
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump && loopTurn >= 0)
+    {
+        loopTurn--;
+        JumpDown();
+        ActionTurn(false);
+    }
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+    {
+        loopTurn++;
+        JumpDown();
+        ActionTurn(true);
+    }
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::Dash)
+    {
+        loopTurn++;
+        DashAction();
+        ActionTurn(true);
+        if (loopTurn < 35 && loopTurn > 30 && isNearGround == true && isSprintInput == true && isMoveInput == true)
+        {
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
+            isDash = false;
+            canDash = true;
+            isSprint = true;
+        }
+        else if (loopTurn < 35 && loopTurn > 30 && isNearGround == true && isSprintInput == false && isMoveInput == true)
+        {
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+            isDash = false;
+            canDash = true;
+            isSprint = false;
+        }
+        if (loopTurn == 35)
+        {
+            isStartJump = false;
+            isIdleJump = true;
+            if (isNearGround == false)
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.0f);
+            else if (isSprintInput == true && isMoveInput == true)
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
+            else if (isSprintInput == false && isMoveInput == true)
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+            else
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+            isDash = false;
+            canDash = true;
+            CancelGravity();
+        }
+    }
 
+    /////////////////// raycast ///////////////////////////////////////////////////////// 
     if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump || CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump || CurrentState == APlayerFight_States::EPlayerFight_State::Dash
         || CurrentState == APlayerFight_States::EPlayerFight_State::Idle && isNearGround == false
         || CurrentState == APlayerFight_States::EPlayerFight_State::Run && isNearGround == false)
     {
-        /////////////////// raycast ///////////////////////////////////////////////////////// 
 
         float GroundCheckDistance = 3000.0f;
         FVector StartLocation = GetActorLocation();
@@ -49,134 +107,24 @@ void APlayerFight_Actions::Tick(float DeltaTime)
             float oldDistanceToGround = DistanceToGround;
             DistanceToGround = HitResult.Distance;
 
+            /*
             if (DistanceToGround < oldDistanceToGround && DistanceToGround > 150)
             {
                 isIdleJump = true;
             }
+            */
             
             if (DistanceToGround < 150)
             {
+                //UE_LOG(LogTemp, Warning, TEXT(" DistanceToGround ") );
                 isNearGround = true;
                 isDashJump = false;
             }
-        }
-        /////////////////// raycast ///////////////////////////////////////////////////////// 
-    }
-
-    if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump
-        || CurrentState == APlayerFight_States::EPlayerFight_State::Dash)
-    {
-        int sens = 1;
-        if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
-        {
-            sens = -1;
-            forwardSpeed = 500000;
-        }
-        const FVector upvector = GetActorUpVector() * sens;
-        FVector forwardVector;
-        if (forwardSpeed != 0)
-        {
-            forwardVector = GetActorForwardVector();
-        }
-        else
-        {
-            forwardVector = FVector(0,0,0);
-        }
-        const FVector relativeMoveVector = FVector(XMoveDirection*20, -YMoveDirection*20, 0);
-        FVector worldMoveVector = GetActorRotation().RotateVector(relativeMoveVector);
-
-        const FVector force = (upvector * jumpSpeed) + (forwardVector * forwardSpeed) + (worldMoveVector * 1000);
-
-        PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
-        // Contrôler la vitesse du dash
-        if (CurrentState == APlayerFight_States::EPlayerFight_State::Dash)
-        {
-            if (loopTurn < 4)
-                ActionTurn(true);
-            if (isNearGround)
-            {
-                if (forwardSpeed > 50000000.0f)
-                    forwardSpeed = 5000000.0f;
-                else if (forwardSpeed > 0.0f)
-                    forwardSpeed -= 5000000.0f * GetWorld()->GetDeltaSeconds();
-                else
-                {
-                    UE_LOG(LogTemp, Warning, TEXT(" isMoveInput = %s"), isMoveInput ? TEXT("True") : TEXT("False"));
-                    UE_LOG(LogTemp, Warning, TEXT(" isSprintInput = %s"), isSprintInput ? TEXT("True") : TEXT("False"));
-
-                    if (isSprintInput == true && isMoveInput == true)
-                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
-                    else if (isSprintInput == false && isMoveInput == true)
-                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
-                    else
-                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
-
-                    isDash = false;
-                    canDash = true;
-                    forwardSpeed = 0;
-                }
-            }
             else
-            {
-                if (forwardSpeed > 5000000.0f)
-                    forwardSpeed = 100000.0f;
-                else if (forwardSpeed > 0.0f)
-                {
-                    forwardSpeed -= 2000000.0f * GetWorld()->GetDeltaSeconds();
-                }
-                else
-                {
-                    UE_LOG(LogTemp, Warning, TEXT(" bIsGrounded = %s"), bIsGrounded ? TEXT("True") : TEXT("False"));
-                    if (bIsGrounded)
-                    {
-                         SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
-                    }
-                    else
-                    {
-                        SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.0f);
-                        UE_LOG(LogTemp, Warning, TEXT(" 01 IdleJump"));
-                    }
-                    isDash = false;
-                    canDash = true;
-                    forwardSpeed = 0;
-                }
-            }
-            loopTurn++;
-        }
-        else
-        {
-            if (jumpSpeed > 2000000.0f && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
-            {
-                jumpSpeed = 50000.0f;
-                if (forwardSpeed != 0)
-                    forwardSpeed = 90000.0f;
-            }
-            else if (loopTurn < 4 && CurrentState == APlayerFight_States::EPlayerFight_State::DashJump && FMath::Abs(XMoveDirection) + FMath::Abs(YMoveDirection) != 0.0f)
-            {
-                loopTurn++;
-                ActionTurn(true);
-
-            }
-            else if (jumpSpeed > 0.0f) 
-            {
-                jumpSpeed -= 50000.0f * GetWorld()->GetDeltaSeconds();
-                if (forwardSpeed != 0 && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
-                    forwardSpeed -= 50000.0f * GetWorld()->GetDeltaSeconds();
-                //else if (CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
-                //    forwardSpeed -= 5000.0f * GetWorld()->GetDeltaSeconds();
-            }
-            else {
-                jumpSpeed = 0.0f;
-
-                if (isStartJump == true )
-                {
-                    isStartJump = false;
-                    SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.8f);
-                    UE_LOG(LogTemp, Warning, TEXT(" 02 IdleJump"));
-                }
-            }
+                isNearGround = false;
         }
     }
+    /////////////////// raycast ///////////////////////////////////////////////////////// 
 }
 
 void APlayerFight_Actions::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -185,35 +133,22 @@ void APlayerFight_Actions::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 }
 
 
+
 void APlayerFight_Actions::ABtnAction()
 {
     UE_LOG(LogTemp, Warning, TEXT("CurrentState %d"), CurrentState);
     if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump && 
         CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
     {
-        //UE_LOG(LogTemp, Warning, TEXT(" Jump action = %d"), CurrentState);
-        jumpSpeed = 2400000.0f;
-        //jumpSpeed = 3700000.0f;
-        //jumpSpeed = 5400000.0f;
-        if (FMath::Abs(XMoveDirection) + FMath::Abs(YMoveDirection) > 0.0f)
-        {
-            forwardSpeed = 180000.0f;
-        }
-        else
-        {
-            forwardSpeed = 0.0f;
-        }
-
         if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement()) 
         {
-            //UE_LOG(LogTemp, Warning, TEXT(" Jump PlayerController = %d"), CurrentState);
             XMoveDirection = 0.0f;
             YMoveDirection = 0.0f;
-            //UE_LOG(LogTemp, Error, TEXT("Jump"));
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump, 0.0f);
             UE_LOG(LogTemp, Warning, TEXT("Jump "));
             isStartJump = true;
             isNearGround = false;
+            loopTurn = 0;
         }
         else {
             UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
@@ -223,11 +158,6 @@ void APlayerFight_Actions::ABtnAction()
     {
         if (isNearGround == false)
         {
-            //UE_LOG(LogTemp, Warning, TEXT(" CurrentState IdleJump = %d"), CurrentState);
-            jumpSpeed = 3600000.0f;
- 
-            forwardSpeed = 0.0f;
-
             if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement())
             {
                 UE_LOG(LogTemp, Error, TEXT("DashJump"));
@@ -241,6 +171,60 @@ void APlayerFight_Actions::ABtnAction()
             }
         }
     }
+}
+
+
+void APlayerFight_Actions::JumpAction()
+{
+    int sens = 1;
+    const FVector upvector = GetActorUpVector();
+
+    int upSpeed[25]{ 
+        4000000.0f, 3000000.0f, 800000.0f, 600000.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
+        -100000.0f, -200000.0f, -300000.0f, -400000.0f, -1000000.0f, -1500000.0f
+    };
+
+    const FVector relativeMoveVector = FVector(XMoveDirection*20, -YMoveDirection*20, 0);
+    FVector worldMoveVector = GetActorRotation().RotateVector(relativeMoveVector);
+
+    if (loopTurn == 8)
+        sens = -1;
+
+    const FVector force = ((upvector * sens ) *upSpeed[loopTurn])+ (worldMoveVector * 1000);
+
+    PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
+}
+
+
+void APlayerFight_Actions::JumpDown()
+{
+    const FVector upvector = GetActorUpVector();
+    FVector forwardVector;
+
+    if (loopTurn > 29)
+        loopTurn = 25;
+
+    int downSpeed[30]{ 
+        4000000.0f, 4000000.0f, 4000000.0f, 4000000.0f, 800000.0f, 600000.0f, 500000.0f, 320000.0f, 320000.0f, 240000.0f,
+        240000.0f, 120000.0f, 120000.0f, 400000.0f, 400000.0f, 100000.0f, 100000.0f, 40000.0f, 40000.0f, 40000.0f,
+        40000.0f, 40000.0f, 40000.0f, 40000.0f, 40000.0f, 40000.0f, 40000.0f, 40000.0f, 40000.0f,  40000.0f,
+    };
+
+    const FVector relativeMoveVector = FVector(XMoveDirection*20, -YMoveDirection*20, 0);
+    FVector worldMoveVector = GetActorRotation().RotateVector(relativeMoveVector);
+
+    FVector force;
+    if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump || CurrentState == APlayerFight_States::EPlayerFight_State::Jump)
+        force = ((upvector * -1) * downSpeed[loopTurn]) + (worldMoveVector * 1000);
+    else
+    {
+        forwardVector = GetActorForwardVector();
+        force = ((upvector * -1) * downSpeed[loopTurn]*2) + (forwardVector * downSpeed[loopTurn]*2) + (worldMoveVector * 1000);
+    }
+
+    PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
 }
 
 
@@ -264,17 +248,48 @@ void APlayerFight_Actions::RBBtnAction()
     {
          canDash = false;
          isDash = true;
-         jumpSpeed = 0.0f;
-         //UE_LOG(LogTemp, Warning, TEXT(" isNearGround = %s"), isNearGround ? TEXT("True") : TEXT("False"));
-         if(isNearGround)
-            forwardSpeed = 60000000.0f;
-         else
-            forwardSpeed = 660000.0f;
-         //UE_LOG(LogTemp, Warning, TEXT(" forwardSpeed = %f"), forwardSpeed);
          loopTurn = 0;
          CancelGravity();
          SetCharacterState(APlayerFight_States::EPlayerFight_State::Dash, 0.0f);
+         dashNumber++;
+         if (dashNumber == 4)
+             dashNumber = 1;
     }
+}
+
+void APlayerFight_Actions::DashAction()
+{
+    const FVector upvector = GetActorUpVector();
+    FVector forwardVector = GetActorForwardVector();
+    int currentspeed = 0;
+    int upSpeed = 0;
+    if (isNearGround)
+    {
+        int forSpeed[40]{
+        40000000, 40000000, 40000000, 40000000, 8000000, 6000000, 5000000, 3200000, 3200000, 2400000,
+        2400000, 1200000, 1200000, 4000000, 4000000, 1000000, 1000000, 400000, 400000, 400000,
+        400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,  400000,
+        400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,  400000,
+        };
+        currentspeed = forSpeed[loopTurn];
+    }
+    else
+    {
+        int forSpeed[40]{
+        4000000, 4000000, 4000000, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, -100000, -100000, -100000, -100000, -200000, -300000, -400000, -1000000, -1500000,
+        0, 0, 0, 0, 0, 0, 0, 0, 0,  0,
+        };
+        currentspeed = forSpeed[loopTurn];
+        upSpeed = 100000;
+    }
+    const FVector relativeMoveVector = FVector(XMoveDirection * 20, -YMoveDirection * 20, 0);
+    FVector worldMoveVector = GetActorRotation().RotateVector(relativeMoveVector);
+
+    const FVector force = (upvector * upSpeed) + (forwardVector * currentspeed) + (worldMoveVector * 1000);
+
+    PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
 }
 
 void APlayerFight_Actions::ActionTurn(bool canTurn)
@@ -321,6 +336,10 @@ bool APlayerFight_Actions::GetisDashJump()
 bool APlayerFight_Actions::GetisDash()
 {
     return isDash;
+}
+int APlayerFight_Actions::GetdashNumber()
+{
+    return dashNumber;
 }
 void APlayerFight_Actions::CancelGravity()
 {

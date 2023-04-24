@@ -45,12 +45,14 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isIdleJump = playerClass->GetisIdleJump();
 	isDashJump = playerClass->GetisDashJump();
 	isDash = playerClass->GetisDash();
+	dashNumber = playerClass->GetdashNumber();
 	isNearGround = playerClass->GetisNearGround();
 	isIdle = playerClass->GetisIdle();
 	isSprint = playerClass->GetisSprint();
 	isAttacking = playerClass->GetisAttacking();
 	isStrongAttacking = playerClass->GetisStrongAttacking();
 	currentCombo = playerClass->GetcurrentCombo();
+	AttackOneNumber = playerClass->GetAttackOneNumber();
 
 	isCounterStance = playerClass->GetisCounterStance();
 	isCounter = playerClass->GetisCounter();
