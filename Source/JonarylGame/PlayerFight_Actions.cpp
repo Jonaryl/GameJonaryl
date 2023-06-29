@@ -319,7 +319,10 @@ void APlayerFight_Actions::ActionTurn(bool canTurn)
 
 }
 
-
+//void APlayerFight_Actions::TakeDamage(int damage)
+//{
+//    UE_LOG(LogTemp, Warning, TEXT("TakeDamage"));
+//}
 
 bool APlayerFight_Actions::GetisStartJump()
 {

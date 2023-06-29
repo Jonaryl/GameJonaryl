@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "del05.h"
+#include "del01.h"
 
-del05::del05()
+del01::del01()
 {
 }
 
-del05::~del05()
+del01::~del01()
 {
 }

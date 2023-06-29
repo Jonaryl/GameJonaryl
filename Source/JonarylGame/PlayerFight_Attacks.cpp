@@ -8,6 +8,7 @@ void APlayerFight_Attacks::BeginPlay()
 {
 	Super::BeginPlay();
 	currentCombo = 0;
+	currentHit = 0;
 	currentAttack = 0;
 	isAttacking = false;
 	isStrongAttacking = false;
@@ -22,11 +23,25 @@ void APlayerFight_Attacks::BeginPlay()
 	canCounter = false;
 
 	dashNumber = 0;
+
+	isRightAttack = true;
+	isDamaged = false;
+	canBeHit = true;
 }
 
 void APlayerFight_Attacks::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if(canBeHit == false)
+	{
+		canBeHitCoolDown--;
+		if (canBeHitCoolDown > 0)
+		{
+			canBeHit = true;
+			isDamaged = false;
+		}
+	}
 
 	if (CurrentState == APlayerFight_States::EPlayerFight_State::Attack)
 	{
@@ -69,7 +84,10 @@ void APlayerFight_Attacks::XBtnAction()
 		{
 			currentCombo++;
 			if (currentCombo > 5)
+			{
 				currentCombo = 1;
+				currentHit = 1;
+			}
 			if (currentCombo == 5)
 				canFinalComboAttack = true;
 			isAttacking = true;
@@ -129,7 +147,10 @@ void APlayerFight_Attacks::YBtnAction()
 				//UE_LOG(LogTemp, Warning, TEXT(" YBtnAction isStrongAttacking = %s"), isStrongAttacking ? TEXT("True") : TEXT("False"));
 			}
 			else
+			{
 				currentCombo = 1;
+				currentHit = 1;
+			}
 		}
 	}
 }
@@ -150,6 +171,44 @@ void APlayerFight_Attacks::DebugBtnAction()
 	Super::DebugBtnAction();
 	UE_LOG(LogTemp, Warning, TEXT(" currentCombo = %d"), currentCombo);
 
+}
+
+void APlayerFight_Attacks::HitCount()
+{
+	SpawnParticle();
+	currentHit++;
+}
+
+
+void APlayerFight_Attacks::SpawnParticle()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("SpawnParticle"));
+
+	if (!AttackList.IsEmpty())
+	{
+		TSubclassOf<AActor> AttackClass = AttackList[currentHit];
+		AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(AttackClass, GetActorLocation(), GetActorRotation());
+
+		IIParticle_AttackEnemy* AttackInterface = Cast<IIParticle_AttackEnemy>(AttackInstance);
+		if (AttackInterface)
+		{
+			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack);
+		}
+	}
+
+}
+
+
+void APlayerFight_Attacks::DamageTake(int damage, bool isRightDamage)
+{
+	if (canBeHit)
+	{
+		isRightAttack = isRightDamage;
+		canBeHitCoolDown = 10.f;
+		canBeHit = false;
+		isDamaged = true;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("TakeDamage %d"), damage); 
 }
 
 bool APlayerFight_Attacks::GetisAttacking()
@@ -176,4 +235,13 @@ bool APlayerFight_Attacks::GetisCounter()
 bool APlayerFight_Attacks::GetisCounterLeft()
 {
 	return isCounterLeft;
+}
+
+bool APlayerFight_Attacks::GetisDamageRight()
+{
+	return isRightAttack;
+}
+bool APlayerFight_Attacks::GetisDamaged()
+{
+	return isDamaged;
 }
