@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PlayerFight_Attacks.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
 #include "PlayerFight_Character.generated.h"
 
 /**
@@ -16,6 +17,8 @@ class JONARYLGAME_API APlayerFight_Character : public APlayerFight_Attacks
 	GENERATED_BODY()
 
 public:
+	void BeginPlay() override;
+	UBoxComponent* CollisionDamage;
 
 	float GetSpeed() override;
 	bool GetisStartJump() override;
@@ -36,6 +39,11 @@ public:
 	bool GetisCounter() override;
 	bool GetisCounterLeft() override;
 
+	bool GetisDamageRight() override;
+	bool GetisDamaged() override;
+
+	void HitCount() override;
+
 	void CanAttack();
 	void EndCombo();
 	void ActionEndCombo();
@@ -51,4 +59,6 @@ public:
 
 	void CanCounter();
 	void EndCounter();
+
+	void DamageTake(int damage, bool isRightDamage) override;
 };

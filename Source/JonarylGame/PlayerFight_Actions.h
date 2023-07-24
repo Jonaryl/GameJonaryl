@@ -29,6 +29,8 @@ public:
 	void ActionTurn(bool isRotation);
 	FRotator ActionTurnTargetRotation;
 
+	//virtual void TakeDamage(int damage);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -3,6 +3,34 @@
 
 #include "PlayerFight_Character.h"
 
+void APlayerFight_Character::BeginPlay()
+{
+	Super::BeginPlay();
+	//CollisionDamage = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponent"));
+	CollisionDamage = APlayerFight_Character::FindComponentByClass<UBoxComponent>();
+	if (CollisionDamage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CollisionDamage ça marche"));
+
+		CollisionDamage->SetupAttachment(RootComponent);
+
+		CollisionDamage->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		CollisionDamage->SetCollisionObjectType(ECC_Pawn);
+		CollisionDamage->SetCollisionResponseToAllChannels(ECR_Block);
+		CollisionDamage->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+	}
+}
+
+void APlayerFight_Character::DamageTake(int damage, bool isRightDamage)
+{
+	return Super::DamageTake(damage, isRightDamage);
+}
+
+void APlayerFight_Character::HitCount()
+{
+	return Super::HitCount();
+}
 
 float APlayerFight_Character::GetSpeed()
 {
@@ -75,6 +103,15 @@ bool APlayerFight_Character::GetisCounterLeft()
 	return Super::GetisCounterLeft();
 }
 
+bool APlayerFight_Character::GetisDamageRight()
+{
+	return Super::GetisDamageRight();
+}
+bool APlayerFight_Character::GetisDamaged()
+{
+	return Super::GetisDamaged();
+}
+
 
 
 void APlayerFight_Character::CanAttack()
@@ -109,6 +146,7 @@ void APlayerFight_Character::ActionEndCombo()
 	{
 		currentCombo = 0;
 		currentAttack = 0;
+		currentHit = 0;
 		isAttacking = false;
 		isStrongAttacking = false;
 		canAttack = true;

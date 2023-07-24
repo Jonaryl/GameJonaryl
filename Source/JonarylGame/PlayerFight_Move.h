@@ -136,6 +136,9 @@ protected:
 	bool isMoveInput;
 	bool isSprintInput;
 
+	bool canBeHit;
+	float canBeHitCoolDown;
+
 	float XMoveDirection;
 	float YMoveDirection;
 
