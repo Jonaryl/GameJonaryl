@@ -57,6 +57,8 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isCounterStance = playerClass->GetisCounterStance();
 	isCounter = playerClass->GetisCounter();
 	isCounterLeft = playerClass->GetisCounterLeft();
+	isRightAttack = playerClass->GetisDamageRight();
+	isDamaged = playerClass->GetisDamaged();
 
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 	}
@@ -81,4 +83,8 @@ void UPlayerFIght_Animation::CanCounterStanceEvent_Implementation()
 void UPlayerFIght_Animation::EndCounterStanceEvent_Implementation()
 {
 	playerClass->EndCounterStance();
+}
+void UPlayerFIght_Animation::HitCountEvent_Implementation()
+{
+	playerClass->HitCount();
 }

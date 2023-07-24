@@ -39,6 +39,8 @@ protected:
 		void CanCounterStanceEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndCounterStanceEvent();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void HitCountEvent();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
 		APlayerFight_Character* playerClass;
@@ -76,6 +78,11 @@ protected:
 		bool isCounter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isCounterLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isRightAttack;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isDamaged;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
