@@ -54,6 +54,8 @@ void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRi
 	if (CollisionAttack)
 	{
 		CollisionAttack->SetBoxExtent(CollisionSize);
+		FString PositionString = CollisionSize.ToString();
+		UE_LOG(LogTemp, Warning, TEXT("CollisionSize CollisionSize CollisionSize: %s"), *PositionString);
 	}
 }
 
@@ -162,7 +164,7 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 	}
 
 	int FinalDamage = playerAttack + BaseDamage - enemy->Defense;
-	UE_LOG(LogTemp, Warning, TEXT("DamagePlayer DamagePlayer"));
+	UE_LOG(LogTemp, Warning, TEXT("DamageEnemy DamageEnemy"));
 	enemy->DamageTake(FinalDamage, finalDirectionIsRight);
 }
 

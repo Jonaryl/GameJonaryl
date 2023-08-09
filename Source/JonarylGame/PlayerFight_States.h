@@ -27,6 +27,9 @@ public:
         Attack,
         Dash,
         Dodge,
+        Damage,
+        OnAir,
+        OnGround,
         CounterPose,
         Counter,
         CounterAttack

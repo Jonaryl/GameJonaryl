@@ -15,7 +15,7 @@ APlayerFight_Stats::APlayerFight_Stats()
 void APlayerFight_Stats::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	isSuperMode = false;
 }
 
 // Called every frame

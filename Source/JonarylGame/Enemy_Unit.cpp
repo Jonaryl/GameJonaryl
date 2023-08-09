@@ -3,6 +3,33 @@
 
 #include "Enemy_Unit.h"
 
+void AEnemy_Unit::BeginPlay()
+{
+	Super::BeginPlay();
+	//CollisionDamage = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponent"));
+	CollisionDamage = AEnemy_Unit::FindComponentByClass<UBoxComponent>();
+	if (CollisionDamage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CollisionDamage ça marche enenemy"));
+
+		CollisionDamage->SetupAttachment(RootComponent);
+
+		CollisionDamage->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		CollisionDamage->SetCollisionObjectType(ECC_Pawn);
+		CollisionDamage->SetCollisionResponseToAllChannels(ECR_Block);
+		CollisionDamage->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+	}
+}
+
+
+void AEnemy_Unit::EndAnimation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("EndAnimation EndAnimation EndAnimation EndAnimation enemy"));
+	hitCountDamageAnimation = 0;
+	isDamaged = false;
+}
+
 float AEnemy_Unit::GetxMove()
 {
 	return Super::GetxMove();
@@ -12,6 +39,19 @@ float AEnemy_Unit::GetyMove()
 	return Super::GetyMove();
 }
 
+
+bool AEnemy_Unit::GetisDamaged()
+{
+	return isDamaged;
+}
+bool AEnemy_Unit::GetisDamagedRight()
+{
+	return isRightAttackHit;
+}
+int AEnemy_Unit::GethitCountDamageAnimation()
+{
+	return hitCountDamageAnimation;
+}
 
 bool AEnemy_Unit::GetisAttacking()
 {

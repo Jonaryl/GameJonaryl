@@ -59,6 +59,8 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isCounterLeft = playerClass->GetisCounterLeft();
 	isRightAttack = playerClass->GetisDamageRight();
 	isDamaged = playerClass->GetisDamaged();
+	canMove = playerClass->GetCanMove();
+	isMoving = playerClass->GetisMoving();
 
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 	}
@@ -71,6 +73,10 @@ void UPlayerFIght_Animation::CanAttackEvent_Implementation()
 void UPlayerFIght_Animation::EndCombo_Implementation()
 {
 	playerClass->EndCombo();
+}
+void UPlayerFIght_Animation::EndAttack_Implementation()
+{
+	playerClass->EndAttack();
 }
 void UPlayerFIght_Animation::FinalComboAttack_Implementation()
 {
@@ -87,4 +93,8 @@ void UPlayerFIght_Animation::EndCounterStanceEvent_Implementation()
 void UPlayerFIght_Animation::HitCountEvent_Implementation()
 {
 	playerClass->HitCount();
+}
+void UPlayerFIght_Animation::EndAnimation_Implementation()
+{
+	playerClass->EndAnimation();
 }

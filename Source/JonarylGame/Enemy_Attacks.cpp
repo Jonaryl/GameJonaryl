@@ -26,6 +26,7 @@ void AEnemy_Attacks::AttackPLayer()
 
 	if (canAttack == true)
 	{
+		isDamaged = false;
 		UE_LOG(LogTemp, Warning, TEXT("Attack"));
 		isAttacking = true;
 		currentCombo--;
@@ -33,7 +34,13 @@ void AEnemy_Attacks::AttackPLayer()
 	}
 }
 
-
+void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage)
+{
+	Super::DamageTake(damage, isRightDamage);
+	UE_LOG(LogTemp, Warning, TEXT("Attack"));
+	isAttacking = false;
+	canAttack = true;
+}
 
 
 bool AEnemy_Attacks::GetisAttacking()

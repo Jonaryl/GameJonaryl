@@ -22,9 +22,15 @@ void APlayerFight_Character::BeginPlay()
 	}
 }
 
-void APlayerFight_Character::DamageTake(int damage, bool isRightDamage)
+void APlayerFight_Character::SuperModeActivate()
 {
-	return Super::DamageTake(damage, isRightDamage);
+	isSuperMode = true;
+}
+
+
+void APlayerFight_Character::DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut)
+{
+	return Super::DamageTake(damage, isRightDamage, isCutFromDamage, damageCut);
 }
 
 void APlayerFight_Character::HitCount()
@@ -111,16 +117,24 @@ bool APlayerFight_Character::GetisDamaged()
 {
 	return Super::GetisDamaged();
 }
+bool APlayerFight_Character::GetCanMove()
+{
+	return Super::GetCanMove();
+}
+bool APlayerFight_Character::GetisMoving()
+{
+	return Super::GetisMoving();
+}
 
 
 
 void APlayerFight_Character::CanAttack()
 {
-	if (currentCombo < 5 || currentCombo == 5 && isStrongAttacking == false)
+	if (currentCombo < comboLength)
 		canAttack = true;
 
 	currentAttack++;
-	if (currentAttack == 6 && currentCombo != 6 || currentAttack == 7)
+	if (currentAttack == comboLength+1 && currentCombo != comboLength+1 || currentAttack == comboLength+2)
 		currentAttack = 1;
 
 	UE_LOG(LogTemp, Warning, TEXT(" CanAttack canAttack = %s"), canAttack ? TEXT("True") : TEXT("False"));
@@ -134,6 +148,24 @@ void APlayerFight_Character::FinalComboAttack()
 	canAttack = false;
 }
 
+void APlayerFight_Character::EndAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("EndAttack"));
+	canMove = true;
+	isAttacking = false;
+	if (CurrentState == APlayerFight_States::EPlayerFight_State::Damage)
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+}
+void APlayerFight_Character::EndAnimation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("EndAnimation"));
+	isIdle = true;
+	canCounterStance = true;
+	isCounterStance = false;
+	canAttack = true;
+	if (CurrentState == APlayerFight_States::EPlayerFight_State::Damage)
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+}
 void APlayerFight_Character::EndCombo()
 { ActionEndCombo(); }
 void APlayerFight_Character::ActionEndCombo()
@@ -161,7 +193,7 @@ void APlayerFight_Character::ActionEndCombo()
 
 void APlayerFight_Character::EndCounterStance()
 { 
-	//EndCounterStanceMethod(); 
+	EndCounterStanceMethod(); 
 }
 void APlayerFight_Character::EndCounterStanceMethod()
 {
@@ -171,7 +203,7 @@ void APlayerFight_Character::EndCounterStanceMethod()
 
 
 void APlayerFight_Character::CanCounterStance()
-{ //CanCounterStanceMethod(); 
+{ CanCounterStanceMethod(); 
 }
 void APlayerFight_Character::CanCounterStanceMethod()
 {

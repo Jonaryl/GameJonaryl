@@ -21,6 +21,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Spawn")
 		TSubclassOf<class AEnemy_Unit> EnemyClass;
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+		bool canSpawn;
 
 	void SpawnEnemy();
 

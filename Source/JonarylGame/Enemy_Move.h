@@ -7,8 +7,6 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
-
-
 #include "Enemy_Move.generated.h"
 
 /**
@@ -24,6 +22,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	virtual void BeginPlay() override;
+
 	ACharacter* PlayerCharacter;
 	float distanceToPlayer;
 	float distanceToMovePlace;
@@ -38,7 +38,9 @@ protected:
 	bool isRightAttackHit;
 	bool canBeHit;
 	bool isDamaged;
+	bool canCutAnimByDamage;
 	float canBeHitCoolDown;
+	int hitCountDamageAnimation;
 
 	float moveFB = 0.0f;
 	float moveLR = 0.0f;
@@ -49,6 +51,7 @@ protected:
 	int GenerateRandomInt(int Min, int Max);
 
 	FVector DestinationtoMove;
+	bool isDestinationPlayer;
 
 	void ActionChoice();
 	virtual void WaitingForChoice();

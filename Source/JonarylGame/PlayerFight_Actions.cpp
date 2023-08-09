@@ -237,6 +237,7 @@ void APlayerFight_Actions::DebugBtnAction()
     UE_LOG(LogTemp, Warning, TEXT(" isNearGround = %s"), isNearGround ? TEXT("True") : TEXT("False"));  
     UE_LOG(LogTemp, Warning, TEXT(" isSprint = %s"), isSprint ? TEXT("True") : TEXT("False"));
     UE_LOG(LogTemp, Warning, TEXT(" isSprintInput = %s"), isSprintInput ? TEXT("True") : TEXT("False"));
+
     UE_LOG(LogTemp, Warning, TEXT(" currentState = %d"), CurrentState ); 
 
 }
@@ -300,17 +301,17 @@ void APlayerFight_Actions::ActionTurn(bool canTurn)
     Direction = CamRotation.RotateVector(Direction);
     Direction.Z = 0.0f;
 
-    FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * 500) * GetWorld()->DeltaTimeSeconds);
+    FVector TargetLocationTurn = GetActorLocation() + (Direction * (runSpeed * 500) * GetWorld()->DeltaTimeSeconds);
 
-    FVector DirectionToTarget = TargetLocation - GetActorLocation();
+    FVector DirectionToTarget = TargetLocationTurn - GetActorLocation();
     DirectionToTarget.Normalize();
 
     const FVector WorldUp(0.0f, 0.0f, 1.0f);
 
-    FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
+    FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocationTurn);
 
     FVector CurrentLocation = GetActorLocation();
-    FRotator ActionTurnTargetRotations = (TargetLocation - CurrentLocation).Rotation();
+    FRotator ActionTurnTargetRotations = (TargetLocationTurn - CurrentLocation).Rotation();
  
     if (canTurn == true)
     {

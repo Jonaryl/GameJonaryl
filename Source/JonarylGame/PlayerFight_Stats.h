@@ -18,6 +18,9 @@ public:
 	// Sets default values for this character's properties
 	APlayerFight_Stats();
 
+	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "Information", DisplayName = "Nom du personnage"))
+		FString CharacterName;
+
 
 	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ClassList", DisplayName = "Classe du personnage"))
 		EClassList ClassCharacter;
@@ -42,14 +45,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
 		int MagicDefense;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques Spe")
+		int cutDamageStamina;
+
 	int Classe_MagicDefense;
 
 	int Classe_SpeedMove;
 	int Classe_SpeedRotate;
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	bool isSuperMode;
 
 public:	
 	// Called every frame

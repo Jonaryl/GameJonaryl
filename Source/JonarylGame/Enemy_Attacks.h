@@ -40,6 +40,7 @@ protected:
 
 	void WaitingForChoice() override;
 	void AttackPLayer() override;
+	void DamageTake(int damage, bool isRightDamage) override;
 	virtual void ParticleLaunch();
 
 	virtual bool GetisAttacking();

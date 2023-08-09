@@ -23,6 +23,8 @@
 #include "inputActionValue.h"
 
 #include "PlayerFight_States.h"
+#include "PlayerFight_Lock.h"
+
 
 #include "PlayerFight_Move.generated.h"
 
@@ -85,6 +87,11 @@ protected:
 	virtual void ChangeCharacterState(APlayerFight_States::EPlayerFight_State NewState);
 	//virtual void ChangeCharacterState(void* NewStatePtr);
 
+	virtual void Rotating();
+	virtual void RotatingFormDirection(FQuat InterpolatedRotationFormDirection);
+	FVector TargetLocation;
+	FQuat InterpolatedRotation;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputMappingContext* PlayerMappingContext;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -127,7 +134,14 @@ protected:
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-		UInputAction* DebugBtn;
+		UInputAction* DebugBtn;	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* DeleteEnemyBtn;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
+		TSubclassOf<UPlayerFight_Lock> PlayerFight_Lock;
+	UPlayerFight_Lock* PlayerFight_LockInstance;
 
 
 	APlayerController* PlayerController;
@@ -135,6 +149,7 @@ protected:
 	UPrimitiveComponent* PlayerMesh;
 	bool isMoveInput;
 	bool isSprintInput;
+	bool canMove;
 
 	bool canBeHit;
 	float canBeHitCoolDown;
@@ -170,6 +185,8 @@ protected:
 	virtual bool GetisIdle();
 	virtual bool GetisSprint();
 	virtual bool GetisNearGround();
+	virtual bool GetCanMove();
+	virtual bool GetisMoving();
 
 	bool isStartJump;
 	bool isIdleJump;
@@ -177,7 +194,12 @@ protected:
 	bool isDash;
 	bool isNearGround;
 	bool isSprint;
+	bool isMoving;
 
 
 	bool isIdle;
+
+
+	////////////////////////////////////////// DEBUG //////////////////////////////////////////////////////
+	virtual void RemoveAllEnemy();
 };

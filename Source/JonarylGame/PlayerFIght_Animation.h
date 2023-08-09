@@ -34,6 +34,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndCombo();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndAttack();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndAnimation();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void FinalComboAttack();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void CanCounterStanceEvent();
@@ -87,5 +91,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isIdle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isMoving;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool canMove;
 	
 };

@@ -44,6 +44,9 @@ void UEnemy_Animation::UpdateAnimProperties()
 	yMove = enemyClass->GetyMove();
 	isAttacking = enemyClass->GetisAttacking();
 	currentCombo = enemyClass->GetcurrentCombo();
+	isDamaged = enemyClass->GetisDamaged();
+	isRightAttackHit = enemyClass->GetisDamagedRight();
+	hitCountDamageAnimation = enemyClass->GethitCountDamageAnimation();
 
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 }
@@ -64,4 +67,8 @@ void UEnemy_Animation::AttackIsRight_Implementation()
 void UEnemy_Animation::AttackIsLeft_Implementation()
 {
 	enemyClass->AttackIsLeft();
+}
+void UEnemy_Animation::EndAnimationEvent_Implementation()
+{
+	enemyClass->EndAnimation();
 }

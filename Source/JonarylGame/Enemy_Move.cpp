@@ -15,7 +15,16 @@ AEnemy_Move::AEnemy_Move()
         //UE_LOG(LogTemp, Warning, TEXT("player is here"));
     }
     canBeHit = true;
+    canCutAnimByDamage = true;
     isDamaged = false;
+    hitCountDamageAnimation = 0;
+    isDestinationPlayer;
+}
+
+void AEnemy_Move::BeginPlay()
+{
+    Super::BeginPlay();
+
 }
 
 void AEnemy_Move::Tick(float DeltaTime)
@@ -28,7 +37,7 @@ void AEnemy_Move::Tick(float DeltaTime)
         if (canBeHitCoolDown > 0)
         {
             canBeHit = true;
-            isDamaged = false;
+            //isDamaged = false;
         }
     }
 
@@ -42,26 +51,32 @@ void AEnemy_Move::Tick(float DeltaTime)
 
         if (canMoveToPlace)
         {
+            if (isDestinationPlayer)
+                DestinationtoMove = FVector(PlayerLocation.X, PlayerLocation.Y, 0.0f);
+
             distanceToMovePlace = FVector::Distance(DestinationtoMove, EnemyLocation);
             if (timeAction > 0 && distanceToMovePlace > 200)
             {
-                UE_LOG(LogTemp, Warning, TEXT("distanceToMovePlace  %f"), distanceToMovePlace);
-                UE_LOG(LogTemp, Warning, TEXT("timeAction  %d"), timeAction);
+               // UE_LOG(LogTemp, Warning, TEXT("distanceToMovePlace  %f"), distanceToMovePlace);
+                //UE_LOG(LogTemp, Warning, TEXT("timeAction  %d"), timeAction);
 
                 if (canTrackToPlace == false)
                     timeAction--;
 
-                MoveToPlace();
+                if(isDamaged == false)
+                    MoveToPlace();
 
-                if (isPlaceThePlayer)
+                if (isPlaceThePlayer && isDamaged == false)
                     ChoiceMoveToPlayer();
 
-                LookAtPlayer();
+                if(isDamaged == false)
+                    LookAtPlayer();
             }
             else
             {
                 UE_LOG(LogTemp, Warning, TEXT("end"));
                 UE_LOG(LogTemp, Warning, TEXT("canTrackToPlace  %d"), canTrackToPlace);
+
 
                 if (canTrackToPlace == false)
                     WaitingForChoice();
@@ -141,6 +156,7 @@ void AEnemy_Move::ActionChoice()
     isWaiting = false;
     int RandomInt = GenerateRandomInt(1, 100);
 
+
     //UE_LOG(LogTemp, Warning, TEXT("RandomInt  %d"), RandomInt);
     //UE_LOG(LogTemp, Warning, TEXT("isWaiting  %d"), isWaiting);
     //UE_LOG(LogTemp, Warning, TEXT("isPlaceThePlayer  %d"), isPlaceThePlayer);
@@ -174,9 +190,7 @@ void AEnemy_Move::ChoiceMoveToPlayer()
 {
     if (PlayerCharacter)
     {
-        FVector PlayerLocation = PlayerCharacter->GetActorLocation();
-        DestinationtoMove = FVector(PlayerLocation.X, PlayerLocation.Y, 0.0f);
-
+        isDestinationPlayer = true;
         //UE_LOG(LogTemp, Warning, TEXT("ChoiceMoveToPlayer "));
 
         if (isPlaceThePlayer == false)
@@ -189,6 +203,7 @@ void AEnemy_Move::ChoiceMoveToPlayer()
 }
 void AEnemy_Move::ChoiceWaitingMove()
 {
+    isDestinationPlayer = false;
     FVector EnemyPosition = GetActorLocation();
     float Xvalue = GenerateRandomFloat(-300.0f, 300.0f);
     float Yvalue = GenerateRandomFloat(-300.0f, 300.0f);
@@ -227,6 +242,12 @@ void AEnemy_Move::DamageTake(int damage, bool isRightDamage)
         canBeHitCoolDown = 10.f;
         canBeHit = false;
         isDamaged = true;
+        hitCountDamageAnimation++;
+        if (hitCountDamageAnimation == 4)
+        {
+            hitCountDamageAnimation = 1;
+        }
+         UE_LOG(LogTemp, Warning, TEXT("hitCountDamageAnimation %d"), hitCountDamageAnimation);
     }
     UE_LOG(LogTemp, Warning, TEXT("TakeDamage %d"), damage);
 }

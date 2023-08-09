@@ -36,7 +36,7 @@ APlayerFight_Move::APlayerFight_Move()
 void APlayerFight_Move::BeginPlay()
 {
     Super::BeginPlay();
-
+    canMove = true;
     PlayerController = Cast<APlayerController>(GetController());
     PlayerMesh = Cast<UPrimitiveComponent>(PlayerController->GetCharacter()->GetMesh());
     //PlayerMesh = Cast<UStaticMeshComponent>(GetOwner()->GetRootComponent());
@@ -49,6 +49,13 @@ void APlayerFight_Move::BeginPlay()
         {
             Subsystem->AddMappingContext(PlayerMappingContext, 0);
         }
+    }
+
+    if (PlayerFight_Lock)
+    {
+        PlayerFight_LockInstance = NewObject<UPlayerFight_Lock>(this, PlayerFight_Lock);
+        if (PlayerFight_Lock)
+            PlayerFight_LockInstance->Test();
     }
 }
 
@@ -76,19 +83,29 @@ void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 
         EnhancedInputComponent->BindAction(DebugBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::DebugBtnAction);
+        EnhancedInputComponent->BindAction(DeleteEnemyBtn, ETriggerEvent::Triggered, this, &APlayerFight_Move::RemoveAllEnemy);
     }
 
 }
 
 void APlayerFight_Move::StartMoving()
 {
-    if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+    if (canMove)
     {
-        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
-        //UE_LOG(LogTemp, Warning, TEXT("StartMoving %d"), CurrentState);
+        //UE_LOG(LogTemp, Warning, TEXT("canMove  dans StartMoving"));  
+        if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
+            CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
+            CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::Damage &&
+            CurrentState != APlayerFight_States::EPlayerFight_State::OnAir && CurrentState != APlayerFight_States::EPlayerFight_State::OnGround &&
+            CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+        {
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+            if (isMoving == false)
+                isMoving = true;
+            if (isIdle == true)
+                isIdle = false;
+            //UE_LOG(LogTemp, Warning, TEXT("StartMoving %d"), CurrentState);
+        }
     }
 }
 void APlayerFight_Move::StopMoving()
@@ -97,6 +114,10 @@ void APlayerFight_Move::StopMoving()
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Run)
     {
         SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+        if (isMoving == true)
+            isMoving = false;
+        if (isIdle == false)
+            isIdle = true;
         //UE_LOG(LogTemp, Warning, TEXT("StopMoving %d"), CurrentState);
     }
 }
@@ -152,82 +173,128 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
     XMoveDirection = XValue;
     YMoveDirection = YValue;
 
-    if (CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
-        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+    isMoveInput = true;
+
+    if (CurrentValue.IsNearlyZero()) 
     {
-        isMoveInput = true;
-        if (CurrentState == APlayerFight_States::EPlayerFight_State::Idle)
-            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+        valueSpeed = FMath::FInterpTo(valueSpeed, 0.f, GetWorld()->DeltaTimeSeconds, 10.0f);
+    }
+    else
+    {
+        valueSpeed += (100.2f * GetWorld()->DeltaTimeSeconds);
+        valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed);
+    }
+    InitialSpeed = valueSpeed;
+    valueSpeedJoy = YValue + XValue;
 
-        if (CurrentValue.IsNearlyZero()) 
+    if (Controller && valueSpeed != 0.0f)
+    {
+        bEnableInterpolation = true;
+        if (bEnableInterpolation)
         {
-            valueSpeed = FMath::FInterpTo(valueSpeed, 0.f, GetWorld()->DeltaTimeSeconds, 10.0f);
-        }
-        else
-        {
-            valueSpeed += (100.2f * GetWorld()->DeltaTimeSeconds);
-            valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed);
-        }
-        InitialSpeed = valueSpeed;
-        valueSpeedJoy = YValue + XValue;
+            FVector Direction = FVector(XValue, -YValue, 0.0f); 
 
-        if (Controller && valueSpeed != 0.0f)
-        {
-            bEnableInterpolation = true;
-            if (bEnableInterpolation)
+            FRotator CamRotation = FollowCamera->GetComponentRotation();
+            Direction = CamRotation.RotateVector(Direction);
+            Direction.Z = 0.0f;
+
+            float sprintSpeed = 1.0;
+            if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint)
             {
-                FVector Direction = FVector(XValue, -YValue, 0.0f); 
+                isSprint = true;
+                sprintSpeed = 2.0f;
+            }
 
-                FRotator CamRotation = FollowCamera->GetComponentRotation();
-                Direction = CamRotation.RotateVector(Direction);
-                Direction.Z = 0.0f;
-
-                float sprintSpeed = 1.0;
-                if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint)
-                {
-                    isSprint = true;
-                    sprintSpeed = 2.0f;
-                }
-
-                FVector TargetLocation;
-                if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
-                    CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
-                    TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
-                else
-                    TargetLocation = GetActorLocation() + (Direction * ((runSpeed /1.5) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+            if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+                CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+                TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
+            else
+                TargetLocation = GetActorLocation() + (Direction * ((runSpeed /1.5) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
 
 
-                FVector DirectionToTarget = TargetLocation - GetActorLocation();
-                DirectionToTarget.Normalize();
+            FVector DirectionToTarget = TargetLocation - GetActorLocation();
+            DirectionToTarget.Normalize();
 
-                const FVector WorldUp(0.0f, 0.0f, 1.0f);
+            const FVector WorldUp(0.0f, 0.0f, 1.0f);
 
-                FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
+            FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
 
-                FQuat InterpolatedRotation;
-                if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
-                    CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
-                    InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
-                else
-                    InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed/10);
+            if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+                CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump ||
+                CurrentState == APlayerFight_States::EPlayerFight_State::Attack)
+                InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
+            else
+                InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed/10);
 
-                SetActorRotation(InterpolatedRotation.Rotator());
+
+            if (PlayerFight_LockInstance)
+            {
+                FVector2D MoveDirection(XValue, YValue);
+                MoveDirection.Normalize();
+                FVector ActorForwardVector = GetActorForwardVector();
+
+                FVector NewRaycastDirection = ActorForwardVector.RotateAngleAxis(MoveDirection.X, FVector::UpVector);
+                NewRaycastDirection = NewRaycastDirection.RotateAngleAxis(MoveDirection.Y, GetActorRightVector());
+                NewRaycastDirection.Normalize();
+
+                FRotator JoystickRotation(0.0f, FMath::RadiansToDegrees(FMath::Atan2(YValue, XValue)), 0.0f);
+                FRotator ActorRotation = GetActorRotation();
+                FRotator NewRaycastRotation = ActorRotation + JoystickRotation;
 
                 MyMeshTest->SetRelativeLocation(TargetLocation);
 
-                SetActorLocationAndRotation(
-                    FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
-                    FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 100.0f)       
-                );
+                FRotator interRotation = InterpolatedRotation.Rotator();
+
+                PlayerFight_LockInstance->GetPlayerPosRot(TargetLocation, NewRaycastRotation, this, NewRaycastDirection);
+                PlayerFight_LockInstance->Update();
             }
-            else
+
+
+            if (canMove)
             {
-                AddMovementInput(FVector(1.0f, 0.0f, 0.0f), valueSpeedJoy);
+                // UE_LOG(LogTemp, Warning, TEXT("canMove  dans MoveForward"));
+                if (CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
+                    CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
+                    CurrentState != APlayerFight_States::EPlayerFight_State::Damage &&
+                    CurrentState != APlayerFight_States::EPlayerFight_State::OnAir && CurrentState != APlayerFight_States::EPlayerFight_State::OnGround &&
+                    CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+                {
+                    //Rotating();
+                    if (CurrentState == APlayerFight_States::EPlayerFight_State::Idle)
+                        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+
+                    if (isMoving == false)
+                        isMoving = true;
+                    if (isIdle == true)
+                        isIdle = false;
+
+
+                    SetActorLocationAndRotation(
+                        FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
+                        FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 100.0f)
+                    );
+                }
             }
+        }
+        else
+        {
+            AddMovementInput(FVector(1.0f, 0.0f, 0.0f), valueSpeedJoy);
         }
     }
 }
+
+void APlayerFight_Move::Rotating()
+{
+    FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 100.0f);
+    SetActorRotation(NewRotation);
+ 
+}
+void APlayerFight_Move::RotatingFormDirection(FQuat InterpolatedRotationFormDirection)
+{
+    FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), InterpolatedRotationFormDirection.Rotator(), GetWorld()->DeltaTimeSeconds, 100.0f);
+    SetActorRotation(NewRotation);
+}
+
 
 void APlayerFight_Move::TurnCamera(const FInputActionValue& Value)
 {
@@ -325,6 +392,19 @@ bool APlayerFight_Move::GetisNearGround()
 {
     return isNearGround;
 }
+bool APlayerFight_Move::GetCanMove()
+{
+    return canMove;
+}
+bool APlayerFight_Move::GetisMoving()
+{
+    return isMoving;
+}
 
 
 
+
+void APlayerFight_Move::RemoveAllEnemy()
+{
+    UE_LOG(LogTemp, Warning, TEXT("RemoveAllEnemy MOVE"));
+}

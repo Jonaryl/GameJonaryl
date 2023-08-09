@@ -160,6 +160,6 @@ void AParticle_AttackPlayer::DamagePlayer(APlayerFight_Character* player)
 	}
 
 	int FinalDamage = enemyAttack + BaseDamage - player->Defense;
-	player->DamageTake(FinalDamage, finalDirectionIsRight);
+	player->DamageTake(FinalDamage, finalDirectionIsRight, isDamageCut, damageCut);
 }
 

@@ -27,7 +27,7 @@ void AScene_Spawner::Tick(float DeltaTime)
 
 void AScene_Spawner::SpawnEnemy()
 {
-	if (EnemyClass)
+	if (EnemyClass && canSpawn)
 	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;

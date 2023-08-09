@@ -38,12 +38,20 @@ protected:
 		bool isAttacking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int currentCombo;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isDamaged;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isRightAttackHit;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int hitCountDamageAnimation;
 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void CanAttackEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void LaunchParticleEvent();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndAnimationEvent();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void AttackIsRight();

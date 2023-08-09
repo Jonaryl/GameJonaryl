@@ -29,6 +29,7 @@ public:
 	bool GetisIdle() override;
 	bool GetisSprint() override;
 	bool GetisNearGround() override;
+	bool GetCanMove() override;
 
 	bool GetisAttacking() override;
 	bool GetisStrongAttacking() override;
@@ -41,13 +42,16 @@ public:
 
 	bool GetisDamageRight() override;
 	bool GetisDamaged() override;
+	bool GetisMoving() override;
 
 	void HitCount() override;
 
 	void CanAttack();
 	void EndCombo();
+	void EndAttack();
 	void ActionEndCombo();
 	void FinalComboAttack();
+	void EndAnimation();
 
 	void CanCounterStance();
 	void CanCounterStanceMethod();
@@ -60,5 +64,7 @@ public:
 	void CanCounter();
 	void EndCounter();
 
-	void DamageTake(int damage, bool isRightDamage) override;
+	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut) override;
+
+	void SuperModeActivate();
 };
