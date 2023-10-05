@@ -38,14 +38,23 @@ protected:
 	int currentCombo;
 	bool isRightAttack;
 
+	float DmgBlendAlpha;
+	float DmgBlendR;
+	float DmgBlendL;
+
 	void WaitingForChoice() override;
 	void AttackPLayer() override;
 	void DamageTake(int damage, bool isRightDamage) override;
 	virtual void ParticleLaunch();
+	virtual void ModifyDmgBlend(float alpha, float alphaR, float alphaL);
 
 	virtual bool GetisAttacking();
 	virtual bool GetisComboAttacking();
 	virtual int GetcurrentCombo();
+
+	virtual float GetDmgBlendAlpha();
+	virtual float GetDmgBlendR();
+	virtual float GetDmgBlendL();
 
 	virtual void CanAttack();
 	virtual void SpawnParticle();
@@ -53,4 +62,7 @@ protected:
 
 	virtual void AttackIsRight();
 	virtual void AttackIsLeft();
+
+	virtual void EndDamage();
+	virtual void EndDamageAnimation();
 };

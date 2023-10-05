@@ -45,6 +45,13 @@ protected:
 	float moveFB = 0.0f;
 	float moveLR = 0.0f;
 
+	bool isSlow;
+	int slowMotionCountDown;
+	bool isSlowDownTake;
+	virtual bool GetisSlowDownTake();
+	virtual void ActivateSlowMode();
+	virtual void EndSlowMode();
+
 	void LookAtPlayer();
 	void MoveToPlace();
 	float GenerateRandomFloat(float Min, float Max);
@@ -67,4 +74,5 @@ protected:
 	virtual float GetyMove();
 
 	virtual void DamageTake(int damage, bool isRightDamage);
+	virtual void SlowDownTake();
 };

@@ -24,7 +24,7 @@ void AParticle_AttackEnemy::BeginPlay()
 		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_AttackEnemy::OnAttackCollisionEndOverlap);
 	}
 
-	float DelayBeforeDestroy = 0.3f;
+	float DelayBeforeDestroy = 0.15f;
 
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
@@ -70,8 +70,13 @@ void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* O
 			if (enemy)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter on est bon plus qu'a"));
-				DamageEnemy(enemy);
-				Destroy();
+				if (isSpeSlow)
+					enemy->SlowDownTake();
+				else
+				{
+					DamageEnemy(enemy);
+					//Destroy();
+				}
 			}
 		}
 	}

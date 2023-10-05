@@ -32,6 +32,11 @@ public:
 	bool GetisComboAttacking() override;
 	int GetcurrentCombo() override;
 
+	void ModifyDmgBlend(float alpha, float alphaR, float alphaL) override;
+	float GetDmgBlendAlpha() override;
+	float GetDmgBlendR() override;
+	float GetDmgBlendL() override;
+
 	bool GetisDamaged();
 	bool GetisDamagedRight();
 	int GethitCountDamageAnimation();
@@ -42,4 +47,13 @@ public:
 	void DamageTake(int damage, bool isRightDamage) override;
 
 	void EndAnimation();
+
+	void EndDamage() override;
+	void EndDamageAnimation() override;
+
+	void ActivateSlowMode() override;
+	void EndSlowMode() override;
+	void SlowDownTake() override;
+	bool GetisSlowDownTake() override;
+
 };

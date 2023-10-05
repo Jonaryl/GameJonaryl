@@ -46,6 +46,17 @@ protected:
 		int hitCountDamageAnimation;
 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float DmgBlendAlpha;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float DmgBlendR;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float DmgBlendL;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isSlowDownTake;
+
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void CanAttackEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
@@ -57,4 +68,12 @@ protected:
 		void AttackIsRight();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void AttackIsLeft();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndDamage();	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndDamageAnimation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void ActivateSlowMode();
 };

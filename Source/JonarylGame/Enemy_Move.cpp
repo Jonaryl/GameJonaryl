@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
 
+
 AEnemy_Move::AEnemy_Move()
 {
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
@@ -19,6 +20,7 @@ AEnemy_Move::AEnemy_Move()
     isDamaged = false;
     hitCountDamageAnimation = 0;
     isDestinationPlayer;
+    isSlow = false;
 }
 
 void AEnemy_Move::BeginPlay()
@@ -102,6 +104,16 @@ void AEnemy_Move::Tick(float DeltaTime)
         }
     }
 
+    if (isSlow)
+    {
+        if (slowMotionCountDown > 0)
+            slowMotionCountDown--;
+        else
+        {
+            isSlow = false;
+            this->CustomTimeDilation = 1.0f;
+        }
+    }
 }
 
 
@@ -232,8 +244,32 @@ void AEnemy_Move::AttackPLayer(){}
 void AEnemy_Move::Combo(){}
 
 
+void AEnemy_Move::EndSlowMode()
+{
+    isSlow = false;
+    this->CustomTimeDilation = 1.0f;
+    slowMotionCountDown = 0;
+}
+void AEnemy_Move::ActivateSlowMode()
+{
+    isSlow = true;    
+    this->CustomTimeDilation = 0.01f;
+    slowMotionCountDown = 800;
+}
 
+void AEnemy_Move::SlowDownTake()
+{
+    if (isSlowDownTake == false)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("SlowDownTake SlowDownTake SlowDownTake"));
 
+        isSlowDownTake = true;
+        isDamaged = true;
+        canMoveToPlace = false;
+        canTrackToPlace = false;
+        isWaiting = false;
+    }
+}
 void AEnemy_Move::DamageTake(int damage, bool isRightDamage)
 {
     if (canBeHit)
@@ -276,6 +312,10 @@ float AEnemy_Move::GetxMove()
 float AEnemy_Move::GetyMove()
 {
     return moveFB * 100;
+}
+bool AEnemy_Move::GetisSlowDownTake()
+{
+    return isSlowDownTake;
 }
 
 

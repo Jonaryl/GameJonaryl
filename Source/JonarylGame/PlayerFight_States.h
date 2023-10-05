@@ -25,6 +25,7 @@ public:
         IdleJump,
         DashJump,
         Attack,
+        StanceSpe,
         Dash,
         Dodge,
         Damage,

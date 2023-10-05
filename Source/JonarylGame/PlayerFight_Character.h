@@ -30,6 +30,17 @@ public:
 	bool GetisSprint() override;
 	bool GetisNearGround() override;
 	bool GetCanMove() override;
+	
+	bool AttackSpeB;
+	bool AttackSpeX;
+	bool AttackSpeY;
+
+	bool GetAttackSpeB();
+	bool GetAttackSpeX();
+	bool GetAttackSpeY();
+
+
+	void SetAttackSpeY(bool speB, bool speX, bool speY);
 
 	bool GetisAttacking() override;
 	bool GetisStrongAttacking() override;
@@ -67,4 +78,6 @@ public:
 	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut) override;
 
 	void SuperModeActivate();
+	bool GetisSuperMode();
+	void EndSlowEnemy();
 };

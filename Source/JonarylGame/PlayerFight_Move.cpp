@@ -96,10 +96,12 @@ void APlayerFight_Move::StartMoving()
         if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
             CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
             CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::Damage &&
-            CurrentState != APlayerFight_States::EPlayerFight_State::OnAir && CurrentState != APlayerFight_States::EPlayerFight_State::OnGround &&
+            CurrentState != APlayerFight_States::EPlayerFight_State::OnAir && CurrentState != APlayerFight_States::EPlayerFight_State::OnGround && 
             CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
         {
-            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+            if(CurrentState != APlayerFight_States::EPlayerFight_State::StanceSpe)
+                SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+
             if (isMoving == false)
                 isMoving = true;
             if (isIdle == true)
@@ -182,7 +184,15 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
     else
     {
         valueSpeed += (100.2f * GetWorld()->DeltaTimeSeconds);
-        valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed);
+        if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
+            CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+            valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed);
+        else if (CurrentState == APlayerFight_States::EPlayerFight_State::StanceSpe)
+        {
+            valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed/2);
+        }
+        else
+            valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed/1.5);
     }
     InitialSpeed = valueSpeed;
     valueSpeedJoy = YValue + XValue;
@@ -210,7 +220,8 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                 TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
             else
                 TargetLocation = GetActorLocation() + (Direction * ((runSpeed /1.5) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
-
+            UE_LOG(LogTemp, Error, TEXT("01 NewState = %d"), CurrentState);
+            UE_LOG(LogTemp, Error, TEXT("02 valueSpeed = %f"), valueSpeed);
 
             FVector DirectionToTarget = TargetLocation - GetActorLocation();
             DirectionToTarget.Normalize();
@@ -221,7 +232,7 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
 
             if (CurrentState == APlayerFight_States::EPlayerFight_State::Sprint || CurrentState == APlayerFight_States::EPlayerFight_State::Run ||
                 CurrentState == APlayerFight_States::EPlayerFight_State::Idle || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump ||
-                CurrentState == APlayerFight_States::EPlayerFight_State::Attack)
+                CurrentState == APlayerFight_States::EPlayerFight_State::Attack || CurrentState == APlayerFight_States::EPlayerFight_State::StanceSpe)
                 InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
             else
                 InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed/10);
@@ -267,7 +278,6 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                         isMoving = true;
                     if (isIdle == true)
                         isIdle = false;
-
 
                     SetActorLocationAndRotation(
                         FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),

@@ -23,7 +23,7 @@ class JONARYLGAME_API UPlayerFight_SA_Jonaryl : public UPlayerFight_SpecialAttac
 public:
 	virtual void SpecialAttack() override;
 
-	virtual void StartSlowMotion() override;
+	virtual void StartSlowMotion(float slowStrength) override;
 	virtual void EndSlowMotion() override;
 	
 
@@ -40,4 +40,5 @@ private:
 
 	////////////////////////////////////////// DEBUG //////////////////////////////////////////////////////
 	virtual void RemoveAllEnemy() override;
+	virtual void AllEnemyEndSlow() override;
 };

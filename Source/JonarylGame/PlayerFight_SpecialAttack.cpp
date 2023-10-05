@@ -33,18 +33,19 @@ void UPlayerFight_SpecialAttack::YBtnActionSpe(){}
 void UPlayerFight_SpecialAttack::BBtnActionSpe(){}
 void UPlayerFight_SpecialAttack::ABtnActionSpe(){}
 
+
 void UPlayerFight_SpecialAttack::GetPlayer(AActor* player)
 {
 }
 
 
-void UPlayerFight_SpecialAttack::StartSlowMotion()
+void UPlayerFight_SpecialAttack::StartSlowMotion(float slowStrength)
 {
 	UWorld* World = this->GetWorld();
 	AWorldSettings* WorldSettings = World->GetWorldSettings();
 	if (WorldSettings)
 	{
-		WorldSettings->SetTimeDilation(0.02f);
+		WorldSettings->SetTimeDilation(slowStrength);
 	}
 }
 void UPlayerFight_SpecialAttack::EndSlowMotion()
@@ -62,8 +63,8 @@ void UPlayerFight_SpecialAttack::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
 
+void UPlayerFight_SpecialAttack::AllEnemyEndSlow(){}
 void UPlayerFight_SpecialAttack::RemoveAllEnemy(){}

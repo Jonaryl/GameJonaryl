@@ -48,6 +48,11 @@ void UEnemy_Animation::UpdateAnimProperties()
 	isRightAttackHit = enemyClass->GetisDamagedRight();
 	hitCountDamageAnimation = enemyClass->GethitCountDamageAnimation();
 
+	DmgBlendAlpha = enemyClass->GetDmgBlendAlpha();
+	DmgBlendR = enemyClass->GetDmgBlendR();
+	DmgBlendL = enemyClass->GetDmgBlendL();
+
+	isSlowDownTake = enemyClass->GetisSlowDownTake();
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 }
 
@@ -71,4 +76,18 @@ void UEnemy_Animation::AttackIsLeft_Implementation()
 void UEnemy_Animation::EndAnimationEvent_Implementation()
 {
 	enemyClass->EndAnimation();
+}
+
+void UEnemy_Animation::EndDamage_Implementation()
+{
+	enemyClass->EndDamage();
+}
+void UEnemy_Animation::EndDamageAnimation_Implementation()
+{
+	enemyClass->EndDamageAnimation();
+}
+
+void UEnemy_Animation::ActivateSlowMode_Implementation()
+{
+	enemyClass->ActivateSlowMode();
 }

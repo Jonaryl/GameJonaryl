@@ -23,11 +23,30 @@ void AEnemy_Unit::BeginPlay()
 }
 
 
+void AEnemy_Unit::ActivateSlowMode()
+{
+	Super::ActivateSlowMode();
+}
+void AEnemy_Unit::EndSlowMode()
+{
+	Super::EndSlowMode();
+}
+
+void AEnemy_Unit::EndDamage()
+{
+	Super::EndDamage();
+}
+void AEnemy_Unit::EndDamageAnimation()
+{
+	Super::EndDamageAnimation();
+}
 void AEnemy_Unit::EndAnimation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("EndAnimation EndAnimation EndAnimation EndAnimation enemy"));
 	hitCountDamageAnimation = 0;
 	isDamaged = false;
+	isSlowDownTake = false;
+	EndDamageAnimation();
 }
 
 float AEnemy_Unit::GetxMove()
@@ -66,6 +85,24 @@ int AEnemy_Unit::GetcurrentCombo()
 	return Super::GetcurrentCombo();
 }
 
+float AEnemy_Unit::GetDmgBlendAlpha()
+{
+	return Super::GetDmgBlendAlpha();
+}
+float AEnemy_Unit::GetDmgBlendR()
+{
+	return Super::GetDmgBlendR();
+}
+float AEnemy_Unit::GetDmgBlendL()
+{
+	return Super::GetDmgBlendL();
+}
+
+bool AEnemy_Unit::GetisSlowDownTake()
+{
+	return Super::GetisSlowDownTake();
+}
+
 
 void AEnemy_Unit::CanAttack()
 {
@@ -78,6 +115,14 @@ void AEnemy_Unit::ParticleLaunch()
 void AEnemy_Unit::DamageTake(int damage, bool isRightDamage)
 {
 	return Super::DamageTake(damage,isRightDamage);
+}
+void AEnemy_Unit::SlowDownTake()
+{
+	return Super::SlowDownTake();
+}
+void AEnemy_Unit::ModifyDmgBlend(float alpha, float alphaR, float alphaL)
+{
+	return Super::ModifyDmgBlend(alpha, alphaR, alphaL);
 }
 
 

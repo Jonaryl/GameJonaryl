@@ -26,30 +26,40 @@ void UPlayerFight_SA_Jonaryl::GetPlayer(AActor* player)
 void UPlayerFight_SA_Jonaryl::XBtnActionSpe()
 {
 	Super::XBtnActionSpe();
+	if (PlayerFight_Character)
+		PlayerFight_Character->SetAttackSpeY(false, true, false);
 	UE_LOG(LogTemp, Warning, TEXT("XBtnActionSpe"));
-	StartSlowMotion();
 }
 void UPlayerFight_SA_Jonaryl::YBtnActionSpe()
 {
 	Super::YBtnActionSpe();
+	if (PlayerFight_Character)
+		PlayerFight_Character->SetAttackSpeY(false, false, true);
 	UE_LOG(LogTemp, Warning, TEXT("YBtnActionSpe"));
 }
 void UPlayerFight_SA_Jonaryl::BBtnActionSpe()
 {
 	Super::BBtnActionSpe();
+	if (PlayerFight_Character)
+		PlayerFight_Character->SetAttackSpeY(true, false, false);
 	UE_LOG(LogTemp, Warning, TEXT("BBtnActionSpe"));
 }
 void UPlayerFight_SA_Jonaryl::ABtnActionSpe()
 {
 	Super::ABtnActionSpe();
 	UE_LOG(LogTemp, Warning, TEXT("ABtnActionSpe")); 
-	EndSlowMotion();
+	if (PlayerFight_Character)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerFight_Character SuperMode  DesActivate"));
+		PlayerFight_Character->SuperModeActivate();
+		AllEnemyEndSlow();
+	}
 }
 
 
-void UPlayerFight_SA_Jonaryl::StartSlowMotion() 
+void UPlayerFight_SA_Jonaryl::StartSlowMotion(float slowStrength)
 {
-    Super::StartSlowMotion();
+    Super::StartSlowMotion(slowStrength);
 }
 void UPlayerFight_SA_Jonaryl::EndSlowMotion() 
 {
@@ -57,6 +67,25 @@ void UPlayerFight_SA_Jonaryl::EndSlowMotion()
 }
 
 
+
+void UPlayerFight_SA_Jonaryl::AllEnemyEndSlow()
+{
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Unit::StaticClass(), FoundActors);
+	UE_LOG(LogTemp, Warning, TEXT("Calling CustomMethodToCall on AEnemy_Unit"));
+
+	// Call the custom method on each AEnemy_Unit actor
+	for (AActor* Actor : FoundActors)
+	{
+		AEnemy_Unit* EnemyUnit = Cast<AEnemy_Unit>(Actor);
+		if (EnemyUnit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Calling CustomMethodToCall for Actor %s"), *Actor->GetName());
+			// Call the custom method on AEnemy_Unit
+			EnemyUnit->EndSlowMode();
+		}
+	}
+}
 
 
 void UPlayerFight_SA_Jonaryl::RemoveAllEnemy()

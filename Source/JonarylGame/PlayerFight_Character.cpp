@@ -24,7 +24,13 @@ void APlayerFight_Character::BeginPlay()
 
 void APlayerFight_Character::SuperModeActivate()
 {
-	isSuperMode = true;
+	if (isSuperMode == true)
+	{
+		isSuperMode = false;
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+	}
+	else
+		isSuperMode = true;
 }
 
 
@@ -127,6 +133,30 @@ bool APlayerFight_Character::GetisMoving()
 }
 
 
+bool APlayerFight_Character::GetisSuperMode()
+{
+	return isSuperMode;
+}
+bool APlayerFight_Character::GetAttackSpeB()
+{
+	return AttackSpeB;
+}
+bool APlayerFight_Character::GetAttackSpeX()
+{
+	return AttackSpeX;
+}
+bool APlayerFight_Character::GetAttackSpeY()
+{
+	return AttackSpeY;
+}
+void APlayerFight_Character::SetAttackSpeY(bool speB, bool speX, bool speY)
+{
+	AttackSpeB = speB;
+	AttackSpeX = speX;
+	AttackSpeY = speY;
+}
+
+
 
 void APlayerFight_Character::CanAttack()
 {
@@ -153,8 +183,22 @@ void APlayerFight_Character::EndAttack()
 	UE_LOG(LogTemp, Warning, TEXT("EndAttack"));
 	canMove = true;
 	isAttacking = false;
-	if (CurrentState == APlayerFight_States::EPlayerFight_State::Damage)
-		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+	isStrongAttacking = false;
+	isCounter = false;
+
+	AttackSpeB = false;
+	AttackSpeX = false;
+	AttackSpeY = false;
+	if (isSuperMode == false)
+	{
+		if ( CurrentState == APlayerFight_States::EPlayerFight_State::Damage || CurrentState == APlayerFight_States::EPlayerFight_State::StanceSpe ||
+			CurrentState == APlayerFight_States::EPlayerFight_State::CounterAttack ||
+			CurrentState == APlayerFight_States::EPlayerFight_State::Counter || CurrentState == APlayerFight_States::EPlayerFight_State::CounterPose)
+			SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+	}
+	else if (CurrentState == APlayerFight_States::EPlayerFight_State::CounterAttack)
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::StanceSpe, 0.0f);
+
 }
 void APlayerFight_Character::EndAnimation()
 {
@@ -163,8 +207,18 @@ void APlayerFight_Character::EndAnimation()
 	canCounterStance = true;
 	isCounterStance = false;
 	canAttack = true;
-	if (CurrentState == APlayerFight_States::EPlayerFight_State::Damage)
-		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+	isStrongAttacking = false;
+	isCounter = false;
+
+	AttackSpeB = false;
+	AttackSpeX = false;
+	AttackSpeY = false;
+	if (CurrentState == APlayerFight_States::EPlayerFight_State::Damage || CurrentState == APlayerFight_States::EPlayerFight_State::StanceSpe ||
+		CurrentState == APlayerFight_States::EPlayerFight_State::Counter || CurrentState == APlayerFight_States::EPlayerFight_State::CounterPose)
+	{
+		if(isSuperMode == false)
+			SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+	}
 }
 void APlayerFight_Character::EndCombo()
 { ActionEndCombo(); }
@@ -199,6 +253,14 @@ void APlayerFight_Character::EndCounterStanceMethod()
 {
 	isCounterStance = false;
 	UE_LOG(LogTemp, Warning, TEXT(" EndCounterStance isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
+}
+
+
+void APlayerFight_Character::EndSlowEnemy()
+{
+	if (SpecialAttacknstance)
+		SpecialAttacknstance->AllEnemyEndSlow();
+	isSuperMode = false;
 }
 
 

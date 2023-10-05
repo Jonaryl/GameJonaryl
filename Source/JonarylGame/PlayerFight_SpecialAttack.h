@@ -26,7 +26,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void SpecialAttack();
 
-	virtual void StartSlowMotion();
+	virtual void StartSlowMotion(float slowStrength);
 	virtual void EndSlowMotion();
 
 	virtual void XBtnActionSpe();
@@ -37,5 +37,6 @@ public:
 
 	virtual void GetPlayer(AActor* player);
 	////////////////////////////////////////// DEBUG //////////////////////////////////////////////////////
+	virtual void AllEnemyEndSlow();
 	virtual void RemoveAllEnemy();
 };

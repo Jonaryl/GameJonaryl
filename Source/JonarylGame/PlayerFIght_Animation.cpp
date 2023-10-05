@@ -62,6 +62,11 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	canMove = playerClass->GetCanMove();
 	isMoving = playerClass->GetisMoving();
 
+	AttackSpeB = playerClass->GetAttackSpeB();
+	AttackSpeX = playerClass->GetAttackSpeX();
+	AttackSpeY = playerClass->GetAttackSpeY();
+
+	isSuperMode = playerClass->GetisSuperMode();
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 	}
 
@@ -97,4 +102,8 @@ void UPlayerFIght_Animation::HitCountEvent_Implementation()
 void UPlayerFIght_Animation::EndAnimation_Implementation()
 {
 	playerClass->EndAnimation();
+}
+void UPlayerFIght_Animation::EndSlowEnemy_Implementation()
+{
+	playerClass->EndSlowEnemy();
 }

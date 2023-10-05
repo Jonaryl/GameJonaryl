@@ -37,6 +37,8 @@ public:
 		UNiagaraSystem* Particle;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isSpeSlow;	
+	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BaseDamage;
 	float playerAttack;
 

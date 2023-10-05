@@ -26,6 +26,7 @@ void APlayerFight_Attacks::BeginPlay()
 
 	isRightAttack = true;
 	isDamaged = false;
+	canCounterAttack = false;
 	canBeHit = true;
 
 	currentDamageCut = cutDamageStamina;
@@ -43,7 +44,31 @@ void APlayerFight_Attacks::Tick(float DeltaTime)
 	if (currentDamageCut <= cutDamageStamina)
 	{
 		currentDamageCut++;
+	}
 
+
+	if (currentCounterGauge > 0)
+	{
+		currentCounterGauge = currentCounterGauge - 0.001f;
+		//UE_LOG(LogTemp, Warning, TEXT(" Tick currentCounterGauge = %f"), currentCounterGauge);
+	}
+	if (slowMotionCooldown > 2)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DamageTake slowMotionCooldown %d"), slowMotionCooldown);
+		slowMotionCooldown--;
+		canCounterAttack = true;
+	}
+	else if (slowMotionCooldown > 0 && slowMotionCooldown <= 2)
+	{
+		canCounterAttack = true;
+		slowMotionCooldown--;
+	}
+	else if (slowMotionCooldown <= 0 && canCounterAttack == true)
+	{
+		canCounterAttack = false;
+		UE_LOG(LogTemp, Error, TEXT("STOP DamageTake canCounterAttack canCounterAttack %d"), slowMotionCooldown);
+		if(SpecialAttacknstance)
+			SpecialAttacknstance->EndSlowMotion();
 	}
 
 	if(canBeHit == false)
@@ -99,8 +124,10 @@ void APlayerFight_Attacks::Tick(float DeltaTime)
 void APlayerFight_Attacks::XBtnAction()
 {
 	UE_LOG(LogTemp, Warning, TEXT(" XBtnAction canAttack = %s"), canAttack ? TEXT("True") : TEXT("False"));
+
 	if (isSuperMode && SpecialAttacknstance)
 	{
+		SpecialAttacknstance->GetPlayer(this);
 		SpecialAttacknstance->XBtnActionSpe();
 	}
 	else
@@ -156,29 +183,46 @@ void APlayerFight_Attacks::YBtnAction()
 {
 	UE_LOG(LogTemp, Warning, TEXT(" YBtnAction canAttack = %s"), canAttack ? TEXT("True") : TEXT("False"));
 
-	if (SpecialAttacknstance)
+	UE_LOG(LogTemp, Warning, TEXT(" YBtnAction canCounterAttack = %s"), canCounterAttack ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogTemp, Warning, TEXT(" YBtnAction CurrentState %d"), CurrentState);
+
+	if (canCounterAttack && CurrentState == APlayerFight_States::EPlayerFight_State::Counter)
+	{
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::CounterAttack, 0.0f);
+		UE_LOG(LogTemp, Error, TEXT(" YBtnAction COUNTER ATTACK"));
+		isStrongAttacking = true;
+		SpecialAttacknstance->GetPlayer(this);
+		SpecialAttacknstance->SpecialAttack();
+		SpawnParticleSlow();
+	}
+	else if (SpecialAttacknstance)
 	{
 		if (isSuperMode)
 		{
+			if (canAttack == true)
+			{
+		
+			}
+			SpecialAttacknstance->GetPlayer(this);
 			SpecialAttacknstance->YBtnActionSpe();
 		}
 		else
 		{
+			isStrongAttacking = true;
+			SetCharacterState(APlayerFight_States::EPlayerFight_State::StanceSpe, 0.0f);
+			UE_LOG(LogTemp, Warning, TEXT(" YBtnAction isStrongAttacking = %s"), isStrongAttacking ? TEXT("True") : TEXT("False"));
 			SpecialAttacknstance->GetPlayer(this);
 			SpecialAttacknstance->SpecialAttack();
 		}
 	}
 
-	if (canAttack == true)
-	{
-		
-	}
 }
 void APlayerFight_Attacks::BBtnAction()
 {
 	UE_LOG(LogTemp, Warning, TEXT(" BBtnAction canCounterStance = %s"), canCounterStance ? TEXT("True") : TEXT("False"));
 	if (isSuperMode && SpecialAttacknstance)
 	{
+		SpecialAttacknstance->GetPlayer(this);
 		SpecialAttacknstance->BBtnActionSpe();
 	}
 	else
@@ -197,9 +241,10 @@ void APlayerFight_Attacks::BBtnAction()
 
 void APlayerFight_Attacks::ABtnAction()
 {
-	UE_LOG(LogTemp, Warning, TEXT(" BBtnAction canCounterStance = %s"), canCounterStance ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogTemp, Warning, TEXT(" ABtnAction canCounterStance = %s"), canCounterStance ? TEXT("True") : TEXT("False"));
 	if (isSuperMode && SpecialAttacknstance)
 	{
+		SpecialAttacknstance->GetPlayer(this);
 		SpecialAttacknstance->ABtnActionSpe();
 	}
 	else
@@ -245,11 +290,35 @@ void APlayerFight_Attacks::SpawnParticle()
 	}
 
 }
+void APlayerFight_Attacks::SpawnParticleSlow()
+{
+
+	if (SlowParticle)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SpawnParticle SSLLLOOOWWW"));
+		TSubclassOf<AActor> AttackClass = SlowParticle;
+		AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(AttackClass, GetActorLocation(), GetActorRotation());
+
+		IIParticle_AttackEnemy* AttackInterface = Cast<IIParticle_AttackEnemy>(AttackInstance);
+
+		if (AttackInterface)
+		{
+			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack);
+		}
+	}
+
+}
 
 
+void APlayerFight_Attacks::SlowMotion(float slowStrength, int time)
+{
+	if(SpecialAttacknstance)
+		SpecialAttacknstance->StartSlowMotion(slowStrength);
+	slowMotionCooldown = time;
+}
 void APlayerFight_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut)
 {
-	if (canBeHit)
+	if (canBeHit && isCounterStance == false)
 	{
 		isRightAttack = isRightDamage;
 		canBeHitCoolDown = 10.0f;
@@ -282,8 +351,22 @@ void APlayerFight_Attacks::DamageTake(int damage, bool isRightDamage, bool isCut
 			isNearGround = false;
 			isSprint = false;
 		}
+		UE_LOG(LogTemp, Warning, TEXT("C'est le PLAYER qui prend des damage TakeDamage %d"), damage); 
 	}
-	UE_LOG(LogTemp, Warning, TEXT("C'est le PLAYER qui prend des damage TakeDamage %d"), damage); 
+	if (isCounterStance)
+	{
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::Counter, 0.0f);
+		isCounterLeft = !isRightDamage;
+		isCounter = true;
+
+		currentCounterGauge +=10;
+		if(currentCounterGauge > counterGaugeMax)
+			currentCounterGauge = counterGaugeMax;
+
+		UE_LOG(LogTemp, Warning, TEXT("C'est le PLAYER qui en pose COUNTER")); 
+		UE_LOG(LogTemp, Warning, TEXT("DamageTake currentCounterGauge %f"), currentCounterGauge);
+		SlowMotion(0.2f, 10);
+	}
 
 }
 void APlayerFight_Attacks::Rotating() { Super::Rotating(); }

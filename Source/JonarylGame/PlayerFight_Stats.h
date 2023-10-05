@@ -49,6 +49,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques Spe")
 		int cutDamageStamina;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques Spe")
+		float counterGaugeMax;
+	float currentCounterGauge;
 
 	int Classe_MagicDefense;
 

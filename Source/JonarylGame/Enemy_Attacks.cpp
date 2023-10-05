@@ -34,12 +34,23 @@ void AEnemy_Attacks::AttackPLayer()
 	}
 }
 
+void AEnemy_Attacks::ModifyDmgBlend(float alpha, float alphaR, float alphaL)
+{
+	DmgBlendAlpha = alpha;
+	DmgBlendR = alphaR;
+	DmgBlendL = alphaL;
+}
 void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage)
 {
 	Super::DamageTake(damage, isRightDamage);
 	UE_LOG(LogTemp, Warning, TEXT("Attack"));
-	isAttacking = false;
-	canAttack = true;
+	//isAttacking = false;
+	//canAttack = true;
+
+	if (isRightDamage)
+		ModifyDmgBlend(0.5f, 1.0f, 0.0f);
+	else
+		ModifyDmgBlend(0.5f, 0.0f, 1.0f);
 }
 
 
@@ -57,9 +68,34 @@ int AEnemy_Attacks::GetcurrentCombo()
 }
 
 
+float AEnemy_Attacks::GetDmgBlendAlpha()
+{
+	return DmgBlendAlpha;
+}
+float AEnemy_Attacks::GetDmgBlendR()
+{
+	return DmgBlendR;
+}
+float AEnemy_Attacks::GetDmgBlendL()
+{
+	return DmgBlendL;
+}
+
+
 void AEnemy_Attacks::WaitingForChoice()
 {
 	return Super::WaitingForChoice();
+}
+void AEnemy_Attacks::EndDamage()
+{
+	UE_LOG(LogTemp, Error, TEXT("EndDamage"));
+	EndDamageAnimation();
+	WaitingForChoice();
+}
+void AEnemy_Attacks::EndDamageAnimation()
+{
+	UE_LOG(LogTemp, Error, TEXT("EndDamageAnimation"));
+	ModifyDmgBlend(0.0f, 0.0f, 0.0f);
 }
 void AEnemy_Attacks::CanAttack()
 {

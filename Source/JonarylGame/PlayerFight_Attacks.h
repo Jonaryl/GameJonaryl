@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
 		TArray<TSubclassOf<AActor>> AttackList;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
+		TSubclassOf<AActor> SlowParticle;
+
 		//TArray<TSubclassOf<AParticle_AttackEnemy>> AttackList;
 
 
@@ -79,6 +82,7 @@ protected:
 	bool isCounterLeft;
 	bool canCounterStance;
 	bool canCounter;
+	bool canCounterAttack;
 	bool isDamaged;
 
 	virtual bool GetisAttacking();
@@ -94,9 +98,11 @@ protected:
 
 	virtual void HitCount();
 	virtual void SpawnParticle();
+	virtual void SpawnParticleSlow();
 	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut);
 
-
+	virtual void SlowMotion(float slowStrength, int time);
+	int slowMotionCooldown;
 
 	////////////////////////////////////////// DEBUG //////////////////////////////////////////////////////
 	virtual void RemoveAllEnemy() override;
