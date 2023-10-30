@@ -17,9 +17,8 @@ void AParticle_AttackEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	LaunchParticle();
-	if (CollisionAttack)
+	if (CollisionAttack && !isCounter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CollisionAttack detecter"));
 		CollisionAttack->OnComponentBeginOverlap.AddDynamic(this, &AParticle_AttackEnemy::OnAttackCollisionBeginOverlap);
 		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_AttackEnemy::OnAttackCollisionEndOverlap);
 	}
@@ -43,19 +42,33 @@ void AParticle_AttackEnemy::Tick(float DeltaTime)
 
 void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SetAttack_Implementation SetAttack_Implementation"));
 
 	playerAttack = AttackPlayer;
 	isRightDamage = isRightAttack;
-	UE_LOG(LogTemp, Warning, TEXT("playerAttack %f"), playerAttack);
-	UE_LOG(LogTemp, Warning, TEXT("AttackPlayer %d"), AttackPlayer);
 
-
-	if (CollisionAttack)
+	if (CollisionAttack && !isCounter)
 	{
 		CollisionAttack->SetBoxExtent(CollisionSize);
 		FString PositionString = CollisionSize.ToString();
-		UE_LOG(LogTemp, Warning, TEXT("CollisionSize CollisionSize CollisionSize: %s"), *PositionString);
+	}
+}
+
+void AParticle_AttackEnemy::IsCountered_Implementation(AActor* EnemyCountered)
+{
+	UE_LOG(LogTemp, Log, TEXT(" IsCountered_Implementation  "));
+	if (EnemyCountered)
+	{
+		UE_LOG(LogTemp, Log, TEXT(" EnemyCountered  "));
+		if (EnemyCountered->IsA(AEnemy_Unit::StaticClass()))
+		{
+			UE_LOG(LogTemp, Log, TEXT(" EnemyCountered->IsA(AEnemy_Unit::StaticClass()  "));
+			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(EnemyCountered);
+			if (enemy)
+			{
+				UE_LOG(LogTemp, Log, TEXT(" enemy enemy enemy "));
+				enemy->CounterTake();
+			}
+		}
 	}
 }
 
@@ -63,13 +76,11 @@ void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* O
 {
 	if (OtherActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetClass()->GetName());
 		if (OtherActor->IsA(AEnemy_Unit::StaticClass()))
 		{
 			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(OtherActor);
 			if (enemy)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter on est bon plus qu'a"));
 				if (isSpeSlow)
 					enemy->SlowDownTake();
 				else
@@ -84,14 +95,12 @@ void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* O
 
 void AParticle_AttackEnemy::OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("CollisionAttack c'est la fin"));
 	// Handle the end of the overlap collision here
 	// You can access the colliding actor (OtherActor) and perform any necessary logic
 }
 
 void AParticle_AttackEnemy::LaunchParticle()
 {
-	UE_LOG(LogTemp, Warning, TEXT("LaunchParticle oon est dans particle"));
 	FVector PlayerPosition = GetActorLocation();
 	FRotator PlayerRotation = GetActorRotation();
 
@@ -116,11 +125,14 @@ void AParticle_AttackEnemy::LaunchParticle()
 	FRotator FinalRelativeParticuleRotation = RelativeRotation + ParticleRotationPlus;
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Particle, RelativeParticulePosition, FinalRelativeParticuleRotation);
-	CollisionAttack = AParticle_AttackEnemy::FindComponentByClass<UBoxComponent>();
-
-	if (CollisionAttack)
+	if (!isCounter)
 	{
-		CollisionAttack->SetVisibility(true);
+		CollisionAttack = AParticle_AttackEnemy::FindComponentByClass<UBoxComponent>();
+
+		if (CollisionAttack)
+		{
+			CollisionAttack->SetVisibility(true);
+		}
 	}
 }
 
@@ -143,13 +155,13 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 		{
 			// Le coup vient de derrière
 			finalDirectionIsRight = !isRightDamage;
-			UE_LOG(LogTemp, Error, TEXT("dos dos dos dos "));
+			//UE_LOG(LogTemp, Error, TEXT("dos dos dos dos "));
 		}
 		else
 		{
 			// Le coup vient de devant
 			finalDirectionIsRight = isRightDamage;
-			UE_LOG(LogTemp, Error, TEXT("face face face face "));
+			//UE_LOG(LogTemp, Error, TEXT("face face face face "));
 		}
 	}
 	else
@@ -158,18 +170,17 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 		{
 			// Le coup vient de la gauche
 			finalDirectionIsRight = false;
-			UE_LOG(LogTemp, Error, TEXT("gauche gauche gauche gauche "));
+			//UE_LOG(LogTemp, Error, TEXT("gauche gauche gauche gauche "));
 		}
 		else
 		{
 			// Le coup vient de la droite
 			finalDirectionIsRight = true;
-			UE_LOG(LogTemp, Error, TEXT("droite droite droite droite "));
+			//UE_LOG(LogTemp, Error, TEXT("droite droite droite droite "));
 		}
 	}
 
 	int FinalDamage = playerAttack + BaseDamage - enemy->Defense;
-	UE_LOG(LogTemp, Warning, TEXT("DamageEnemy DamageEnemy"));
 	enemy->DamageTake(FinalDamage, finalDirectionIsRight);
 }
 

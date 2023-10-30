@@ -37,7 +37,7 @@ void AScene_Spawner::SpawnEnemy()
 
 		// Spawn the enemy
 		AEnemy_Unit* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Unit>(EnemyClass, SpawnLocation, SpawnRotation, SpawnParams);
-
+		UE_LOG(LogTemp, Warning, TEXT(" spawn "));
 	}
 }
 

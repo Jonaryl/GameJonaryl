@@ -24,4 +24,7 @@ class JONARYLGAME_API IIParticle_AttackEnemy
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
 		void SetAttack(int AttackPlayer, bool isRightAttack);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Counter")
+		void IsCountered(AActor* EnemyCountered);
 };

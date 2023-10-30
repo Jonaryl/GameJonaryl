@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JonarylGame", "Intermediate
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visualizers", "Visualizers", "{1CCEC849-CC72-4C59-8C36-2F7C38706D4C}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\..\..\Program Files\Epic Games\UE_5.1\Engine\Extras\VisualStudioDebugging\Unreal.natvis = ..\..\..\..\..\..\Program Files\Epic Games\UE_5.1\Engine\Extras\VisualStudioDebugging\Unreal.natvis
+		C:\Program Files\Epic Games\UE_5.1\Engine\Extras\VisualStudioDebugging\Unreal.natvis = C:\Program Files\Epic Games\UE_5.1\Engine\Extras\VisualStudioDebugging\Unreal.natvis
 	EndProjectSection
 EndProject
 Global
@@ -23,6 +23,10 @@ Global
 		Development Editor|Win64 = Development Editor|Win64
 		Development|Win64 = Development|Win64
 		Shipping|Win64 = Shipping|Win64
+	EndGlobalSection
+	# UnrealVS Section
+	GlobalSection(ddbf523f-7eb6-4887-bd51-85a714ff87eb) = preSolution
+		AvailablePlatforms=Win64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FE807722-E0F5-31C1-A24F-F9809AD3B6FA}.DebugGame Editor|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win64
@@ -47,11 +51,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FE807722-E0F5-31C1-A24F-F9809AD3B6FA} = {233774A8-CC9D-3FA9-86D1-90573E92B704}
 		{66A38891-52E7-3EC2-9240-B1AE173435B2} = {DE1F8B53-6C02-3C13-9101-A7C8D96F3FF6}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5E86E252-DC64-40A0-B697-CEB125E0A234}
-	EndGlobalSection
-	GlobalSection(ddbf523f-7eb6-4887-bd51-85a714ff87eb) = preSolution
-		AvailablePlatforms = Win64
 	EndGlobalSection
 EndGlobal

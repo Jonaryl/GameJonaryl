@@ -34,6 +34,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
 		TSubclassOf<AActor> SlowParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
+		TSubclassOf<AActor> CounterParticleL;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
+		TSubclassOf<AActor> CounterParticleR;
 
 		//TArray<TSubclassOf<AParticle_AttackEnemy>> AttackList;
 
@@ -53,6 +57,7 @@ protected:
 	virtual void BBtnAction() override;
 	virtual void ABtnAction() override;
 
+	void StopCombo() override;
 	void DebugBtnAction() override;
 
 	virtual void Rotating() override;
@@ -68,9 +73,11 @@ protected:
 
 	int currentDamageCut;
 
-	bool isAttacking;
+	int counterNumber;
+
 	bool isStrongAttacking;
 	bool canAttack;
+	bool canStrongAttack;
 	bool canFinalComboAttack;
 	int timerWhenCanTurnAttacking;
 	AActor* enemyTargetLock;
@@ -99,7 +106,8 @@ protected:
 	virtual void HitCount();
 	virtual void SpawnParticle();
 	virtual void SpawnParticleSlow();
-	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut);
+	virtual void SpawnParticleCounter(bool isRightDamage, AActor* Enemy);
+	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut, AActor* Enemy);
 
 	virtual void SlowMotion(float slowStrength, int time);
 	int slowMotionCooldown;

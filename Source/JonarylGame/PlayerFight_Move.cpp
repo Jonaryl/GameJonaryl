@@ -26,11 +26,11 @@ APlayerFight_Move::APlayerFight_Move()
     FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
-    MyMeshTest = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cube Mesh"));
-
     FVector SpawnLocation = FVector(0.0f, 0.0f, 1.0f);
     FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
     SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+
+    CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength, 100, 500);
 }
 
 void APlayerFight_Move::BeginPlay()
@@ -90,9 +90,8 @@ void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void APlayerFight_Move::StartMoving()
 {
-    if (canMove)
+    if (canMove && canMoveWhenCombo)
     {
-        //UE_LOG(LogTemp, Warning, TEXT("canMove  dans StartMoving"));  
         if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump &&
             CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
             CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::Damage &&
@@ -106,7 +105,6 @@ void APlayerFight_Move::StartMoving()
                 isMoving = true;
             if (isIdle == true)
                 isIdle = false;
-            //UE_LOG(LogTemp, Warning, TEXT("StartMoving %d"), CurrentState);
         }
     }
 }
@@ -120,13 +118,24 @@ void APlayerFight_Move::StopMoving()
             isMoving = false;
         if (isIdle == false)
             isIdle = true;
-        //UE_LOG(LogTemp, Warning, TEXT("StopMoving %d"), CurrentState);
     }
 }
 
 void APlayerFight_Move::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+
+    if (hasLanded && isMoveInput == true)
+    {
+        if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
+        {
+            isMoving = true;
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+            hasLanded = false;
+        }
+    }
+
 
     if (valueSpeed > 0.f)
     {
@@ -135,8 +144,6 @@ void APlayerFight_Move::Tick(float DeltaTime)
             float ReduceFactor = ((valueSpeed - (0.1f + InitialSpeed)) * -1);
             valueSpeed -= (valueSpeed * ReduceFactor) * GetWorld()->DeltaTimeSeconds;
             valueSpeed = FMath::Max(valueSpeed, 0.f);
-
-            //UE_LOG(LogTemp, Warning, TEXT("CurrentSpeed pressed with value %f"), valueSpeed);
 
             FVector Direction = GetActorForwardVector();
             FVector NewLocation = GetActorLocation() + Direction * valueSpeed * DeltaTime;
@@ -151,19 +158,6 @@ void APlayerFight_Move::Tick(float DeltaTime)
 void APlayerFight_Move::Landed(const FHitResult& Hit)
 {
     Super::Landed(Hit);
-    UE_LOG(LogTemp, Warning, TEXT("Landed %d"), CurrentState);
-    if(isMoveInput == true)
-        SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.30f);
-    else
-        SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.30f);
-    UE_LOG(LogTemp, Warning, TEXT("Landed après %d"), CurrentState);
-    isStartJump = false;
-    isIdleJump = false;
-    isDashJump = false;
-    isDash = false;
-    canDash = true;
-    //UE_LOG(LogTemp, Warning, TEXT("Landed"));
-    // Votre code ici pour détecter que le personnage touche le sol
 }
 
 
@@ -220,8 +214,6 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                 TargetLocation = GetActorLocation() + (Direction * ((runSpeed * sprintSpeed) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
             else
                 TargetLocation = GetActorLocation() + (Direction * ((runSpeed /1.5) * valueSpeed) * GetWorld()->DeltaTimeSeconds);
-            UE_LOG(LogTemp, Error, TEXT("01 NewState = %d"), CurrentState);
-            UE_LOG(LogTemp, Error, TEXT("02 valueSpeed = %f"), valueSpeed);
 
             FVector DirectionToTarget = TargetLocation - GetActorLocation();
             DirectionToTarget.Normalize();
@@ -252,8 +244,6 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                 FRotator ActorRotation = GetActorRotation();
                 FRotator NewRaycastRotation = ActorRotation + JoystickRotation;
 
-                MyMeshTest->SetRelativeLocation(TargetLocation);
-
                 FRotator interRotation = InterpolatedRotation.Rotator();
 
                 PlayerFight_LockInstance->GetPlayerPosRot(TargetLocation, NewRaycastRotation, this, NewRaycastDirection);
@@ -261,9 +251,8 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
             }
 
 
-            if (canMove)
+            if (canMove && canMoveWhenCombo)
             {
-                // UE_LOG(LogTemp, Warning, TEXT("canMove  dans MoveForward"));
                 if (CurrentState != APlayerFight_States::EPlayerFight_State::Attack && CurrentState != APlayerFight_States::EPlayerFight_State::Counter &&
                     CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
                     CurrentState != APlayerFight_States::EPlayerFight_State::Damage &&
@@ -274,10 +263,19 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                     if (CurrentState == APlayerFight_States::EPlayerFight_State::Idle)
                         SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
 
+                    //UE_LOG(LogTemp, Warning, TEXT(" isNearGround = %s"), isNearGround ? TEXT("True") : TEXT("False"));
+
                     if (isMoving == false)
-                        isMoving = true;
+                    {
+                        if(isNearGround)
+                            isMoving = true;
+                        else
+                            isMoving = false;
+                    }
                     if (isIdle == true)
                         isIdle = false;
+
+                    //UE_LOG(LogTemp, Warning, TEXT(" isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
 
                     SetActorLocationAndRotation(
                         FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
@@ -316,10 +314,9 @@ void APlayerFight_Move::TurnCamera(const FInputActionValue& Value)
 
 void APlayerFight_Move::ChangeCharacterState(APlayerFight_States::EPlayerFight_State NewState)
 {
-    //UE_LOG(LogTemp, Warning, TEXT("02 avant CurrentState = %d"), CurrentState);
     //APlayerFight_States::EPlayerFight_State NewState = static_cast<APlayerFight_States::EPlayerFight_State>(reinterpret_cast<uintptr_t>(NewStatePtr));
     CurrentState = NewState;
-    UE_LOG(LogTemp, Warning, TEXT("03 change d'etat CurrentState = %d"), CurrentState);
+    //UE_LOG(LogTemp, Warning, TEXT("03 change d'etat CurrentState = %d"), CurrentState);
 }
 
 
@@ -327,7 +324,6 @@ void APlayerFight_Move::SetCharacterState(APlayerFight_States::EPlayerFight_Stat
 {
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDel;
-    //UE_LOG(LogTemp, Error, TEXT("01 NewState = %d"), NewState); 
     TimerDel.BindUObject(this, &APlayerFight_Move::ChangeCharacterState, NewState);
     if (Time == 0.0f)
         APlayerFight_Move::ChangeCharacterState(NewState);
@@ -410,11 +406,13 @@ bool APlayerFight_Move::GetisMoving()
 {
     return isMoving;
 }
-
-
-
-
-void APlayerFight_Move::RemoveAllEnemy()
+bool APlayerFight_Move::GethasLanded()
 {
-    UE_LOG(LogTemp, Warning, TEXT("RemoveAllEnemy MOVE"));
+    return hasLanded;
 }
+
+
+
+
+void APlayerFight_Move::EndAnimation(){}
+void APlayerFight_Move::RemoveAllEnemy(){}

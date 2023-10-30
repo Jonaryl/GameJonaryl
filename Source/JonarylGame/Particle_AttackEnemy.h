@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		bool isSpeSlow;	
 	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isCounter;	
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BaseDamage;
 	float playerAttack;
 
@@ -58,6 +61,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack) override;
+	void IsCountered_Implementation(AActor* EnemyCountered) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

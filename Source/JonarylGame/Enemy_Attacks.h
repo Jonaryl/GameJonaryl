@@ -38,6 +38,8 @@ protected:
 	int currentCombo;
 	bool isRightAttack;
 
+	bool isCounterTake;
+
 	float DmgBlendAlpha;
 	float DmgBlendR;
 	float DmgBlendL;
@@ -45,6 +47,7 @@ protected:
 	void WaitingForChoice() override;
 	void AttackPLayer() override;
 	void DamageTake(int damage, bool isRightDamage) override;
+	virtual void CounterTake();
 	virtual void ParticleLaunch();
 	virtual void ModifyDmgBlend(float alpha, float alphaR, float alphaL);
 

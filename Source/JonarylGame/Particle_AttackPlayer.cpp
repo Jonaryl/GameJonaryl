@@ -20,7 +20,7 @@ void AParticle_AttackPlayer::BeginPlay()
 		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_AttackPlayer::OnAttackCollisionEndOverlap); 
 	}
 
-	float DelayBeforeDestroy = 3.0f;
+	float DelayBeforeDestroy = 0.15f;
 
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
@@ -31,11 +31,12 @@ void AParticle_AttackPlayer::BeginPlay()
 }
 
 
-void AParticle_AttackPlayer::SetAttack_Implementation(int AttackEnemy, bool isRightAttack, FVector enemyPosition)
+void AParticle_AttackPlayer::SetAttack_Implementation(int AttackEnemy, bool isRightAttack, FVector enemyPosition, AActor* Enemy)
 {
 	enemyAttack = AttackEnemy;
 	isRightDamage = isRightAttack;
 	EnemyLaunchPosition = enemyPosition;
+	CurrentEnemy = Enemy;
 
 	if (CollisionAttack)
 	{
@@ -47,8 +48,6 @@ void AParticle_AttackPlayer::OnAttackCollisionBeginOverlap(UPrimitiveComponent* 
 {
 	if (OtherActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetClass()->GetName());
-
 		if (OtherActor->IsA(APlayerFight_Character::StaticClass()))
 		{
 			// La collision concerne un acteur de la classe APlayerCharacter
@@ -56,8 +55,6 @@ void AParticle_AttackPlayer::OnAttackCollisionBeginOverlap(UPrimitiveComponent* 
 			if (PlayerCharacter)
 			{
 				DamagePlayer(PlayerCharacter);
-
-				UE_LOG(LogTemp, Error, TEXT("Destroy attack"));
 				Destroy();
 			}
 		}
@@ -66,7 +63,6 @@ void AParticle_AttackPlayer::OnAttackCollisionBeginOverlap(UPrimitiveComponent* 
 
 void AParticle_AttackPlayer::OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("CollisionAttack c'est la fin"));
 	// Handle the end of the overlap collision here
 	// You can access the colliding actor (OtherActor) and perform any necessary logic
 }
@@ -160,6 +156,6 @@ void AParticle_AttackPlayer::DamagePlayer(APlayerFight_Character* player)
 	}
 
 	int FinalDamage = enemyAttack + BaseDamage - player->Defense;
-	player->DamageTake(FinalDamage, finalDirectionIsRight, isDamageCut, damageCut);
+	player->DamageTake(FinalDamage, finalDirectionIsRight, isDamageCut, damageCut, CurrentEnemy);
 }
 

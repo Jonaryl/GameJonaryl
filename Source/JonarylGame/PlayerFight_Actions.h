@@ -51,6 +51,7 @@ protected:
 	//virtual void XButton() override;
 	//virtual void YButton() override;
 
+	virtual void StopCombo();
 
 	virtual bool GetisStartJump();
 	virtual bool GetisIdleJump();

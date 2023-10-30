@@ -10,8 +10,6 @@ void AEnemy_Unit::BeginPlay()
 	CollisionDamage = AEnemy_Unit::FindComponentByClass<UBoxComponent>();
 	if (CollisionDamage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CollisionDamage ça marche enenemy"));
-
 		CollisionDamage->SetupAttachment(RootComponent);
 
 		CollisionDamage->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -42,7 +40,6 @@ void AEnemy_Unit::EndDamageAnimation()
 }
 void AEnemy_Unit::EndAnimation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("EndAnimation EndAnimation EndAnimation EndAnimation enemy"));
 	hitCountDamageAnimation = 0;
 	isDamaged = false;
 	isSlowDownTake = false;
@@ -70,6 +67,10 @@ bool AEnemy_Unit::GetisDamagedRight()
 int AEnemy_Unit::GethitCountDamageAnimation()
 {
 	return hitCountDamageAnimation;
+}
+bool AEnemy_Unit::GetisCounterTake()
+{
+	return isCounterTake;
 }
 
 bool AEnemy_Unit::GetisAttacking()
@@ -115,6 +116,10 @@ void AEnemy_Unit::ParticleLaunch()
 void AEnemy_Unit::DamageTake(int damage, bool isRightDamage)
 {
 	return Super::DamageTake(damage,isRightDamage);
+}
+void AEnemy_Unit::CounterTake()
+{
+	return Super::CounterTake();
 }
 void AEnemy_Unit::SlowDownTake()
 {

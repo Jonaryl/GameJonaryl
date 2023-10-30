@@ -13,7 +13,6 @@ AEnemy_Move::AEnemy_Move()
     if (PlayerCharacter)
     {
         ActionChoice();
-        //UE_LOG(LogTemp, Warning, TEXT("player is here"));
     }
     canBeHit = true;
     canCutAnimByDamage = true;
@@ -49,7 +48,6 @@ void AEnemy_Move::Tick(float DeltaTime)
         FVector EnemyLocation = GetActorLocation();
 
         distanceToPlayer = FVector::Distance(PlayerLocation, EnemyLocation);
-        //UE_LOG(LogTemp, Warning, TEXT("distanceToPlayer %f"), distanceToPlayer);
 
         if (canMoveToPlace)
         {
@@ -59,8 +57,6 @@ void AEnemy_Move::Tick(float DeltaTime)
             distanceToMovePlace = FVector::Distance(DestinationtoMove, EnemyLocation);
             if (timeAction > 0 && distanceToMovePlace > 200)
             {
-               // UE_LOG(LogTemp, Warning, TEXT("distanceToMovePlace  %f"), distanceToMovePlace);
-                //UE_LOG(LogTemp, Warning, TEXT("timeAction  %d"), timeAction);
 
                 if (canTrackToPlace == false)
                     timeAction--;
@@ -76,10 +72,6 @@ void AEnemy_Move::Tick(float DeltaTime)
             }
             else
             {
-                UE_LOG(LogTemp, Warning, TEXT("end"));
-                UE_LOG(LogTemp, Warning, TEXT("canTrackToPlace  %d"), canTrackToPlace);
-
-
                 if (canTrackToPlace == false)
                     WaitingForChoice();
                 else
@@ -99,7 +91,6 @@ void AEnemy_Move::Tick(float DeltaTime)
             else
             {
                 ActionChoice(); 
-                UE_LOG(LogTemp, Warning, TEXT("ActionChoice ActionChoice ActionChoice"));
             }
         }
     }
@@ -168,11 +159,6 @@ void AEnemy_Move::ActionChoice()
     isWaiting = false;
     int RandomInt = GenerateRandomInt(1, 100);
 
-
-    //UE_LOG(LogTemp, Warning, TEXT("RandomInt  %d"), RandomInt);
-    //UE_LOG(LogTemp, Warning, TEXT("isWaiting  %d"), isWaiting);
-    //UE_LOG(LogTemp, Warning, TEXT("isPlaceThePlayer  %d"), isPlaceThePlayer);
-
     if (RandomInt > 0 && RandomInt < 20)
     {
         ChoiceWaitingMove();
@@ -190,7 +176,6 @@ void AEnemy_Move::ActionChoice()
 
 void AEnemy_Move::WaitingForChoice()
 {
-    UE_LOG(LogTemp, Warning, TEXT("WaitingForChoice WaitingForChoice WaitingForChoice"));
     timeWaiting = GenerateRandomInt(1, 150);
     isWaiting = true;
     isPlaceThePlayer = false;
@@ -203,11 +188,9 @@ void AEnemy_Move::ChoiceMoveToPlayer()
     if (PlayerCharacter)
     {
         isDestinationPlayer = true;
-        //UE_LOG(LogTemp, Warning, TEXT("ChoiceMoveToPlayer "));
 
         if (isPlaceThePlayer == false)
         {
-           // UE_LOG(LogTemp, Warning, TEXT("isPlaceThePlayer "));
             canMoveToPlace = true;
             timeAction = 100;
         }
@@ -230,8 +213,6 @@ void AEnemy_Move::ChoiceAttackPlayer()
     {
         FVector PlayerLocation = PlayerCharacter->GetActorLocation();
         DestinationtoMove = FVector(PlayerLocation.X, PlayerLocation.Y, 0.0f);
-
-        //UE_LOG(LogTemp, Warning, TEXT("ChoiceAttackPlayer "));
 
         canMoveToPlace = true;
         canTrackToPlace = true;
@@ -261,8 +242,6 @@ void AEnemy_Move::SlowDownTake()
 {
     if (isSlowDownTake == false)
     {
-        UE_LOG(LogTemp, Warning, TEXT("SlowDownTake SlowDownTake SlowDownTake"));
-
         isSlowDownTake = true;
         isDamaged = true;
         canMoveToPlace = false;
@@ -283,9 +262,7 @@ void AEnemy_Move::DamageTake(int damage, bool isRightDamage)
         {
             hitCountDamageAnimation = 1;
         }
-         UE_LOG(LogTemp, Warning, TEXT("hitCountDamageAnimation %d"), hitCountDamageAnimation);
     }
-    UE_LOG(LogTemp, Warning, TEXT("TakeDamage %d"), damage);
 }
 
 
@@ -294,7 +271,6 @@ float AEnemy_Move::GenerateRandomFloat(float Min, float Max)
 {
     static FRandomStream RandomStreamFloat(FMath::Rand());
     float RandomFloatNumber = RandomStreamFloat.FRandRange(Min, Max);
-    //UE_LOG(LogTemp, Warning, TEXT("RandomNumber %f"), RandomFloatNumber);
     return RandomFloatNumber;
 }
 int AEnemy_Move::GenerateRandomInt(int Min, int Max)

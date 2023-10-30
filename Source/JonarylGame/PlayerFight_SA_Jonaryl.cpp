@@ -7,10 +7,8 @@
 void UPlayerFight_SA_Jonaryl::SpecialAttack()
 {
 	Super::SpecialAttack();
-	UE_LOG(LogTemp, Warning, TEXT("SpecialAttack"));
 	if (PlayerFight_Character)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerFight_Character SuperModeActivate"));
 		PlayerFight_Character->SuperModeActivate();
 	}
 }
@@ -50,7 +48,6 @@ void UPlayerFight_SA_Jonaryl::ABtnActionSpe()
 	UE_LOG(LogTemp, Warning, TEXT("ABtnActionSpe")); 
 	if (PlayerFight_Character)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerFight_Character SuperMode  DesActivate"));
 		PlayerFight_Character->SuperModeActivate();
 		AllEnemyEndSlow();
 	}
@@ -72,7 +69,6 @@ void UPlayerFight_SA_Jonaryl::AllEnemyEndSlow()
 {
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Unit::StaticClass(), FoundActors);
-	UE_LOG(LogTemp, Warning, TEXT("Calling CustomMethodToCall on AEnemy_Unit"));
 
 	// Call the custom method on each AEnemy_Unit actor
 	for (AActor* Actor : FoundActors)
@@ -80,7 +76,6 @@ void UPlayerFight_SA_Jonaryl::AllEnemyEndSlow()
 		AEnemy_Unit* EnemyUnit = Cast<AEnemy_Unit>(Actor);
 		if (EnemyUnit)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Calling CustomMethodToCall for Actor %s"), *Actor->GetName());
 			// Call the custom method on AEnemy_Unit
 			EnemyUnit->EndSlowMode();
 		}
@@ -92,13 +87,11 @@ void UPlayerFight_SA_Jonaryl::RemoveAllEnemy()
 {
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Unit::StaticClass(), FoundActors);
-	UE_LOG(LogTemp, Warning, TEXT("RemoveAllEnemy UPlayerFight_SA_Jonaryl"));
 	// Destroy all enemy characters in the array
 	for (AActor* Actor : FoundActors)
 	{
 		if (Actor && Actor->IsA<AEnemy_Unit>())
 	    {
-		    UE_LOG(LogTemp, Warning, TEXT("RemoveAllEnemies"));
 		    Actor->Destroy();
 	    }
 	}

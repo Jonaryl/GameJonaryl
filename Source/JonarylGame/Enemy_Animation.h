@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isRightAttackHit;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterTake;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int hitCountDamageAnimation;
 
 

@@ -46,6 +46,7 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isDashJump = playerClass->GetisDashJump();
 	isDash = playerClass->GetisDash();
 	dashNumber = playerClass->GetdashNumber();
+	counterNumber = playerClass->GetcounterNumber();
 	isNearGround = playerClass->GetisNearGround();
 	isIdle = playerClass->GetisIdle();
 	isSprint = playerClass->GetisSprint();
@@ -53,6 +54,7 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isStrongAttacking = playerClass->GetisStrongAttacking();
 	currentCombo = playerClass->GetcurrentCombo();
 	AttackOneNumber = playerClass->GetAttackOneNumber();
+	hasLanded = playerClass->GethasLanded();
 
 	isCounterStance = playerClass->GetisCounterStance();
 	isCounter = playerClass->GetisCounter();
@@ -67,7 +69,6 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	AttackSpeY = playerClass->GetAttackSpeY();
 
 	isSuperMode = playerClass->GetisSuperMode();
-	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 	}
 
 

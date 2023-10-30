@@ -9,6 +9,7 @@ AEnemy_Attacks::AEnemy_Attacks()
 	currentCombo = 0;
 	canAttack = true;
 	isRightAttack = true;
+	isCounterTake = false;
 }
 
 void AEnemy_Attacks::AttackIsRight()
@@ -22,12 +23,9 @@ void AEnemy_Attacks::AttackIsLeft()
 
 void AEnemy_Attacks::AttackPLayer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("canAttack  Attack %d"), canAttack);
-
 	if (canAttack == true)
 	{
 		isDamaged = false;
-		UE_LOG(LogTemp, Warning, TEXT("Attack"));
 		isAttacking = true;
 		currentCombo--;
 		canAttack = false;
@@ -43,7 +41,6 @@ void AEnemy_Attacks::ModifyDmgBlend(float alpha, float alphaR, float alphaL)
 void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage)
 {
 	Super::DamageTake(damage, isRightDamage);
-	UE_LOG(LogTemp, Warning, TEXT("Attack"));
 	//isAttacking = false;
 	//canAttack = true;
 
@@ -51,6 +48,11 @@ void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage)
 		ModifyDmgBlend(0.5f, 1.0f, 0.0f);
 	else
 		ModifyDmgBlend(0.5f, 0.0f, 1.0f);
+}
+void AEnemy_Attacks::CounterTake()
+{
+	isCounterTake = true;
+	UE_LOG(LogTemp, Error, TEXT("isCounterTake !!!!!!!!!!"));
 }
 
 
@@ -85,26 +87,24 @@ float AEnemy_Attacks::GetDmgBlendL()
 void AEnemy_Attacks::WaitingForChoice()
 {
 	return Super::WaitingForChoice();
+	isCounterTake = false;
 }
 void AEnemy_Attacks::EndDamage()
 {
-	UE_LOG(LogTemp, Error, TEXT("EndDamage"));
 	EndDamageAnimation();
 	WaitingForChoice();
 }
 void AEnemy_Attacks::EndDamageAnimation()
 {
-	UE_LOG(LogTemp, Error, TEXT("EndDamageAnimation"));
 	ModifyDmgBlend(0.0f, 0.0f, 0.0f);
 }
 void AEnemy_Attacks::CanAttack()
 {
 	isAttacking = false;
+	isCounterTake = false;
 	currentCombo = 0;
 	canAttack = true;
 	WaitingForChoice();
-	UE_LOG(LogTemp, Warning, TEXT("canAttack  CanAttack CanAttack vCanAttack %d"), canAttack);
-
 }
 
 
@@ -115,20 +115,19 @@ void AEnemy_Attacks::ParticleLaunch()
 
 void AEnemy_Attacks::SpawnParticle()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("SpawnParticle"));
-
 	if (!AttackList.IsEmpty())
 	{
 		TSubclassOf<AActor> AttackClass = AttackList[0];
 		AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(AttackClass, GetActorLocation(), GetActorRotation());
 
 		IIParticle_AttackPlayer* AttackInterface = Cast<IIParticle_AttackPlayer>(AttackInstance);
-		if (AttackInterface)
+		AActor* ActorReference = Cast<AActor>(this);
+		if (AttackInterface && ActorReference)
 		{
-			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack, GetActorLocation());
+			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack, GetActorLocation(), ActorReference);
 
 			FVector EnemyLaunchPosition = GetActorLocation();
-			UE_LOG(LogTemp, Warning, TEXT("GetActorLocation GetActorLocation : X=%f, Y=%f, Z=%f"), EnemyLaunchPosition.X, EnemyLaunchPosition.Y, EnemyLaunchPosition.Z);
+			//UE_LOG(LogTemp, Warning, TEXT("GetActorLocation GetActorLocation : X=%f, Y=%f, Z=%f"), EnemyLaunchPosition.X, EnemyLaunchPosition.Y, EnemyLaunchPosition.Z);
 		}
 	}
 	

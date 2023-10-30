@@ -47,11 +47,13 @@ public:
 
 	FVector EnemyLaunchPosition;
 
+	AActor* CurrentEnemy;
+
 	UBoxComponent* CollisionAttack;
 
 	bool isRightDamage;
 
-	void SetAttack_Implementation(int AttackEnemy, bool isRightAttack, FVector emeterPosition) override;
+	void SetAttack_Implementation(int AttackEnemy, bool isRightAttack, FVector emeterPosition, AActor* Enemy) override;
 protected:
 
 	void DamagePlayer( APlayerFight_Character* player);

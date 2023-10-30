@@ -26,6 +26,7 @@ public:
         DashJump,
         Attack,
         StanceSpe,
+        AttackSpe,
         Dash,
         Dodge,
         Damage,

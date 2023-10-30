@@ -40,11 +40,13 @@ public:
 	bool GetisDamaged();
 	bool GetisDamagedRight();
 	int GethitCountDamageAnimation();
+	bool GetisCounterTake();
 
 
 	void CanAttack() override;
 	void ParticleLaunch() override;
 	void DamageTake(int damage, bool isRightDamage) override;
+	void CounterTake() override;
 
 	void EndAnimation();
 

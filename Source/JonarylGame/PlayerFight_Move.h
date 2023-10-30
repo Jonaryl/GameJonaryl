@@ -151,15 +151,13 @@ protected:
 	bool isSprintInput;
 	bool canMove;
 
+	bool canMoveWhenCombo;
+
 	bool canBeHit;
 	float canBeHitCoolDown;
 
 	float XMoveDirection;
 	float YMoveDirection;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TEST")
-		UStaticMeshComponent* MyMeshTest;
 
 	bool canDash = true;
 	bool bIsGrounded;
@@ -176,6 +174,8 @@ protected:
 	virtual void RBBtnActionEnd();
 
 
+	virtual void EndAnimation();
+
 	virtual void DebugBtnAction();
 	//virtual void BButton();
 	//virtual void XButton();
@@ -187,15 +187,20 @@ protected:
 	virtual bool GetisNearGround();
 	virtual bool GetCanMove();
 	virtual bool GetisMoving();
+	virtual bool GethasLanded();
 
 	bool isStartJump;
 	bool isIdleJump;
+	bool hasLanded;
 	bool isDashJump;
 	bool isDash;
 	bool isNearGround;
 	bool isSprint;
 	bool isMoving;
 
+
+	bool isAttacking;
+	bool RootMotionProblem;
 
 	bool isIdle;
 

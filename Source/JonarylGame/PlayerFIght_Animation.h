@@ -65,9 +65,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int dashNumber;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int counterNumber;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isNearGround;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isSprint;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool hasLanded;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isAttacking;
