@@ -6,6 +6,7 @@
 #include "Enemy_Classes.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Enemy_Move.generated.h"
 
@@ -18,7 +19,6 @@ class JONARYLGAME_API AEnemy_Move : public AEnemy_Classes
 	GENERATED_BODY()
 
 public:
-	AEnemy_Move();
 	virtual void Tick(float DeltaTime) override;
 
 protected:
@@ -34,6 +34,9 @@ protected:
 	bool isWaiting;
 	int timeAction;
 	int timeWaiting;
+
+	bool isAttacking;
+	bool canTurnToPlayer;
 
 	bool isRightAttackHit;
 	bool canBeHit;
@@ -75,4 +78,7 @@ protected:
 
 	virtual void DamageTake(int damage, bool isRightDamage);
 	virtual void SlowDownTake();
+
+	int actionCooldown;
+	virtual void StopAction();
 };

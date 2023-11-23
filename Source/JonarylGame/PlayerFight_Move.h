@@ -64,6 +64,7 @@ public:
 	float valueSpeed = 0.0f;
 	float valueSpeedJoy = 0.0f;
 	float InitialSpeed;
+	float valueTurn = 50.0f;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -155,6 +156,9 @@ protected:
 
 	bool canBeHit;
 	float canBeHitCoolDown;
+
+	bool canTurnAction;
+	float canTurnActionCoolDown;
 
 	float XMoveDirection;
 	float YMoveDirection;

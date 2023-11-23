@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "GameFramework/Actor.h"
 #include "Enemy_Unit.h"
+#include "Engine/EngineTypes.h"
+
 #include "Scene_Spawner.generated.h"
 
 UCLASS()

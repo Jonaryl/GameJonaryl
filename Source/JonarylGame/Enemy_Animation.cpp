@@ -59,36 +59,41 @@ void UEnemy_Animation::UpdateAnimProperties()
 
 void UEnemy_Animation::CanAttackEvent_Implementation()
 {
-	//enemyClass->CanAttack();
+	enemyClass->CanAttack();
 }
 void UEnemy_Animation::LaunchParticleEvent_Implementation() 
 {
-	//enemyClass->ParticleLaunch(); 
+	enemyClass->ParticleLaunch(); 
 }
 
 void UEnemy_Animation::AttackIsRight_Implementation()
 {
-	//enemyClass->AttackIsRight();
+	enemyClass->AttackIsRight();
 }
 void UEnemy_Animation::AttackIsLeft_Implementation()
 {
-	//enemyClass->AttackIsLeft();
+	enemyClass->AttackIsLeft();
 }
 void UEnemy_Animation::EndAnimationEvent_Implementation()
 {
-	//enemyClass->EndAnimation();
+	enemyClass->EndAnimation();
 }
 
 void UEnemy_Animation::EndDamage_Implementation()
 {
-	///enemyClass->EndDamage();
+	enemyClass->EndDamage();
 }
 void UEnemy_Animation::EndDamageAnimation_Implementation()
 {
-	//enemyClass->EndDamageAnimation();
+	enemyClass->EndDamageAnimation();
 }
 
 void UEnemy_Animation::ActivateSlowMode_Implementation()
 {
-	//enemyClass->ActivateSlowMode();
+	enemyClass->ActivateSlowMode();
+}
+
+void UEnemy_Animation::StopAttackTurn_Implementation()
+{
+	enemyClass->StopAttackTurn();
 }

@@ -75,6 +75,10 @@ protected:
 
 	int counterNumber;
 
+	int damageAnimNumber;
+
+	float counterCooldown;
+
 	bool isStrongAttacking;
 	bool canAttack;
 	bool canStrongAttack;
@@ -88,6 +92,7 @@ protected:
 	bool isCounter;
 	bool isCounterLeft;
 	bool canCounterStance;
+	bool canCounterStanceCombo;
 	bool canCounter;
 	bool canCounterAttack;
 	bool isDamaged;

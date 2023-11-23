@@ -7,9 +7,11 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
-AEnemy_Move::AEnemy_Move()
+void AEnemy_Move::BeginPlay()
 {
-	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    Super::BeginPlay();
+
+    PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (PlayerCharacter)
     {
         ActionChoice();
@@ -20,12 +22,7 @@ AEnemy_Move::AEnemy_Move()
     hitCountDamageAnimation = 0;
     isDestinationPlayer;
     isSlow = false;
-}
-
-void AEnemy_Move::BeginPlay()
-{
-    Super::BeginPlay();
-
+    canTurnToPlayer = false;
 }
 
 void AEnemy_Move::Tick(float DeltaTime)
@@ -38,7 +35,20 @@ void AEnemy_Move::Tick(float DeltaTime)
         if (canBeHitCoolDown > 0)
         {
             canBeHit = true;
-            //isDamaged = false;
+            isDamaged = false;
+        }
+    }
+
+
+    if (actionCooldown > -1)
+    {
+        actionCooldown--;
+        //UE_LOG(LogTemp, Log, TEXT(" actionCooldown = %d"), actionCooldown);
+        if (actionCooldown == 0)
+        {
+            UE_LOG(LogTemp, Error, TEXT(" FIN actionCooldown !!!!!!!! "));
+            StopAction();
+            WaitingForChoice();
         }
     }
 
@@ -51,6 +61,7 @@ void AEnemy_Move::Tick(float DeltaTime)
 
         if (canMoveToPlace)
         {
+            //UE_LOG(LogTemp, Warning, TEXT(" isDestinationPlayer = %s"), isDestinationPlayer ? TEXT("True") : TEXT("False"));
             if (isDestinationPlayer)
                 DestinationtoMove = FVector(PlayerLocation.X, PlayerLocation.Y, 0.0f);
 
@@ -83,9 +94,13 @@ void AEnemy_Move::Tick(float DeltaTime)
                 moveLR = 0.0f;
                 moveFB = 0.0f;
             }
+
+            //UE_LOG(LogTemp, Warning, TEXT(" PlayerLocation = %s"), *PlayerLocation.ToString());
+            //UE_LOG(LogTemp, Warning, TEXT(" DestinationtoMove = %s"), *DestinationtoMove.ToString());
         }
         if (isWaiting)
         {
+            //UE_LOG(LogTemp, Log, TEXT(" timeWaiting = %d"), timeWaiting);
             if (timeWaiting > 0)
                 timeWaiting--;
             else
@@ -93,6 +108,9 @@ void AEnemy_Move::Tick(float DeltaTime)
                 ActionChoice(); 
             }
         }
+
+        if (isAttacking && canTurnToPlayer)
+            LookAtPlayer();
     }
 
     if (isSlow)
@@ -143,7 +161,7 @@ void AEnemy_Move::MoveToPlace()
 
     FRotator EnemyRotation = GetActorRotation();
     FVector ForwardVector = EnemyRotation.Vector();
-    FVector RightVector = FRotationMatrix(EnemyRotation).GetScaledAxis(EAxis::Y); // Obtient le vecteur droit relatif à la rotation
+    FVector RightVector = FRotationMatrix(EnemyRotation).GetScaledAxis(EAxis::Y); // Obtient le vecteur droit relatif Ela rotation
 
     float DirectionX = FVector::DotProduct(MovingDirection, ForwardVector);
     float DirectionY = FVector::DotProduct(MovingDirection, RightVector);
@@ -158,24 +176,32 @@ void AEnemy_Move::ActionChoice()
 {
     isWaiting = false;
     int RandomInt = GenerateRandomInt(1, 100);
-
     if (RandomInt > 0 && RandomInt < 20)
     {
         ChoiceWaitingMove();
+        actionCooldown = 100;
     }
     else if (RandomInt > 19 && RandomInt < 80)
     {
         ChoiceAttackPlayer();
+        actionCooldown = 350;
     }
     else
     {
         ChoiceMoveToPlayer();
         isPlaceThePlayer = true;
+        actionCooldown = 350;
     }
+    //UE_LOG(LogTemp, Warning, TEXT(" canMoveToPlace = %s"), canMoveToPlace ? TEXT("True") : TEXT("False"));
+    //UE_LOG(LogTemp, Warning, TEXT(" canTrackToPlace = %s"), canTrackToPlace ? TEXT("True") : TEXT("False"));
+    //UE_LOG(LogTemp, Warning, TEXT(" isDamaged = %s"), isDamaged ? TEXT("True") : TEXT("False"));
+
+    //UE_LOG(LogTemp, Warning, TEXT(" RandomInt = %d"), RandomInt);
 }
 
 void AEnemy_Move::WaitingForChoice()
 {
+    actionCooldown = -20;
     timeWaiting = GenerateRandomInt(1, 150);
     isWaiting = true;
     isPlaceThePlayer = false;
@@ -199,6 +225,7 @@ void AEnemy_Move::ChoiceMoveToPlayer()
 void AEnemy_Move::ChoiceWaitingMove()
 {
     isDestinationPlayer = false;
+
     FVector EnemyPosition = GetActorLocation();
     float Xvalue = GenerateRandomFloat(-300.0f, 300.0f);
     float Yvalue = GenerateRandomFloat(-300.0f, 300.0f);
@@ -213,6 +240,8 @@ void AEnemy_Move::ChoiceAttackPlayer()
     {
         FVector PlayerLocation = PlayerCharacter->GetActorLocation();
         DestinationtoMove = FVector(PlayerLocation.X, PlayerLocation.Y, 0.0f);
+
+        isDestinationPlayer = true;
 
         canMoveToPlace = true;
         canTrackToPlace = true;
@@ -262,9 +291,18 @@ void AEnemy_Move::DamageTake(int damage, bool isRightDamage)
         {
             hitCountDamageAnimation = 1;
         }
+        UE_LOG(LogTemp, Warning, TEXT("TakeDamage"));
     }
 }
 
+void AEnemy_Move::StopAction()
+{
+    isWaiting = false;
+    isDestinationPlayer = false;
+    canMoveToPlace = false;
+    //canTrackToPlace = false;
+    isPlaceThePlayer = false;
+}
 
 
 float AEnemy_Move::GenerateRandomFloat(float Min, float Max)

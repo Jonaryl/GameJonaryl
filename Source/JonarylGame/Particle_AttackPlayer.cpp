@@ -25,7 +25,7 @@ void AParticle_AttackPlayer::BeginPlay()
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
 		{
-			UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
+			//UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
 			Destroy();
 		}, DelayBeforeDestroy, false);
 }

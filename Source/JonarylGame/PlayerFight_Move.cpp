@@ -124,8 +124,6 @@ void APlayerFight_Move::StopMoving()
 void APlayerFight_Move::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-
     if (hasLanded && isMoveInput == true)
     {
         if (CurrentState == APlayerFight_States::EPlayerFight_State::IdleJump || CurrentState == APlayerFight_States::EPlayerFight_State::DashJump)
@@ -135,7 +133,6 @@ void APlayerFight_Move::Tick(float DeltaTime)
             hasLanded = false;
         }
     }
-
 
     if (valueSpeed > 0.f)
     {
@@ -230,8 +227,10 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                 InterpolatedRotation = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotation.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed/10);
 
 
-            if (PlayerFight_LockInstance)
+            if (PlayerFight_LockInstance 
+                && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
             {
+
                 FVector2D MoveDirection(XValue, YValue);
                 MoveDirection.Normalize();
                 FVector ActorForwardVector = GetActorForwardVector();
@@ -282,6 +281,22 @@ void APlayerFight_Move::MoveForward(const FInputActionValue& Value)
                         FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 100.0f)
                     );
                 }
+            }
+            else
+            {
+                if (canTurnAction && canTurnActionCoolDown > 0)
+                {
+                    canTurnActionCoolDown--;
+                    SetActorRotation(
+                        FMath::RInterpTo(GetActorRotation(), lookAtRotation, GetWorld()->DeltaTimeSeconds, 1000000000.0f)
+                    );
+                }
+                else
+                {
+                    canTurnAction = false;
+                    canTurnActionCoolDown = -1.0f;
+                }
+
             }
         }
         else

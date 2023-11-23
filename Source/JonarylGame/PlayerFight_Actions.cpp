@@ -326,6 +326,8 @@ void APlayerFight_Actions::RBBtnAction()
          StopCombo();
          CancelGravity();
 
+         canTurnAction = true;
+         canTurnActionCoolDown = 5.0f;
 
          isIdle = false;
          isMoving = false;
@@ -362,7 +364,7 @@ void APlayerFight_Actions::DashAction()
     FVector forwardVector = GetActorForwardVector();
     int currentspeed = 0;
     int upSpeed = 0;
-    if (isNearGround)
+    /*if (isNearGround)
     {
         int forSpeed[40]{
         40000000, 40000000, 40000000, 40000000, 8000000, 6000000, 5000000, 3200000, 3200000, 2400000,
@@ -371,13 +373,23 @@ void APlayerFight_Actions::DashAction()
         400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,  400000,
         };
         currentspeed = forSpeed[loopTurn];
+    }*/
+    if (isNearGround)
+    {
+        int forSpeed[40]{
+        15000000, 15000000, 15000000, 15000000, 2700000, 2300000, 2500000, 1000000, 1000000, 800000,
+        800000, 430000, 430000, 1500000, 1500000, 270000, 270000, 150000, 150000, 150000,
+        150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000,  150000,
+        150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000,  150000,
+        };
+        currentspeed = forSpeed[loopTurn];
     }
     else
     {
         int forSpeed[40]{
-        4000000, 4000000, 4000000, 0, 0, 0, 0, 0, 0, 0,
+        3000000, 3000000, 3000000, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, -100000, -100000, -100000, -100000, -200000, -300000, -400000, -1000000, -1500000,
+        0, -50000, -50000, -50000, -50000, -100000, -150000, -200000, -400000, -4000000,
         0, 0, 0, 0, 0, 0, 0, 0, 0,  0,
         };
         currentspeed = forSpeed[loopTurn];

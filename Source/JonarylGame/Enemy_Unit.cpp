@@ -29,6 +29,10 @@ void AEnemy_Unit::EndSlowMode()
 {
 	Super::EndSlowMode();
 }
+void AEnemy_Unit::StopAttackTurn()
+{
+	canTurnToPlayer = false;
+}
 
 void AEnemy_Unit::EndDamage()
 {

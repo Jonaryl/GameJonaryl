@@ -21,6 +21,7 @@ public:
 	UBoxComponent* CollisionDamage;
 
 	float GetSpeed() override;
+	float GetvalueTurn();
 	bool GetisStartJump() override;
 	bool GetisIdleJump() override;
 	bool GetisDashJump() override;
@@ -49,12 +50,14 @@ public:
 	int GetAttackOneNumber();
 	
 	bool GetisCounterStance() override;
+	bool GetcanCounterStanceCombo();
 	bool GetisCounter() override;
 	bool GetisCounterLeft() override;
 
 	bool GetisDamageRight() override;
 	bool GetisDamaged() override;
 	bool GetisMoving() override;
+	int GetdamageAnimNumber();
 
 	int GetcounterNumber();
 

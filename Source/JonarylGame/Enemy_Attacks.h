@@ -24,7 +24,7 @@ class JONARYLGAME_API AEnemy_Attacks : public AEnemy_Actions
 	GENERATED_BODY()
 
 public:
-	AEnemy_Attacks();
+	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
 		TArray<TSubclassOf<class AActor>> AttackList;
@@ -33,7 +33,6 @@ public:
 protected:
 
 	bool canAttack;
-	bool isAttacking;
 	bool isComboAttacking;
 	int currentCombo;
 	bool isRightAttack;

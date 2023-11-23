@@ -28,7 +28,7 @@ void AParticle_AttackEnemy::BeginPlay()
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
 		{
-			UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
+			//UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
 			Destroy();
 		}, DelayBeforeDestroy, false);
 }
@@ -55,17 +55,13 @@ void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRi
 
 void AParticle_AttackEnemy::IsCountered_Implementation(AActor* EnemyCountered)
 {
-	UE_LOG(LogTemp, Log, TEXT(" IsCountered_Implementation  "));
 	if (EnemyCountered)
 	{
-		UE_LOG(LogTemp, Log, TEXT(" EnemyCountered  "));
 		if (EnemyCountered->IsA(AEnemy_Unit::StaticClass()))
 		{
-			UE_LOG(LogTemp, Log, TEXT(" EnemyCountered->IsA(AEnemy_Unit::StaticClass()  "));
 			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(EnemyCountered);
 			if (enemy)
 			{
-				UE_LOG(LogTemp, Log, TEXT(" enemy enemy enemy "));
 				enemy->CounterTake();
 			}
 		}

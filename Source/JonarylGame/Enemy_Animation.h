@@ -78,4 +78,7 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void ActivateSlowMode();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void StopAttackTurn();
 };

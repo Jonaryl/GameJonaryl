@@ -56,6 +56,7 @@ public:
 	void ActivateSlowMode() override;
 	void EndSlowMode() override;
 	void SlowDownTake() override;
+	void StopAttackTurn();
 	bool GetisSlowDownTake() override;
 
 };

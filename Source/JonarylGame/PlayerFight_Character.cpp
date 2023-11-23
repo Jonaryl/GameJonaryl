@@ -46,6 +46,10 @@ float APlayerFight_Character::GetSpeed()
 {
 	return Super::GetSpeed(); 
 }
+float APlayerFight_Character::GetvalueTurn()
+{
+	return valueTurn;
+}
 
 
 bool APlayerFight_Character::GetisStartJump()
@@ -71,6 +75,10 @@ int APlayerFight_Character::GetdashNumber()
 int APlayerFight_Character::GetcounterNumber()
 {
 	return counterNumber;
+}
+int APlayerFight_Character::GetdamageAnimNumber()
+{
+	return damageAnimNumber;
 }
 
 bool APlayerFight_Character::GetisSprint()
@@ -107,6 +115,10 @@ int APlayerFight_Character::GetAttackOneNumber()
 bool APlayerFight_Character::GetisCounterStance()
 {
 	return Super::GetisCounterStance();
+}
+bool APlayerFight_Character::GetcanCounterStanceCombo()
+{
+	return canCounterStanceCombo;
 }
 bool APlayerFight_Character::GetisCounter()
 {
@@ -169,15 +181,18 @@ void APlayerFight_Character::CanAttack()
 	if (currentCombo < comboLength)
 		canAttack = true;
 
-	if(CurrentState == APlayerFight_States::EPlayerFight_State::CounterPose)
+	if(CurrentState == APlayerFight_States::EPlayerFight_State::CounterPose
+		|| CurrentState == APlayerFight_States::EPlayerFight_State::Counter)
 		canAttack = true;
 
 	currentAttack++;
 	if (currentAttack == comboLength+1 && currentCombo != comboLength+1 || currentAttack == comboLength+2)
 		currentAttack = 1;
+ 
 }
 void APlayerFight_Character::FinalComboAttack()
 {
+	UE_LOG(LogTemp, Error, TEXT(" FinalComboAttack "));
 	canFinalComboAttack = false;
 	canAttack = false;
 }
@@ -204,6 +219,7 @@ void APlayerFight_Character::EndAttack()
 			AttackSpeY = false;
 
 			canStrongAttack = true;
+			//canCounterStanceCombo = true;
 
 			isStartJump = false;
 			isIdleJump = false;
@@ -216,6 +232,7 @@ void APlayerFight_Character::EndAttack()
 			{
 				if (isMoveInput)
 				{
+					//UE_LOG(LogTemp, Log, TEXT(" isMoveInput "));
 					SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
 					canAttack = true;
 					RootMotionProblem = false;
@@ -251,7 +268,8 @@ void APlayerFight_Character::EndAnimation()
 	UE_LOG(LogTemp, Error, TEXT(" EndAnimation "));
 	isIdle = true;
 	canCounterStance = true;
-	isCounterStance = false;
+	if (CurrentState == APlayerFight_States::EPlayerFight_State::Counter)
+		isCounterStance = false;
 	canAttack = true;
 	isStrongAttacking = false;
 	isCounter = false;
@@ -332,11 +350,18 @@ void APlayerFight_Character::CanCounterStance()
 }
 void APlayerFight_Character::CanCounterStanceMethod()
 {
+	//UE_LOG(LogTemp, Warning, TEXT(" CanCounterStance CanCounterStance CanCounterStance CanCounterStance CanCounterStance "));
+
 	canCounterStance = true;
+	if (CurrentState == APlayerFight_States::EPlayerFight_State::Counter)
+		counterNumber = 0;
+
 	if (isMoveInput == true)
 		SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
 	else
 		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+
+	//UE_LOG(LogTemp, Log, TEXT(" CanCounterStance canCounterStance = %s"), canCounterStance ? TEXT("True") : TEXT("False"));
 }
 void APlayerFight_Character::ResetEvent()
 {
@@ -351,7 +376,29 @@ void APlayerFight_Character::ResetEventMethod()
 
 void APlayerFight_Character::EndCounter()
 {
-	isCounter = false;
+	//isCounter = false;
+	UE_LOG(LogTemp, Warning, TEXT(" EndCounter EndCounter EndCounter EndCounter EndCounter EndCounter EndCounter "));
+ 
+	canMove = true;
+	canStrongAttack = true;
+
+	isDash = false;
+	canDash = true;
+
+	if (CurrentState == APlayerFight_States::EPlayerFight_State::Damage 
+		|| CurrentState == APlayerFight_States::EPlayerFight_State::StanceSpe 
+		|| CurrentState == APlayerFight_States::EPlayerFight_State::CounterAttack 
+		|| CurrentState == APlayerFight_States::EPlayerFight_State::Counter 
+		|| CurrentState == APlayerFight_States::EPlayerFight_State::CounterPose)
+	{
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+		canAttack = true;
+	}
+	else if (CurrentState == APlayerFight_States::EPlayerFight_State::CounterAttack)
+		SetCharacterState(APlayerFight_States::EPlayerFight_State::StanceSpe, 0.0f);
+
+	UE_LOG(LogTemp, Log, TEXT(" EndCounter canCounterStance = %s"), canCounterStance ? TEXT("True") : TEXT("False")); 
+
 }
 void APlayerFight_Character::CanCounter()
 {

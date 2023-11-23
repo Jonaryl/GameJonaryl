@@ -3,8 +3,9 @@
 
 #include "Enemy_Attacks.h"
 
-AEnemy_Attacks::AEnemy_Attacks()
+void AEnemy_Attacks::BeginPlay()
 {
+	Super::BeginPlay();
 	isAttacking = false;
 	currentCombo = 0;
 	canAttack = true;
@@ -27,6 +28,7 @@ void AEnemy_Attacks::AttackPLayer()
 	{
 		isDamaged = false;
 		isAttacking = true;
+		canTurnToPlayer = true;
 		currentCombo--;
 		canAttack = false;
 	}
@@ -52,7 +54,6 @@ void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage)
 void AEnemy_Attacks::CounterTake()
 {
 	isCounterTake = true;
-	UE_LOG(LogTemp, Error, TEXT("isCounterTake !!!!!!!!!!"));
 }
 
 

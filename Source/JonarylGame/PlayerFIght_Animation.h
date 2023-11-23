@@ -44,6 +44,8 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndCounterStanceEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndCounter();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void HitCountEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndSlowEnemy();
@@ -53,6 +55,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		float speedMove;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float valueTurn;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isStartJump;
@@ -66,6 +70,8 @@ protected:
 		int dashNumber;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int counterNumber;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int damageAnimNumber;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isNearGround;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
@@ -84,6 +90,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isCounterStance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool canCounterStanceCombo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isCounter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")

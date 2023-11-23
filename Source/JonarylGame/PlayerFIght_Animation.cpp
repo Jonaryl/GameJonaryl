@@ -41,6 +41,7 @@ void UPlayerFIght_Animation::NativeUpdateAnimation(float DeltaSeconds)
 void UPlayerFIght_Animation::UpdateAnimProperties()
 {
 	speedMove = playerClass->GetSpeed();
+	valueTurn = playerClass->GetvalueTurn();
 	isStartJump = playerClass->GetisStartJump();
 	isIdleJump = playerClass->GetisIdleJump();
 	isDashJump = playerClass->GetisDashJump();
@@ -57,10 +58,12 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	hasLanded = playerClass->GethasLanded();
 
 	isCounterStance = playerClass->GetisCounterStance();
+	canCounterStanceCombo = playerClass->GetcanCounterStanceCombo();
 	isCounter = playerClass->GetisCounter();
 	isCounterLeft = playerClass->GetisCounterLeft();
 	isRightAttack = playerClass->GetisDamageRight();
 	isDamaged = playerClass->GetisDamaged();
+	damageAnimNumber = playerClass->GetdamageAnimNumber();
 	canMove = playerClass->GetCanMove();
 	isMoving = playerClass->GetisMoving();
 
@@ -95,6 +98,10 @@ void UPlayerFIght_Animation::CanCounterStanceEvent_Implementation()
 void UPlayerFIght_Animation::EndCounterStanceEvent_Implementation()
 {
 	playerClass->EndCounterStance();
+}
+void UPlayerFIght_Animation::EndCounter_Implementation()
+{
+	playerClass->EndCounter();
 }
 void UPlayerFIght_Animation::HitCountEvent_Implementation()
 {
