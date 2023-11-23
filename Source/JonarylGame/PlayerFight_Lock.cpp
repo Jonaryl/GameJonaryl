@@ -72,7 +72,7 @@ void UPlayerFight_Lock::Update()
     FCollisionQueryParams QueryParams;
     //QueryParams.AddIgnoredActor(PlayerFrom);
 
-    DrawDebugLine(GetWorld(), StartLocation , EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
+    //DrawDebugLine(GetWorld(), StartLocation , EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
     bool detectEnemy = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams);
 
     //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("YOU HIT THE THING : %s"), *HitResult.GetActor()->GetName()));

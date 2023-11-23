@@ -120,6 +120,10 @@ bool APlayerFight_Character::GetcanCounterStanceCombo()
 {
 	return canCounterStanceCombo;
 }
+bool APlayerFight_Character::GetisCounterAttacking()
+{
+	return isCounterAttacking;
+}
 bool APlayerFight_Character::GetisCounter()
 {
 	return Super::GetisCounter();
@@ -285,6 +289,7 @@ void APlayerFight_Character::EndAnimation()
 	currentHit = 0;
 	isAttacking = false;
 	isStrongAttacking = false;
+	isCounterAttacking = false;
 	canStrongAttack = true;
 
 	canMoveWhenCombo = true;

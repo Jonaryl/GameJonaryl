@@ -80,6 +80,7 @@ protected:
 	float counterCooldown;
 
 	bool isStrongAttacking;
+	bool isCounterAttacking;
 	bool canAttack;
 	bool canStrongAttack;
 	bool canFinalComboAttack;

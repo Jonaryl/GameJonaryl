@@ -46,6 +46,7 @@ public:
 
 	bool GetisAttacking() override;
 	bool GetisStrongAttacking() override;
+	bool GetisCounterAttacking();
 	int GetcurrentCombo() override;
 	int GetAttackOneNumber();
 	

@@ -53,6 +53,7 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	isSprint = playerClass->GetisSprint();
 	isAttacking = playerClass->GetisAttacking();
 	isStrongAttacking = playerClass->GetisStrongAttacking();
+	isCounterAttacking = playerClass->GetisCounterAttacking();
 	currentCombo = playerClass->GetcurrentCombo();
 	AttackOneNumber = playerClass->GetAttackOneNumber();
 	hasLanded = playerClass->GethasLanded();

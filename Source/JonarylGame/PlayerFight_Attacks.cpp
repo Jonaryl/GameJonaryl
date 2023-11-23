@@ -31,6 +31,7 @@ void APlayerFight_Attacks::BeginPlay()
 	isRightAttack = true;
 	isDamaged = false;
 	canCounterAttack = false;
+	isCounterAttacking = false;
 	canBeHit = true;
 	canMoveWhenCombo = true;
 
@@ -222,14 +223,18 @@ void APlayerFight_Attacks::XBtnAction()
 
 void APlayerFight_Attacks::YBtnAction()
 {
+	UE_LOG(LogTemp, Warning, TEXT(" currentState = %d"), CurrentState);
 	if (canCounterAttack && CurrentState == APlayerFight_States::EPlayerFight_State::Counter)
 	{
 		StopCombo();
 		SetCharacterState(APlayerFight_States::EPlayerFight_State::CounterAttack, 0.0f);
 		isStrongAttacking = true;
+		isCounterAttacking = true;
 		SpecialAttacknstance->GetPlayer(this);
 		SpecialAttacknstance->SpecialAttack();
 		SpawnParticleSlow();
+		UE_LOG(LogTemp, Error, TEXT(" CounterAttack"));
+		UE_LOG(LogTemp, Warning, TEXT(" isCounterAttacking isCounterAttacking isCounterAttacking isCounterAttacking = %s"), isCounterAttacking ? TEXT("True") : TEXT("False"));
 	}
 	else if (SpecialAttacknstance && isAttacking == false && canStrongAttack == true)
 	{
@@ -251,8 +256,10 @@ void APlayerFight_Attacks::YBtnAction()
 			if (CurrentState == APlayerFight_States::EPlayerFight_State::Idle
 				|| CurrentState == APlayerFight_States::EPlayerFight_State::Run)
 			{
+				UE_LOG(LogTemp, Error, TEXT(" isSuperMode"));
 				isStrongAttacking = true;
 				canStrongAttack = false;
+				isCounterAttacking = false;
 				SetCharacterState(APlayerFight_States::EPlayerFight_State::StanceSpe, 0.0f);
 				SpecialAttacknstance->GetPlayer(this);
 				SpecialAttacknstance->SpecialAttack();

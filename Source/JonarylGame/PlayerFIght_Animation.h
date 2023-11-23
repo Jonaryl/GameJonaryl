@@ -84,6 +84,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isStrongAttacking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterAttacking;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int currentCombo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int AttackOneNumber;
