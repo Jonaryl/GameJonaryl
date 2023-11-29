@@ -20,7 +20,7 @@ void AParticle_AttackPlayer::BeginPlay()
 		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_AttackPlayer::OnAttackCollisionEndOverlap); 
 	}
 
-	float DelayBeforeDestroy = 0.15f;
+	float DelayBeforeDestroy = 0.6f;
 
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()

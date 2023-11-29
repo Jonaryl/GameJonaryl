@@ -23,12 +23,19 @@ void AParticle_AttackEnemy::BeginPlay()
 		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_AttackEnemy::OnAttackCollisionEndOverlap);
 	}
 
-	float DelayBeforeDestroy = 0.15f;
+	float DelayBeforeDestroy = 0.6f;
+
+	if (isSpeTimeDestroy == true)
+	{
+		DelayBeforeDestroy = speTimeDestroy;
+		UE_LOG(LogTemp, Error, TEXT("DelayBeforeDestroy = %f"), DelayBeforeDestroy);
+	}
 
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
 		{
-			//UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
+			if (isSpeTimeDestroy == true)
+				UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
 			Destroy();
 		}, DelayBeforeDestroy, false);
 }
@@ -70,15 +77,22 @@ void AParticle_AttackEnemy::IsCountered_Implementation(AActor* EnemyCountered)
 
 void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Error, TEXT("00"));
 	if (OtherActor)
 	{
+		UE_LOG(LogTemp, Error, TEXT("01"));
 		if (OtherActor->IsA(AEnemy_Unit::StaticClass()))
 		{
+			UE_LOG(LogTemp, Error, TEXT("02"));
 			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(OtherActor);
 			if (enemy)
 			{
+				UE_LOG(LogTemp, Error, TEXT("03"));
 				if (isSpeSlow)
+				{
 					enemy->SlowDownTake();
+					UE_LOG(LogTemp, Error, TEXT("04"));
+				}
 				else
 				{
 					DamageEnemy(enemy);
@@ -111,7 +125,7 @@ void AParticle_AttackEnemy::LaunchParticle()
 	SetActorRotation(RelativeRotation);
 
 	FVector PlayerForward = GetActorForwardVector();
-	FVector RelativeParticulePosition = PlayerPosition + PlayerForward * ParticleDistance + PlayerRotation.RotateVector(ParticlePosition);
+	FVector RelativeParticulePosition = PlayerPosition + PlayerForward * ParticleDistance + PlayerRotation.RotateVector(ParticleSpawnPosition);
 
 	FRotator ParticleRotationPlus = ParticleRotation;
 	ParticleRotationPlus.Yaw += 180;

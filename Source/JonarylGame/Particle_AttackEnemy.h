@@ -23,6 +23,8 @@ class JONARYLGAME_API AParticle_AttackEnemy : public AActor, public IIParticle_A
 public:	
 	AParticle_AttackEnemy();
 
+	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ParticlePosition", DisplayName = "Particle Spawn Position"))
+		FVector ParticleSpawnPosition;
 	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ParticlePosition", DisplayName = "Particle Position"))
 		FVector ParticlePosition;
 	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ParticleRotation", DisplayName = "Particle Rotation"))
@@ -40,6 +42,11 @@ public:
 		bool isSpeSlow;	
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		bool isCounter;	
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isSpeTimeDestroy;	
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float speTimeDestroy;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BaseDamage;
