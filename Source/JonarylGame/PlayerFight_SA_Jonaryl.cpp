@@ -25,21 +25,21 @@ void UPlayerFight_SA_Jonaryl::XBtnActionSpe()
 {
 	Super::XBtnActionSpe();
 	if (PlayerFight_Character)
-		PlayerFight_Character->SetAttackSpeY(false, true, false);
+		PlayerFight_Character->SetAttackSpe(false, true, false, false);
 	UE_LOG(LogTemp, Warning, TEXT("XBtnActionSpe"));
 }
 void UPlayerFight_SA_Jonaryl::YBtnActionSpe()
 {
 	Super::YBtnActionSpe();
 	if (PlayerFight_Character)
-		PlayerFight_Character->SetAttackSpeY(false, false, true);
+		PlayerFight_Character->SetAttackSpe(false, false, true, false);
 	UE_LOG(LogTemp, Warning, TEXT("YBtnActionSpe"));
 }
 void UPlayerFight_SA_Jonaryl::BBtnActionSpe()
 {
 	Super::BBtnActionSpe();
 	if (PlayerFight_Character)
-		PlayerFight_Character->SetAttackSpeY(true, false, false);
+		PlayerFight_Character->SetAttackSpe(true, false, false, false);
 	UE_LOG(LogTemp, Warning, TEXT("BBtnActionSpe"));
 }
 void UPlayerFight_SA_Jonaryl::ABtnActionSpe()
@@ -48,6 +48,7 @@ void UPlayerFight_SA_Jonaryl::ABtnActionSpe()
 	UE_LOG(LogTemp, Warning, TEXT("ABtnActionSpe")); 
 	if (PlayerFight_Character)
 	{
+		PlayerFight_Character->SetAttackSpe(false, false, false, true);
 		PlayerFight_Character->SuperModeActivate();
 		AllEnemyEndSlow();
 	}

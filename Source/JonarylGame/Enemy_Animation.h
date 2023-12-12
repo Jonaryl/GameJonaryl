@@ -56,6 +56,9 @@ protected:
 		float DmgBlendL;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float ArmorValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isSlowDownTake;
 
 
@@ -81,4 +84,7 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void StopAttackTurn();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndArmorDamage();
 };

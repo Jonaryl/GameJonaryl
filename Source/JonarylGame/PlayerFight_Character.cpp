@@ -37,9 +37,18 @@ void APlayerFight_Character::DamageTake(int damage, bool isRightDamage, bool isC
 	return Super::DamageTake(damage, isRightDamage, isCutFromDamage, damageCut, Enemy);
 }
 
+void APlayerFight_Character::PostProcessSlowActivate(bool isActivate)
+{
+	return Super::PostProcessSlowActivate(isActivate);
+}
+
 void APlayerFight_Character::HitCount()
 {
 	return Super::HitCount();
+}
+void APlayerFight_Character::LaunchParticleSpe()
+{
+	return Super::LaunchParticleSpe();
 }
 
 float APlayerFight_Character::GetSpeed()
@@ -159,6 +168,10 @@ bool APlayerFight_Character::GetisSuperMode()
 {
 	return isSuperMode;
 }
+bool APlayerFight_Character::GetAttackSpeA()
+{
+	return AttackSpeA;
+}
 bool APlayerFight_Character::GetAttackSpeB()
 {
 	return AttackSpeB;
@@ -171,8 +184,9 @@ bool APlayerFight_Character::GetAttackSpeY()
 {
 	return AttackSpeY;
 }
-void APlayerFight_Character::SetAttackSpeY(bool speB, bool speX, bool speY)
+void APlayerFight_Character::SetAttackSpe(bool speB, bool speX, bool speY, bool speA)
 {
+	AttackSpeA = speA;
 	AttackSpeB = speB;
 	AttackSpeX = speX;
 	AttackSpeY = speY;
@@ -218,6 +232,7 @@ void APlayerFight_Character::EndAttack()
 			isStrongAttacking = false;
 			isCounter = false;
 
+			AttackSpeA = false;
 			AttackSpeB = false;
 			AttackSpeX = false;
 			AttackSpeY = false;
@@ -278,6 +293,7 @@ void APlayerFight_Character::EndAnimation()
 	isStrongAttacking = false;
 	isCounter = false;
 
+	AttackSpeA = false;
 	AttackSpeB = false;
 	AttackSpeX = false;
 	AttackSpeY = false;
@@ -332,6 +348,11 @@ void APlayerFight_Character::ActionEndCombo()
 }
 
 
+void APlayerFight_Character::StopPostProcessSlow()
+{ 
+	UE_LOG(LogTemp, Warning, TEXT(" PostProcessSlow "));
+	PostProcessSlowActivate(false);
+}
 void APlayerFight_Character::EndCounterStance()
 { 
 	EndCounterStanceMethod(); 

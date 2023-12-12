@@ -23,6 +23,10 @@ void AEnemy_Move::BeginPlay()
     isDestinationPlayer;
     isSlow = false;
     canTurnToPlayer = false;
+
+    currentHealth = Health;
+    currentArmorValue = ArmorValue;
+    armorRegenCoolDown = -1;
 }
 
 void AEnemy_Move::Tick(float DeltaTime)
@@ -35,7 +39,21 @@ void AEnemy_Move::Tick(float DeltaTime)
         if (canBeHitCoolDown > 0)
         {
             canBeHit = true;
-            isDamaged = false;
+            UE_LOG(LogTemp, Log, TEXT(" canBeHitCoolDown canBeHitCoolDown FINI"));
+            if (armorRegenCoolDown < 0)
+                isDamaged = false;
+        }
+    }
+
+    if (armorRegenCoolDown > 0)
+    {
+        armorRegenCoolDown--;
+        if (armorRegenCoolDown == 0)
+        {
+            UE_LOG(LogTemp, Log, TEXT(" currentArmorValue FINI"));
+            currentArmorValue = ArmorValue;
+            armorRegenCoolDown = -1;
+            WaitingForChoice();
         }
     }
 
@@ -278,23 +296,38 @@ void AEnemy_Move::SlowDownTake()
         isWaiting = false;
     }
 }
-void AEnemy_Move::DamageTake(int damage, bool isRightDamage)
+void AEnemy_Move::DamageTake(int damage, bool isRightDamage, float ArmorDamage)
 {
     if (canBeHit)
     {
+        hitCountDamageAnimation++;
+        if (hitCountDamageAnimation == 4)
+            hitCountDamageAnimation = 1;
+
         isRightAttackHit = isRightDamage;
         canBeHitCoolDown = 10.f;
         canBeHit = false;
         isDamaged = true;
-        hitCountDamageAnimation++;
-        if (hitCountDamageAnimation == 4)
+        if (currentArmorValue > 0)
+            currentArmorValue -= ArmorDamage;
+        if (currentArmorValue <= 0)
         {
-            hitCountDamageAnimation = 1;
+            if(armorRegenCoolDown <= 0)
+                armorRegenCoolDown = 100;
+            StopAction();
+            /*UE_LOG(LogTemp, Warning, TEXT(" currentArmorValue < 0 "));
+            UE_LOG(LogTemp, Warning, TEXT("ANIMATION ENEMY  isDamaged isDamaged = %s"), isDamaged ? TEXT("True") : TEXT("False"));
+            UE_LOG(LogTemp, Error, TEXT("ANIMATION ENEMY  ArmorValue ArmorValue %f"), ArmorValue);*/
         }
-        UE_LOG(LogTemp, Warning, TEXT("TakeDamage"));
+
+        //UE_LOG(LogTemp, Warning, TEXT("Enemy is Taking Damage"));
     }
 }
 
+void AEnemy_Move::EndArmorDamage()
+{
+    ChoiceWaitingMove();
+}
 void AEnemy_Move::StopAction()
 {
     isWaiting = false;

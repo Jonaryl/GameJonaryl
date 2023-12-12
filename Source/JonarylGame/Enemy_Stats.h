@@ -44,6 +44,10 @@ public:
 		int MagicDefense;
 	int Classe_MagicDefense;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
+		float ArmorValue;
+ 
 	int Classe_SpeedMove;
 	int Classe_SpeedRotate;
 

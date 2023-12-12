@@ -47,11 +47,23 @@ void AParticle_AttackEnemy::Tick(float DeltaTime)
 
 }
 
-void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack)
+void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer)
 {
 
 	playerAttack = AttackPlayer;
 	isRightDamage = isRightAttack;
+
+	if (currentPlayer->IsA(APlayerFight_Character::StaticClass()))
+	{
+		player = Cast<APlayerFight_Character>(currentPlayer);
+		if (isSpeSlow)
+		{
+			if (player)
+			{
+				player->PostProcessSlowActivate(true);
+			}
+		}
+	}
 
 	if (CollisionAttack && !isCounter)
 	{
@@ -77,21 +89,20 @@ void AParticle_AttackEnemy::IsCountered_Implementation(AActor* EnemyCountered)
 
 void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Error, TEXT("00"));
 	if (OtherActor)
 	{
-		UE_LOG(LogTemp, Error, TEXT("01"));
 		if (OtherActor->IsA(AEnemy_Unit::StaticClass()))
 		{
-			UE_LOG(LogTemp, Error, TEXT("02"));
 			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(OtherActor);
 			if (enemy)
 			{
-				UE_LOG(LogTemp, Error, TEXT("03"));
 				if (isSpeSlow)
 				{
 					enemy->SlowDownTake();
-					UE_LOG(LogTemp, Error, TEXT("04"));
+					if (player)
+					{
+						player->PostProcessSlowActivate(true);
+					}
 				}
 				else
 				{
@@ -191,7 +202,7 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 	}
 
 	int FinalDamage = playerAttack + BaseDamage - enemy->Defense;
-	enemy->DamageTake(FinalDamage, finalDirectionIsRight);
+	enemy->DamageTake(FinalDamage, finalDirectionIsRight, ArmorDamage);
 }
 
 

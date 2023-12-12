@@ -34,6 +34,13 @@ void AEnemy_Unit::StopAttackTurn()
 	canTurnToPlayer = false;
 }
 
+void AEnemy_Unit::EndArmorDamage()
+{
+	isDamaged = false;
+	isSlowDownTake = false;
+	UE_LOG(LogTemp, Warning, TEXT("EndArmorDamage   isDamaged = %s"), isDamaged ? TEXT("True") : TEXT("False"));
+	Super::EndArmorDamage();
+}
 void AEnemy_Unit::EndDamage()
 {
 	Super::EndDamage();
@@ -47,6 +54,7 @@ void AEnemy_Unit::EndAnimation()
 	hitCountDamageAnimation = 0;
 	isDamaged = false;
 	isSlowDownTake = false;
+	UE_LOG(LogTemp, Error, TEXT("ENEMY EndAnimation EndAnimation"));
 	EndDamageAnimation();
 }
 
@@ -103,6 +111,11 @@ float AEnemy_Unit::GetDmgBlendL()
 	return Super::GetDmgBlendL();
 }
 
+float AEnemy_Unit::GetArmorValue()
+{
+	return currentArmorValue;
+}
+
 bool AEnemy_Unit::GetisSlowDownTake()
 {
 	return Super::GetisSlowDownTake();
@@ -117,9 +130,9 @@ void AEnemy_Unit::ParticleLaunch()
 {
 	return Super::ParticleLaunch();
 }
-void AEnemy_Unit::DamageTake(int damage, bool isRightDamage)
+void AEnemy_Unit::DamageTake(int damage, bool isRightDamage, float ArmorDamage)
 {
-	return Super::DamageTake(damage,isRightDamage);
+	return Super::DamageTake(damage,isRightDamage, ArmorDamage);
 }
 void AEnemy_Unit::CounterTake()
 {

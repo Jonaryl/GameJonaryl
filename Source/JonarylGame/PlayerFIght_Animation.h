@@ -49,6 +49,10 @@ protected:
 		void HitCountEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndSlowEnemy();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void StopPostProcessSlow();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void LaunchParticleSpe();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
 		APlayerFight_Character* playerClass;
@@ -104,6 +108,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isDamaged;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool AttackSpeA;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool AttackSpeB;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")

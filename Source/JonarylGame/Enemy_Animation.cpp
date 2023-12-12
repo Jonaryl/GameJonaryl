@@ -54,6 +54,12 @@ void UEnemy_Animation::UpdateAnimProperties()
 
 	isSlowDownTake = enemyClass->GetisSlowDownTake();
 	isCounterTake = enemyClass->GetisCounterTake();
+	ArmorValue = enemyClass->GetArmorValue();
+	/*if (ArmorValue < 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ANIMATION ENEMY  isDamaged isDamaged = %s"), isDamaged ? TEXT("True") : TEXT("False"));
+		UE_LOG(LogTemp, Error, TEXT("ANIMATION ENEMY  ArmorValue ArmorValue %f"), ArmorValue );
+	}*/
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 }
 
@@ -96,4 +102,9 @@ void UEnemy_Animation::ActivateSlowMode_Implementation()
 void UEnemy_Animation::StopAttackTurn_Implementation()
 {
 	enemyClass->StopAttackTurn();
+}
+
+void UEnemy_Animation::EndArmorDamage_Implementation()
+{
+	enemyClass->EndArmorDamage();
 }

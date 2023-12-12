@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 
 #include "Enemy_Unit.h"
+#include "PlayerFight_Character.h"
 
 #include "NiagaraFunctionLibrary.h" 
 #include "Components/BoxComponent.h"
@@ -50,10 +51,13 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BaseDamage;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float ArmorDamage;
 	float playerAttack;
 
 	bool isRightDamage;
 	UBoxComponent* CollisionAttack;
+	APlayerFight_Character* player;
 
 protected:
 
@@ -67,7 +71,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack) override;
+	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer) override;
 	void IsCountered_Implementation(AActor* EnemyCountered) override;
 public:	
 	// Called every frame

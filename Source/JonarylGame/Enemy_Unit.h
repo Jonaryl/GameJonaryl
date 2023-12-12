@@ -37,6 +37,8 @@ public:
 	float GetDmgBlendR() override;
 	float GetDmgBlendL() override;
 
+	float GetArmorValue();
+
 	bool GetisDamaged();
 	bool GetisDamagedRight();
 	int GethitCountDamageAnimation();
@@ -45,12 +47,13 @@ public:
 
 	void CanAttack() override;
 	void ParticleLaunch() override;
-	void DamageTake(int damage, bool isRightDamage) override;
+	void DamageTake(int damage, bool isRightDamage,float ArmorDamage) override;
 	void CounterTake() override;
 
 	void EndAnimation();
 
 	void EndDamage() override;
+	void EndArmorDamage() override;
 	void EndDamageAnimation() override;
 
 	void ActivateSlowMode() override;

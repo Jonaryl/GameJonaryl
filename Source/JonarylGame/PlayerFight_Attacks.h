@@ -17,6 +17,8 @@
 
 #include "PlayerFight_SpecialAttack.h"
 
+#include "Components/PostProcessComponent.h"
+
 #include "PlayerFight_Attacks.generated.h"
 
 /**
@@ -38,8 +40,11 @@ public:
 		TSubclassOf<AActor> CounterParticleL;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
 		TSubclassOf<AActor> CounterParticleR;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
+		TArray<TSubclassOf<AActor>> AttackSpeList;
 
-		//TArray<TSubclassOf<AParticle_AttackEnemy>> AttackList;
+	UPostProcessComponent* PostProcessSlow;
 
 
 	void BeginPlay() override;
@@ -63,6 +68,8 @@ protected:
 	virtual void Rotating() override;
 	virtual void RotatingFormDirection(FQuat InterpolatedRotationFormDirection ) override;
 
+	virtual void PostProcessSlowActivate(bool isActivate);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
 		int comboLength;
 	int currentCombo;
@@ -70,6 +77,7 @@ protected:
 	int AttackOneNumber;
 
 	int currentHit;
+	int atkSpeChoice;
 
 	int currentDamageCut;
 
@@ -110,7 +118,9 @@ protected:
 	virtual bool GetisDamageRight();
 
 	virtual void HitCount();
+	virtual void LaunchParticleSpe();
 	virtual void SpawnParticle();
+	virtual void SpawnParticleAtkSpe();
 	virtual void SpawnParticleSlow();
 	virtual void SpawnParticleCounter(bool isRightDamage, AActor* Enemy);
 	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut, AActor* Enemy);

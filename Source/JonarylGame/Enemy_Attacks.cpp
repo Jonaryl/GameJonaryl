@@ -40,16 +40,19 @@ void AEnemy_Attacks::ModifyDmgBlend(float alpha, float alphaR, float alphaL)
 	DmgBlendR = alphaR;
 	DmgBlendL = alphaL;
 }
-void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage)
+void AEnemy_Attacks::DamageTake(int damage, bool isRightDamage, float ArmorDamage)
 {
-	Super::DamageTake(damage, isRightDamage);
+	Super::DamageTake(damage, isRightDamage, ArmorDamage);
 	//isAttacking = false;
 	//canAttack = true;
-
-	if (isRightDamage)
-		ModifyDmgBlend(0.5f, 1.0f, 0.0f);
-	else
-		ModifyDmgBlend(0.5f, 0.0f, 1.0f);
+	UE_LOG(LogTemp, Warning, TEXT("DamageTake   currentArmorValue = %f"), currentArmorValue );
+	if (currentArmorValue > 0)
+	{
+		if (isRightDamage)
+			ModifyDmgBlend(0.5f, 1.0f, 0.0f);
+		else
+			ModifyDmgBlend(0.5f, 0.0f, 1.0f);
+	}
 }
 void AEnemy_Attacks::CounterTake()
 {

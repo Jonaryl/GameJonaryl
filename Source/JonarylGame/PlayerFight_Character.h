@@ -32,17 +32,20 @@ public:
 	bool GetisNearGround() override;
 	bool GetCanMove() override;
 	bool GethasLanded() override;
+	void PostProcessSlowActivate(bool isActivate) override;
 	
+	bool AttackSpeA;
 	bool AttackSpeB;
 	bool AttackSpeX;
 	bool AttackSpeY;
 
+	bool GetAttackSpeA();
 	bool GetAttackSpeB();
 	bool GetAttackSpeX();
 	bool GetAttackSpeY();
 
 
-	void SetAttackSpeY(bool speB, bool speX, bool speY);
+	void SetAttackSpe(bool speB, bool speX, bool speY, bool speA);
 
 	bool GetisAttacking() override;
 	bool GetisStrongAttacking() override;
@@ -63,6 +66,7 @@ public:
 	int GetcounterNumber();
 
 	void HitCount() override;
+	void LaunchParticleSpe() override;
 
 	void CanAttack();
 	void EndCombo();
@@ -87,4 +91,5 @@ public:
 	void SuperModeActivate();
 	bool GetisSuperMode();
 	void EndSlowEnemy();
+	void StopPostProcessSlow();
 };

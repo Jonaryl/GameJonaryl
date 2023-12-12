@@ -44,6 +44,11 @@ protected:
 	bool canCutAnimByDamage;
 	float canBeHitCoolDown;
 	int hitCountDamageAnimation;
+	int damageCount;
+
+	int currentHealth;
+	float currentArmorValue;
+	float armorRegenCoolDown;
 
 	float moveFB = 0.0f;
 	float moveLR = 0.0f;
@@ -76,8 +81,9 @@ protected:
 	virtual float GetxMove();
 	virtual float GetyMove();
 
-	virtual void DamageTake(int damage, bool isRightDamage);
+	virtual void DamageTake(int damage, bool isRightDamage, float ArmorDamage);
 	virtual void SlowDownTake();
+	virtual void EndArmorDamage();
 
 	int actionCooldown;
 	virtual void StopAction();

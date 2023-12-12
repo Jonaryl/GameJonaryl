@@ -45,6 +45,10 @@ void APlayerFight_Attacks::BeginPlay()
 	{
 		SpecialAttacknstance = NewObject<UPlayerFight_SpecialAttack>(this, SpecialAttack);
 	}
+	PostProcessSlow = FindComponentByClass<UPostProcessComponent>();
+
+	if (PostProcessSlow)
+		PostProcessSlowActivate(false); 
 }
 
 void APlayerFight_Attacks::Tick(float DeltaTime)
@@ -164,6 +168,7 @@ void APlayerFight_Attacks::XBtnAction()
 		canStrongAttack = false;
 		SpecialAttacknstance->GetPlayer(this);
 		SpecialAttacknstance->XBtnActionSpe();
+		atkSpeChoice = 2;
 		SetCharacterState(APlayerFight_States::EPlayerFight_State::AttackSpe, 0.0f);
 	}
 	else
@@ -249,6 +254,7 @@ void APlayerFight_Attacks::YBtnAction()
 			canStrongAttack = false;
 			SpecialAttacknstance->GetPlayer(this);
 			SpecialAttacknstance->YBtnActionSpe();
+			atkSpeChoice = 3;
 			SetCharacterState(APlayerFight_States::EPlayerFight_State::AttackSpe, 0.0f);
 		}
 		else
@@ -305,6 +311,7 @@ void APlayerFight_Attacks::BBtnAction()
 			canStrongAttack = false;
 			SpecialAttacknstance->GetPlayer(this);
 			SpecialAttacknstance->BBtnActionSpe();
+			atkSpeChoice = 1;
 			SetCharacterState(APlayerFight_States::EPlayerFight_State::AttackSpe, 0.0f);
 		}
 		else
@@ -354,6 +361,9 @@ void APlayerFight_Attacks::ABtnAction()
 		canStrongAttack = false;
 		SpecialAttacknstance->GetPlayer(this);
 		SpecialAttacknstance->ABtnActionSpe();
+		atkSpeChoice = 0;
+		SpawnParticleAtkSpe();
+		PostProcessSlowActivate(false);
 	}
 	else
 	{
@@ -405,8 +415,33 @@ void APlayerFight_Attacks::HitCount()
 	SpawnParticle();
 	currentHit++;
 }
+void APlayerFight_Attacks::LaunchParticleSpe()
+{
+	SpawnParticleAtkSpe();
+}
 
 
+void APlayerFight_Attacks::SpawnParticleAtkSpe()
+{
+	if (!AttackSpeList.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" isActivate isActivate isActivate isActivate = %d"), atkSpeChoice);
+		if (atkSpeChoice < 5 && atkSpeChoice > -1)
+		{
+			UE_LOG(LogTemp, Warning, TEXT(" atkSpeChoice < 5 && atkSpeChoice > -1 "));
+			TSubclassOf<AActor> AttackClass = AttackSpeList[atkSpeChoice];
+			
+			AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(AttackClass, GetActorLocation(), GetActorRotation());
+
+			IIParticle_AttackEnemy* AttackInterface = Cast<IIParticle_AttackEnemy>(AttackInstance);
+
+			if (AttackInterface)
+			{
+				AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack, this);
+			}
+		}
+	}
+}
 void APlayerFight_Attacks::SpawnParticle()
 {
 	if (!AttackList.IsEmpty())
@@ -418,10 +453,9 @@ void APlayerFight_Attacks::SpawnParticle()
 
 		if (AttackInterface)
 		{
-			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack);
+			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack, this);
 		}
 	}
-
 }
 void APlayerFight_Attacks::SpawnParticleSlow()
 {
@@ -434,7 +468,7 @@ void APlayerFight_Attacks::SpawnParticleSlow()
 
 		if (AttackInterface)
 		{
-			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack);
+			AttackInterface->Execute_SetAttack(AttackInstance, Attack, isRightAttack, this);
 		}
 	}
 
@@ -460,6 +494,12 @@ void APlayerFight_Attacks::SpawnParticleCounter(bool isRightDamage, AActor* Enem
 	}
 }
 
+
+void APlayerFight_Attacks::PostProcessSlowActivate(bool isActivate)
+{
+	UE_LOG(LogTemp, Warning, TEXT(" isActivate = %s"), isActivate ? TEXT("True") : TEXT("False"));
+	PostProcessSlow->bEnabled = isActivate;
+}
 
 void APlayerFight_Attacks::SlowMotion(float slowStrength, int time)
 {

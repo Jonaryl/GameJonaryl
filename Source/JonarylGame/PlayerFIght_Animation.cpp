@@ -68,6 +68,7 @@ void UPlayerFIght_Animation::UpdateAnimProperties()
 	canMove = playerClass->GetCanMove();
 	isMoving = playerClass->GetisMoving();
 
+	AttackSpeA = playerClass->GetAttackSpeA();
 	AttackSpeB = playerClass->GetAttackSpeB();
 	AttackSpeX = playerClass->GetAttackSpeX();
 	AttackSpeY = playerClass->GetAttackSpeY();
@@ -115,4 +116,12 @@ void UPlayerFIght_Animation::EndAnimation_Implementation()
 void UPlayerFIght_Animation::EndSlowEnemy_Implementation()
 {
 	playerClass->EndSlowEnemy();
+}
+void UPlayerFIght_Animation::StopPostProcessSlow_Implementation()
+{
+	playerClass->StopPostProcessSlow();
+}
+void UPlayerFIght_Animation::LaunchParticleSpe_Implementation()
+{
+	playerClass->LaunchParticleSpe();
 }
