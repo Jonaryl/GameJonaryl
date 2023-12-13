@@ -28,8 +28,8 @@ public:
 	FString Classe;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
-		int Health;
-	int Classe_Health;
+		float Health;
+	float Classe_Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
 		int Attack;

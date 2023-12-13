@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Blueprint/UserWidget.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -24,6 +25,7 @@
 
 #include "PlayerFight_States.h"
 #include "PlayerFight_Lock.h"
+#include "PlayerFight_HUD.h"
 
 
 #include "PlayerFight_Move.generated.h"
@@ -78,11 +80,26 @@ public:
 
 	void MoveRight(float Value);
 
+	// HUD //
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UPlayerFight_HUD> PlayerFightHUDClass;
+	UPROPERTY()
+		class UPlayerFight_HUD* PlayerFightHUD;
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UPlayerFight_HUD> EnemyHUDClass;
+	UPROPERTY()
+		class UPlayerFight_HUD* EnemyHUD;
+	
+	void EditEnemyHealth(float enemyHealthMax, float enemyHealth);
+	void EditEnemyArmor(float enemyArmorMax, float enemyArmor);
+	void EnemyHudIsVisible(bool isVisible);
 
 protected:
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayerReason)override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetCharacterState(APlayerFight_States::EPlayerFight_State NewState, float Time);
 	virtual void ChangeCharacterState(APlayerFight_States::EPlayerFight_State NewState);
@@ -151,6 +168,8 @@ protected:
 	bool isMoveInput;
 	bool isSprintInput;
 	bool canMove;
+
+	float currentHealth;
 
 	bool canMoveWhenCombo;
 

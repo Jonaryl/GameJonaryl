@@ -21,6 +21,8 @@ class JONARYLGAME_API AEnemy_Move : public AEnemy_Classes
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	float GetcurrentHealth();
+	float GetcurrentArmorValue();
 protected:
 	virtual void BeginPlay() override;
 
@@ -46,7 +48,7 @@ protected:
 	int hitCountDamageAnimation;
 	int damageCount;
 
-	int currentHealth;
+	float currentHealth;
 	float currentArmorValue;
 	float armorRegenCoolDown;
 

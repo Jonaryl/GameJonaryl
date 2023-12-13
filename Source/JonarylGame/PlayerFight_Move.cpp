@@ -57,6 +57,35 @@ void APlayerFight_Move::BeginPlay()
         if (PlayerFight_Lock)
             PlayerFight_LockInstance->Test();
     }
+
+    if (PlayerFightHUDClass)
+    {
+        PlayerFightHUD = CreateWidget<UPlayerFight_HUD>(GetWorld(), PlayerFightHUDClass);
+        EnemyHUD = CreateWidget<UPlayerFight_HUD>(GetWorld(), EnemyHUDClass);
+
+        if(PlayerFightHUD)
+            PlayerFightHUD->AddToPlayerScreen();
+        if (EnemyHUD)
+        {
+            EnemyHUD->AddToPlayerScreen();
+            EnemyHudIsVisible(false);
+        }
+    }
+}
+void APlayerFight_Move::EndPlay(const EEndPlayReason::Type EndPlayerReason)
+{
+    if (PlayerFightHUD)
+    {
+        PlayerFightHUD->RemoveFromParent();
+        PlayerFightHUD = nullptr;
+    }
+    if (EnemyHUD)
+    {
+        EnemyHUD->RemoveFromParent();
+        EnemyHUD = nullptr;
+    }
+
+    Super::EndPlay(EndPlayerReason);
 }
 
 void APlayerFight_Move::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -427,6 +456,18 @@ bool APlayerFight_Move::GethasLanded()
 }
 
 
+void APlayerFight_Move::EnemyHudIsVisible(bool isVisible)
+{
+    EnemyHUD->SetVisible(isVisible);
+}
+void APlayerFight_Move::EditEnemyHealth(float enemyHealthMax, float enemyHealth)
+{
+    EnemyHUD->SetHealth(enemyHealthMax, enemyHealth);
+}
+void APlayerFight_Move::EditEnemyArmor(float enemyArmorMax, float enemyArmor)
+{
+    EnemyHUD->SetClassPower(enemyArmorMax, enemyArmor);
+}
 
 
 void APlayerFight_Move::EndAnimation(){}

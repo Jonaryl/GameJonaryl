@@ -310,15 +310,23 @@ void AEnemy_Move::DamageTake(int damage, bool isRightDamage, float ArmorDamage)
         isDamaged = true;
         if (currentArmorValue > 0)
             currentArmorValue -= ArmorDamage;
+
+        currentHealth -= damage;
+
         if (currentArmorValue <= 0)
         {
             if(armorRegenCoolDown <= 0)
                 armorRegenCoolDown = 100;
             StopAction();
-            /*UE_LOG(LogTemp, Warning, TEXT(" currentArmorValue < 0 "));
+            /*
+            UE_LOG(LogTemp, Warning, TEXT(" currentArmorValue < 0 "));
             UE_LOG(LogTemp, Warning, TEXT("ANIMATION ENEMY  isDamaged isDamaged = %s"), isDamaged ? TEXT("True") : TEXT("False"));
-            UE_LOG(LogTemp, Error, TEXT("ANIMATION ENEMY  ArmorValue ArmorValue %f"), ArmorValue);*/
+            */
         }
+        UE_LOG(LogTemp, Error, TEXT("ANIMATION ENEMY  damage damage %f"), damage);
+        UE_LOG(LogTemp, Log, TEXT("ANIMATION ENEMY  currentHealth currentHealth %f"), currentHealth);
+        UE_LOG(LogTemp, Error, TEXT("ANIMATION ENEMY  ArmorDamage ArmorDamage %f"), ArmorDamage);
+        UE_LOG(LogTemp, Log, TEXT("ANIMATION ENEMY  ArmorValue ArmorValue %f"), ArmorValue);
 
         //UE_LOG(LogTemp, Warning, TEXT("Enemy is Taking Damage"));
     }
@@ -351,7 +359,14 @@ int AEnemy_Move::GenerateRandomInt(int Min, int Max)
     return RandomIntNumber;
 }
 
-
+float AEnemy_Move::GetcurrentHealth()
+{
+    return currentHealth;
+}
+float AEnemy_Move::GetcurrentArmorValue()
+{
+    return currentArmorValue;
+}
 float AEnemy_Move::GetxMove()
 {
     return moveLR * 100;

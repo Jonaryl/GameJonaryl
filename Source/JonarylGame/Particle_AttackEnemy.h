@@ -58,6 +58,7 @@ public:
 	bool isRightDamage;
 	UBoxComponent* CollisionAttack;
 	APlayerFight_Character* player;
+	AEnemy_Unit* currentEnemyLocked;
 
 protected:
 
@@ -71,7 +72,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer) override;
+	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer, AActor* enemyLocked) override;
 	void IsCountered_Implementation(AActor* EnemyCountered) override;
 public:	
 	// Called every frame

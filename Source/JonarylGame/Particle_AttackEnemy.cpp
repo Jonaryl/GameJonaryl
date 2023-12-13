@@ -28,7 +28,7 @@ void AParticle_AttackEnemy::BeginPlay()
 	if (isSpeTimeDestroy == true)
 	{
 		DelayBeforeDestroy = speTimeDestroy;
-		UE_LOG(LogTemp, Error, TEXT("DelayBeforeDestroy = %f"), DelayBeforeDestroy);
+		//UE_LOG(LogTemp, Error, TEXT("DelayBeforeDestroy = %f"), DelayBeforeDestroy);
 	}
 
 	FTimerHandle TimerHandle;
@@ -47,7 +47,7 @@ void AParticle_AttackEnemy::Tick(float DeltaTime)
 
 }
 
-void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer)
+void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer, AActor* enemyLocked)
 {
 
 	playerAttack = AttackPlayer;
@@ -62,6 +62,14 @@ void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRi
 			{
 				player->PostProcessSlowActivate(true);
 			}
+		}
+	}
+
+	if (enemyLocked)
+	{
+		if (enemyLocked != nullptr && enemyLocked->IsA(AEnemy_Unit::StaticClass()))
+		{
+			currentEnemyLocked = Cast<AEnemy_Unit>(enemyLocked);
 		}
 	}
 
@@ -201,7 +209,25 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 		}
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("01 "));
+	if (currentEnemyLocked)
+	{
+		UE_LOG(LogTemp, Error, TEXT("02 currentEnemyLocked "));
+		if (currentEnemyLocked == enemy)
+		{
+			UE_LOG(LogTemp, Error, TEXT("03 currentEnemyLocked == enemy "));
+			player->EditEnemyHealth(currentEnemyLocked->Health, currentEnemyLocked->GetcurrentHealth());
+			player->EditEnemyArmor(currentEnemyLocked->ArmorValue, currentEnemyLocked->GetcurrentArmorValue());
+			if (currentEnemyLocked->GetcurrentHealth() <= 0)
+				player->EnemyHudIsVisible(false);
+			else
+				player->EnemyHudIsVisible(true);
+		}
+	}
+
 	int FinalDamage = playerAttack + BaseDamage - enemy->Defense;
+	if (FinalDamage < 0)
+		FinalDamage = 0;
 	enemy->DamageTake(FinalDamage, finalDirectionIsRight, ArmorDamage);
 }
 
