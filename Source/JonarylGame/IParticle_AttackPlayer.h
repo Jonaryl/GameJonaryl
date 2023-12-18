@@ -23,5 +23,5 @@ class JONARYLGAME_API IIParticle_AttackPlayer
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
-		void SetAttack(int attackEnemy, bool isRightAttack, FVector emeterPosition);
+		void SetAttack(int attackEnemy, bool isRightAttack, FVector emeterPosition, AActor* Enemy);
 };

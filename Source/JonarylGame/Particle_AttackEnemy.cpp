@@ -17,19 +17,25 @@ void AParticle_AttackEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	LaunchParticle();
-	if (CollisionAttack)
+	if (CollisionAttack && !isCounter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CollisionAttack detecter"));
 		CollisionAttack->OnComponentBeginOverlap.AddDynamic(this, &AParticle_AttackEnemy::OnAttackCollisionBeginOverlap);
 		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_AttackEnemy::OnAttackCollisionEndOverlap);
 	}
 
-	float DelayBeforeDestroy = 0.3f;
+	float DelayBeforeDestroy = 0.6f;
+
+	if (isSpeTimeDestroy == true)
+	{
+		DelayBeforeDestroy = speTimeDestroy;
+		//UE_LOG(LogTemp, Error, TEXT("DelayBeforeDestroy = %f"), DelayBeforeDestroy);
+	}
 
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, [this]()
 		{
-			UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
+			if (isSpeTimeDestroy == true)
+				UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
 			Destroy();
 		}, DelayBeforeDestroy, false);
 }
@@ -41,19 +47,51 @@ void AParticle_AttackEnemy::Tick(float DeltaTime)
 
 }
 
-void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack)
+void AParticle_AttackEnemy::SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer, AActor* enemyLocked)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SetAttack_Implementation SetAttack_Implementation"));
 
 	playerAttack = AttackPlayer;
 	isRightDamage = isRightAttack;
-	UE_LOG(LogTemp, Warning, TEXT("playerAttack %f"), playerAttack);
-	UE_LOG(LogTemp, Warning, TEXT("AttackPlayer %d"), AttackPlayer);
 
+	if (currentPlayer->IsA(APlayerFight_Character::StaticClass()))
+	{
+		player = Cast<APlayerFight_Character>(currentPlayer);
+		if (isSpeSlow)
+		{
+			if (player)
+			{
+				player->PostProcessSlowActivate(true);
+			}
+		}
+	}
 
-	if (CollisionAttack)
+	if (enemyLocked)
+	{
+		if (enemyLocked != nullptr && enemyLocked->IsA(AEnemy_Unit::StaticClass()))
+		{
+			currentEnemyLocked = Cast<AEnemy_Unit>(enemyLocked);
+		}
+	}
+
+	if (CollisionAttack && !isCounter)
 	{
 		CollisionAttack->SetBoxExtent(CollisionSize);
+		FString PositionString = CollisionSize.ToString();
+	}
+}
+
+void AParticle_AttackEnemy::IsCountered_Implementation(AActor* EnemyCountered)
+{
+	if (EnemyCountered)
+	{
+		if (EnemyCountered->IsA(AEnemy_Unit::StaticClass()))
+		{
+			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(EnemyCountered);
+			if (enemy)
+			{
+				enemy->CounterTake();
+			}
+		}
 	}
 }
 
@@ -61,15 +99,24 @@ void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* O
 {
 	if (OtherActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetClass()->GetName());
 		if (OtherActor->IsA(AEnemy_Unit::StaticClass()))
 		{
 			AEnemy_Unit* enemy = Cast<AEnemy_Unit>(OtherActor);
 			if (enemy)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter on est bon plus qu'a"));
-				DamageEnemy(enemy);
-				Destroy();
+				if (isSpeSlow)
+				{
+					enemy->SlowDownTake();
+					if (player)
+					{
+						player->PostProcessSlowActivate(true);
+					}
+				}
+				else
+				{
+					DamageEnemy(enemy);
+					//Destroy();
+				}
 			}
 		}
 	}
@@ -77,14 +124,12 @@ void AParticle_AttackEnemy::OnAttackCollisionBeginOverlap(UPrimitiveComponent* O
 
 void AParticle_AttackEnemy::OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("CollisionAttack c'est la fin"));
 	// Handle the end of the overlap collision here
 	// You can access the colliding actor (OtherActor) and perform any necessary logic
 }
 
 void AParticle_AttackEnemy::LaunchParticle()
 {
-	UE_LOG(LogTemp, Warning, TEXT("LaunchParticle oon est dans particle"));
 	FVector PlayerPosition = GetActorLocation();
 	FRotator PlayerRotation = GetActorRotation();
 
@@ -99,7 +144,7 @@ void AParticle_AttackEnemy::LaunchParticle()
 	SetActorRotation(RelativeRotation);
 
 	FVector PlayerForward = GetActorForwardVector();
-	FVector RelativeParticulePosition = PlayerPosition + PlayerForward * ParticleDistance + PlayerRotation.RotateVector(ParticlePosition);
+	FVector RelativeParticulePosition = PlayerPosition + PlayerForward * ParticleDistance + PlayerRotation.RotateVector(ParticleSpawnPosition);
 
 	FRotator ParticleRotationPlus = ParticleRotation;
 	ParticleRotationPlus.Yaw += 180;
@@ -109,11 +154,14 @@ void AParticle_AttackEnemy::LaunchParticle()
 	FRotator FinalRelativeParticuleRotation = RelativeRotation + ParticleRotationPlus;
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Particle, RelativeParticulePosition, FinalRelativeParticuleRotation);
-	CollisionAttack = AParticle_AttackEnemy::FindComponentByClass<UBoxComponent>();
-
-	if (CollisionAttack)
+	if (!isCounter)
 	{
-		CollisionAttack->SetVisibility(true);
+		CollisionAttack = AParticle_AttackEnemy::FindComponentByClass<UBoxComponent>();
+
+		if (CollisionAttack)
+		{
+			CollisionAttack->SetVisibility(true);
+		}
 	}
 }
 
@@ -136,13 +184,13 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 		{
 			// Le coup vient de derrière
 			finalDirectionIsRight = !isRightDamage;
-			UE_LOG(LogTemp, Error, TEXT("dos dos dos dos "));
+			//UE_LOG(LogTemp, Error, TEXT("dos dos dos dos "));
 		}
 		else
 		{
 			// Le coup vient de devant
 			finalDirectionIsRight = isRightDamage;
-			UE_LOG(LogTemp, Error, TEXT("face face face face "));
+			//UE_LOG(LogTemp, Error, TEXT("face face face face "));
 		}
 	}
 	else
@@ -151,19 +199,36 @@ void AParticle_AttackEnemy::DamageEnemy(AEnemy_Unit* enemy)
 		{
 			// Le coup vient de la gauche
 			finalDirectionIsRight = false;
-			UE_LOG(LogTemp, Error, TEXT("gauche gauche gauche gauche "));
+			//UE_LOG(LogTemp, Error, TEXT("gauche gauche gauche gauche "));
 		}
 		else
 		{
 			// Le coup vient de la droite
 			finalDirectionIsRight = true;
-			UE_LOG(LogTemp, Error, TEXT("droite droite droite droite "));
+			//UE_LOG(LogTemp, Error, TEXT("droite droite droite droite "));
+		}
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("01 "));
+	if (currentEnemyLocked)
+	{
+		UE_LOG(LogTemp, Error, TEXT("02 currentEnemyLocked "));
+		if (currentEnemyLocked == enemy)
+		{
+			UE_LOG(LogTemp, Error, TEXT("03 currentEnemyLocked == enemy "));
+			player->EditEnemyHealth(currentEnemyLocked->Health, currentEnemyLocked->GetcurrentHealth());
+			player->EditEnemyArmor(currentEnemyLocked->ArmorValue, currentEnemyLocked->GetcurrentArmorValue());
+			if (currentEnemyLocked->GetcurrentHealth() <= 0)
+				player->EnemyHudIsVisible(false);
+			else
+				player->EnemyHudIsVisible(true);
 		}
 	}
 
 	int FinalDamage = playerAttack + BaseDamage - enemy->Defense;
-	UE_LOG(LogTemp, Warning, TEXT("DamagePlayer DamagePlayer"));
-	enemy->DamageTake(FinalDamage, finalDirectionIsRight);
+	if (FinalDamage < 0)
+		FinalDamage = 0;
+	enemy->DamageTake(FinalDamage, finalDirectionIsRight, ArmorDamage);
 }
 
 

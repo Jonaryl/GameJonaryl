@@ -27,7 +27,9 @@ void APlayerFight_Actions::Tick(float DeltaTime)
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Jump) 
     {
         loopTurn++;
-        JumpAction();
+        if (loopTurn >= 0)
+            JumpAction();
+
         ActionTurn(false);
         if (loopTurn == 25)
         {
@@ -48,14 +50,61 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         loopTurn++;
         JumpDown();
         ActionTurn(true);
+        if (isNearGround == false)
+        {
+        }
+        else if (isNearGround == true && isSprintInput == true && isMoveInput == true)
+        {
+            StopCombo();
+            EndAnimation();
+            canMove = true;
+            canBeHit = true;
+
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
+            isDash = false;
+            canDash = true;
+            isSprint = true;
+        }
+        else if (isNearGround == true && isSprintInput == false && isMoveInput == true)
+        {
+            StopCombo();
+            EndAnimation();
+            canMove = true;
+            canBeHit = true;
+
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
+            isDash = false;
+            canDash = true;
+            isSprint = false;
+        }
+        else if (isNearGround == true && isSprintInput == false && isMoveInput == false)
+        {
+            StopCombo();
+            EndAnimation();
+            canMove = true;
+            canBeHit = true;
+
+            SetCharacterState(APlayerFight_States::EPlayerFight_State::Idle, 0.0f);
+            isDash = false;
+            isIdle = true;
+            canDash = true;
+            isSprint = false;
+        }
     }
     if (CurrentState == APlayerFight_States::EPlayerFight_State::Dash)
     {
         loopTurn++;
-        DashAction();
-        ActionTurn(true);
+        if(loopTurn >= 0)
+            DashAction();
+        ActionTurn(false);
+
         if (loopTurn < 35 && loopTurn > 30 && isNearGround == true && isSprintInput == true && isMoveInput == true)
         {
+            StopCombo();
+            EndAnimation();
+            canMove = true;
+            canBeHit = true;
+
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Sprint, 0.0f);
             isDash = false;
             canDash = true;
@@ -63,6 +112,11 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         }
         else if (loopTurn < 35 && loopTurn > 30 && isNearGround == true && isSprintInput == false && isMoveInput == true)
         {
+            StopCombo();
+            EndAnimation();
+            canMove = true;
+            canBeHit = true;
+
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Run, 0.0f);
             isDash = false;
             canDash = true;
@@ -70,8 +124,14 @@ void APlayerFight_Actions::Tick(float DeltaTime)
         }
         if (loopTurn == 35)
         {
+            StopCombo();
+            EndAnimation();
             isStartJump = false;
             isIdleJump = true;
+
+            canMove = true;
+            canBeHit = true;
+
             if (isNearGround == false)
                 SetCharacterState(APlayerFight_States::EPlayerFight_State::IdleJump, 0.0f);
             else if (isSprintInput == true && isMoveInput == true)
@@ -116,7 +176,6 @@ void APlayerFight_Actions::Tick(float DeltaTime)
             
             if (DistanceToGround < 150)
             {
-                //UE_LOG(LogTemp, Warning, TEXT(" DistanceToGround ") );
                 isNearGround = true;
                 isDashJump = false;
             }
@@ -133,22 +192,33 @@ void APlayerFight_Actions::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 }
 
 
+void APlayerFight_Actions::StopCombo(){}
 
 void APlayerFight_Actions::ABtnAction()
 {
-    UE_LOG(LogTemp, Warning, TEXT("CurrentState %d"), CurrentState);
     if (CurrentState != APlayerFight_States::EPlayerFight_State::Jump && CurrentState != APlayerFight_States::EPlayerFight_State::IdleJump && 
-        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash)
+        CurrentState != APlayerFight_States::EPlayerFight_State::DashJump && CurrentState != APlayerFight_States::EPlayerFight_State::Dash &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::Damage && CurrentState != APlayerFight_States::EPlayerFight_State::CounterPose &&
+        CurrentState != APlayerFight_States::EPlayerFight_State::Counter && CurrentState != APlayerFight_States::EPlayerFight_State::CounterAttack)
     {
         if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement()) 
         {
+            StopCombo();
             XMoveDirection = 0.0f;
             YMoveDirection = 0.0f;
             SetCharacterState(APlayerFight_States::EPlayerFight_State::Jump, 0.0f);
-            UE_LOG(LogTemp, Warning, TEXT("Jump "));
             isStartJump = true;
             isNearGround = false;
-            loopTurn = 0;
+            isIdle = false;
+            isMoving = false;
+            hasLanded = false;
+
+            if (RootMotionProblem)
+                loopTurn = -10;
+            else
+                loopTurn = 0;
+
+            RootMotionProblem = false;
         }
         else {
             UE_LOG(LogTemp, Error, TEXT("PlayerMesh is null"));
@@ -160,7 +230,6 @@ void APlayerFight_Actions::ABtnAction()
         {
             if (PlayerController->GetCharacter() && PlayerController->GetCharacter()->GetCharacterMovement())
             {
-                UE_LOG(LogTemp, Error, TEXT("DashJump"));
                 loopTurn = 0;
                 SetCharacterState(APlayerFight_States::EPlayerFight_State::DashJump, 0.0f);
                 isDashJump = true;
@@ -237,19 +306,51 @@ void APlayerFight_Actions::DebugBtnAction()
     UE_LOG(LogTemp, Warning, TEXT(" isNearGround = %s"), isNearGround ? TEXT("True") : TEXT("False"));  
     UE_LOG(LogTemp, Warning, TEXT(" isSprint = %s"), isSprint ? TEXT("True") : TEXT("False"));
     UE_LOG(LogTemp, Warning, TEXT(" isSprintInput = %s"), isSprintInput ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Warning, TEXT(" canMove = %s"), canMove ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Warning, TEXT(" hasLanded = %s"), hasLanded ? TEXT("True") : TEXT("False"));
+
+    UE_LOG(LogTemp, Warning, TEXT(" isIdle = %s"), isIdle ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Warning, TEXT(" isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
+
+    UE_LOG(LogTemp, Warning, TEXT(" isSuperMode = %s"), isSuperMode ? TEXT("True") : TEXT("False"));
+
     UE_LOG(LogTemp, Warning, TEXT(" currentState = %d"), CurrentState ); 
 
 }
 
 void APlayerFight_Actions::RBBtnAction()
 {
-    UE_LOG(LogTemp, Warning, TEXT("DASH"));
     if (canDash == true && CurrentState != APlayerFight_States::EPlayerFight_State::DashJump)
     {
+         DebugBtnAction();
+         StopCombo();
+         CancelGravity();
+
+         canTurnAction = true;
+         canTurnActionCoolDown = 5.0f;
+
+         isIdle = false;
+         isMoving = false;
          canDash = false;
          isDash = true;
-         loopTurn = 0;
-         CancelGravity();
+
+         canMove = false;
+         canBeHit = false;
+         hasLanded = false;
+         if (isNearGround)
+         {
+             isStartJump = false;
+             isIdleJump = false;
+             isDashJump = false;
+         }
+
+         if(RootMotionProblem)
+            loopTurn = -10;
+         else
+            loopTurn = 0;
+
+         RootMotionProblem = false;
+
          SetCharacterState(APlayerFight_States::EPlayerFight_State::Dash, 0.0f);
          dashNumber++;
          if (dashNumber == 4)
@@ -263,7 +364,7 @@ void APlayerFight_Actions::DashAction()
     FVector forwardVector = GetActorForwardVector();
     int currentspeed = 0;
     int upSpeed = 0;
-    if (isNearGround)
+    /*if (isNearGround)
     {
         int forSpeed[40]{
         40000000, 40000000, 40000000, 40000000, 8000000, 6000000, 5000000, 3200000, 3200000, 2400000,
@@ -272,13 +373,23 @@ void APlayerFight_Actions::DashAction()
         400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,  400000,
         };
         currentspeed = forSpeed[loopTurn];
+    }*/
+    if (isNearGround)
+    {
+        int forSpeed[40]{
+        15000000, 15000000, 15000000, 15000000, 2700000, 2300000, 2500000, 1000000, 1000000, 800000,
+        800000, 430000, 430000, 1500000, 1500000, 270000, 270000, 150000, 150000, 150000,
+        150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000,  150000,
+        150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000, 150000,  150000,
+        };
+        currentspeed = forSpeed[loopTurn];
     }
     else
     {
         int forSpeed[40]{
-        4000000, 4000000, 4000000, 0, 0, 0, 0, 0, 0, 0,
+        3000000, 3000000, 3000000, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, -100000, -100000, -100000, -100000, -200000, -300000, -400000, -1000000, -1500000,
+        0, -50000, -50000, -50000, -50000, -100000, -150000, -200000, -400000, -4000000,
         0, 0, 0, 0, 0, 0, 0, 0, 0,  0,
         };
         currentspeed = forSpeed[loopTurn];
@@ -286,8 +397,10 @@ void APlayerFight_Actions::DashAction()
     }
     const FVector relativeMoveVector = FVector(XMoveDirection * 20, -YMoveDirection * 20, 0);
     FVector worldMoveVector = GetActorRotation().RotateVector(relativeMoveVector);
-
+ 
     const FVector force = (upvector * upSpeed) + (forwardVector * currentspeed) + (worldMoveVector * 1000);
+ 
+    //UE_LOG(LogTemp, Log, TEXT("FVector force: %s"), *force.ToString());
 
     PlayerController->GetCharacter()->GetCharacterMovement()->AddForce(force);
 }
@@ -300,17 +413,17 @@ void APlayerFight_Actions::ActionTurn(bool canTurn)
     Direction = CamRotation.RotateVector(Direction);
     Direction.Z = 0.0f;
 
-    FVector TargetLocation = GetActorLocation() + (Direction * (runSpeed * 500) * GetWorld()->DeltaTimeSeconds);
+    FVector TargetLocationTurn = GetActorLocation() + (Direction * (runSpeed * 500) * GetWorld()->DeltaTimeSeconds);
 
-    FVector DirectionToTarget = TargetLocation - GetActorLocation();
+    FVector DirectionToTarget = TargetLocationTurn - GetActorLocation();
     DirectionToTarget.Normalize();
 
     const FVector WorldUp(0.0f, 0.0f, 1.0f);
 
-    FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
+    FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocationTurn);
 
     FVector CurrentLocation = GetActorLocation();
-    FRotator ActionTurnTargetRotations = (TargetLocation - CurrentLocation).Rotation();
+    FRotator ActionTurnTargetRotations = (TargetLocationTurn - CurrentLocation).Rotation();
  
     if (canTurn == true)
     {

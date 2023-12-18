@@ -38,15 +38,53 @@ protected:
 		bool isAttacking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int currentCombo;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isDamaged;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isRightAttackHit;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterTake;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int hitCountDamageAnimation;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float DmgBlendAlpha;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float DmgBlendR;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float DmgBlendL;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float ArmorValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isSlowDownTake;
 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void CanAttackEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void LaunchParticleEvent();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndAnimationEvent();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void AttackIsRight();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void AttackIsLeft();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndDamage();	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndDamageAnimation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void ActivateSlowMode();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void StopAttackTurn();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndArmorDamage();
 };

@@ -40,12 +40,20 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BaseDamage;
 	float enemyAttack;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isDamageCut;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		int damageCut;
+
 	FVector EnemyLaunchPosition;
+
+	AActor* CurrentEnemy;
 
 	UBoxComponent* CollisionAttack;
 
 	bool isRightDamage;
-	void SetAttack_Implementation(int AttackEnemy, bool isRightAttack, FVector emeterPosition) override;
+
+	void SetAttack_Implementation(int AttackEnemy, bool isRightAttack, FVector emeterPosition, AActor* Enemy) override;
 protected:
 
 	void DamagePlayer( APlayerFight_Character* player);

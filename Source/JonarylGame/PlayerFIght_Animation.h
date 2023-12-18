@@ -34,19 +34,33 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndCombo();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndAttack();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndAnimation();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void FinalComboAttack();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void CanCounterStanceEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EndCounterStanceEvent();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndCounter();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void HitCountEvent();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EndSlowEnemy();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void StopPostProcessSlow();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void LaunchParticleSpe();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
 		APlayerFight_Character* playerClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		float speedMove;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		float valueTurn;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isStartJump;
@@ -59,14 +73,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int dashNumber;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int counterNumber;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int damageAnimNumber;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isNearGround;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isSprint;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool hasLanded;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isAttacking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isStrongAttacking;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterAttacking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int currentCombo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
@@ -74,6 +96,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isCounterStance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool canCounterStanceCombo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isCounter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
@@ -84,8 +108,24 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isDamaged;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool AttackSpeA;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool AttackSpeB;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool AttackSpeX;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool AttackSpeY;	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isSuperMode;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isIdle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isMoving;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool canMove;
 	
 };

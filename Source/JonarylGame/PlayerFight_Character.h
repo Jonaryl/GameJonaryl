@@ -21,6 +21,7 @@ public:
 	UBoxComponent* CollisionDamage;
 
 	float GetSpeed() override;
+	float GetvalueTurn();
 	bool GetisStartJump() override;
 	bool GetisIdleJump() override;
 	bool GetisDashJump() override;
@@ -29,25 +30,50 @@ public:
 	bool GetisIdle() override;
 	bool GetisSprint() override;
 	bool GetisNearGround() override;
+	bool GetCanMove() override;
+	bool GethasLanded() override;
+	void PostProcessSlowActivate(bool isActivate) override;
+	
+	bool AttackSpeA;
+	bool AttackSpeB;
+	bool AttackSpeX;
+	bool AttackSpeY;
+
+	bool GetAttackSpeA();
+	bool GetAttackSpeB();
+	bool GetAttackSpeX();
+	bool GetAttackSpeY();
+
+
+	void SetAttackSpe(bool speB, bool speX, bool speY, bool speA);
 
 	bool GetisAttacking() override;
 	bool GetisStrongAttacking() override;
+	bool GetisCounterAttacking();
 	int GetcurrentCombo() override;
 	int GetAttackOneNumber();
 	
 	bool GetisCounterStance() override;
+	bool GetcanCounterStanceCombo();
 	bool GetisCounter() override;
 	bool GetisCounterLeft() override;
 
 	bool GetisDamageRight() override;
 	bool GetisDamaged() override;
+	bool GetisMoving() override;
+	int GetdamageAnimNumber();
+
+	int GetcounterNumber();
 
 	void HitCount() override;
+	void LaunchParticleSpe() override;
 
 	void CanAttack();
 	void EndCombo();
+	void EndAttack();
 	void ActionEndCombo();
 	void FinalComboAttack();
+	void EndAnimation() override;
 
 	void CanCounterStance();
 	void CanCounterStanceMethod();
@@ -60,5 +86,10 @@ public:
 	void CanCounter();
 	void EndCounter();
 
-	void DamageTake(int damage, bool isRightDamage) override;
+	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut, AActor* Enemy) override;
+
+	void SuperModeActivate();
+	bool GetisSuperMode();
+	void EndSlowEnemy();
+	void StopPostProcessSlow();
 };

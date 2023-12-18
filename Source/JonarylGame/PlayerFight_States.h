@@ -25,8 +25,13 @@ public:
         IdleJump,
         DashJump,
         Attack,
+        StanceSpe,
+        AttackSpe,
         Dash,
         Dodge,
+        Damage,
+        OnAir,
+        OnGround,
         CounterPose,
         Counter,
         CounterAttack

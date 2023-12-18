@@ -41,26 +41,39 @@ void UPlayerFIght_Animation::NativeUpdateAnimation(float DeltaSeconds)
 void UPlayerFIght_Animation::UpdateAnimProperties()
 {
 	speedMove = playerClass->GetSpeed();
+	valueTurn = playerClass->GetvalueTurn();
 	isStartJump = playerClass->GetisStartJump();
 	isIdleJump = playerClass->GetisIdleJump();
 	isDashJump = playerClass->GetisDashJump();
 	isDash = playerClass->GetisDash();
 	dashNumber = playerClass->GetdashNumber();
+	counterNumber = playerClass->GetcounterNumber();
 	isNearGround = playerClass->GetisNearGround();
 	isIdle = playerClass->GetisIdle();
 	isSprint = playerClass->GetisSprint();
 	isAttacking = playerClass->GetisAttacking();
 	isStrongAttacking = playerClass->GetisStrongAttacking();
+	isCounterAttacking = playerClass->GetisCounterAttacking();
 	currentCombo = playerClass->GetcurrentCombo();
 	AttackOneNumber = playerClass->GetAttackOneNumber();
+	hasLanded = playerClass->GethasLanded();
 
 	isCounterStance = playerClass->GetisCounterStance();
+	canCounterStanceCombo = playerClass->GetcanCounterStanceCombo();
 	isCounter = playerClass->GetisCounter();
 	isCounterLeft = playerClass->GetisCounterLeft();
 	isRightAttack = playerClass->GetisDamageRight();
 	isDamaged = playerClass->GetisDamaged();
+	damageAnimNumber = playerClass->GetdamageAnimNumber();
+	canMove = playerClass->GetCanMove();
+	isMoving = playerClass->GetisMoving();
 
-	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
+	AttackSpeA = playerClass->GetAttackSpeA();
+	AttackSpeB = playerClass->GetAttackSpeB();
+	AttackSpeX = playerClass->GetAttackSpeX();
+	AttackSpeY = playerClass->GetAttackSpeY();
+
+	isSuperMode = playerClass->GetisSuperMode();
 	}
 
 
@@ -71,6 +84,10 @@ void UPlayerFIght_Animation::CanAttackEvent_Implementation()
 void UPlayerFIght_Animation::EndCombo_Implementation()
 {
 	playerClass->EndCombo();
+}
+void UPlayerFIght_Animation::EndAttack_Implementation()
+{
+	playerClass->EndAttack();
 }
 void UPlayerFIght_Animation::FinalComboAttack_Implementation()
 {
@@ -84,7 +101,27 @@ void UPlayerFIght_Animation::EndCounterStanceEvent_Implementation()
 {
 	playerClass->EndCounterStance();
 }
+void UPlayerFIght_Animation::EndCounter_Implementation()
+{
+	playerClass->EndCounter();
+}
 void UPlayerFIght_Animation::HitCountEvent_Implementation()
 {
 	playerClass->HitCount();
+}
+void UPlayerFIght_Animation::EndAnimation_Implementation()
+{
+	playerClass->EndAnimation();
+}
+void UPlayerFIght_Animation::EndSlowEnemy_Implementation()
+{
+	playerClass->EndSlowEnemy();
+}
+void UPlayerFIght_Animation::StopPostProcessSlow_Implementation()
+{
+	playerClass->StopPostProcessSlow();
+}
+void UPlayerFIght_Animation::LaunchParticleSpe_Implementation()
+{
+	playerClass->LaunchParticleSpe();
 }

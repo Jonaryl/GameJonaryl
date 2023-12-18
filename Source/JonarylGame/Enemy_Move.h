@@ -6,8 +6,7 @@
 #include "Enemy_Classes.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Enemy_Move.generated.h"
 
@@ -20,10 +19,13 @@ class JONARYLGAME_API AEnemy_Move : public AEnemy_Classes
 	GENERATED_BODY()
 
 public:
-	AEnemy_Move();
 	virtual void Tick(float DeltaTime) override;
 
+	float GetcurrentHealth();
+	float GetcurrentArmorValue();
 protected:
+	virtual void BeginPlay() override;
+
 	ACharacter* PlayerCharacter;
 	float distanceToPlayer;
 	float distanceToMovePlace;
@@ -35,13 +37,30 @@ protected:
 	int timeAction;
 	int timeWaiting;
 
+	bool isAttacking;
+	bool canTurnToPlayer;
+
 	bool isRightAttackHit;
 	bool canBeHit;
 	bool isDamaged;
+	bool canCutAnimByDamage;
 	float canBeHitCoolDown;
+	int hitCountDamageAnimation;
+	int damageCount;
+
+	float currentHealth;
+	float currentArmorValue;
+	float armorRegenCoolDown;
 
 	float moveFB = 0.0f;
 	float moveLR = 0.0f;
+
+	bool isSlow;
+	int slowMotionCountDown;
+	bool isSlowDownTake;
+	virtual bool GetisSlowDownTake();
+	virtual void ActivateSlowMode();
+	virtual void EndSlowMode();
 
 	void LookAtPlayer();
 	void MoveToPlace();
@@ -49,6 +68,7 @@ protected:
 	int GenerateRandomInt(int Min, int Max);
 
 	FVector DestinationtoMove;
+	bool isDestinationPlayer;
 
 	void ActionChoice();
 	virtual void WaitingForChoice();
@@ -63,5 +83,10 @@ protected:
 	virtual float GetxMove();
 	virtual float GetyMove();
 
-	virtual void DamageTake(int damage, bool isRightDamage);
+	virtual void DamageTake(int damage, bool isRightDamage, float ArmorDamage);
+	virtual void SlowDownTake();
+	virtual void EndArmorDamage();
+
+	int actionCooldown;
+	virtual void StopAction();
 };

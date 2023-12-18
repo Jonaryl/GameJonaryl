@@ -44,7 +44,22 @@ void UEnemy_Animation::UpdateAnimProperties()
 	yMove = enemyClass->GetyMove();
 	isAttacking = enemyClass->GetisAttacking();
 	currentCombo = enemyClass->GetcurrentCombo();
+	isDamaged = enemyClass->GetisDamaged();
+	isRightAttackHit = enemyClass->GetisDamagedRight();
+	hitCountDamageAnimation = enemyClass->GethitCountDamageAnimation();
 
+	DmgBlendAlpha = enemyClass->GetDmgBlendAlpha();
+	DmgBlendR = enemyClass->GetDmgBlendR();
+	DmgBlendL = enemyClass->GetDmgBlendL();
+
+	isSlowDownTake = enemyClass->GetisSlowDownTake();
+	isCounterTake = enemyClass->GetisCounterTake();
+	ArmorValue = enemyClass->GetArmorValue();
+	/*if (ArmorValue < 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ANIMATION ENEMY  isDamaged isDamaged = %s"), isDamaged ? TEXT("True") : TEXT("False"));
+		UE_LOG(LogTemp, Error, TEXT("ANIMATION ENEMY  ArmorValue ArmorValue %f"), ArmorValue );
+	}*/
 	//UE_LOG(LogTemp, Warning, TEXT(" UpdateAnimProperties isCounterStance = %s"), isCounterStance ? TEXT("True") : TEXT("False"));
 }
 
@@ -64,4 +79,32 @@ void UEnemy_Animation::AttackIsRight_Implementation()
 void UEnemy_Animation::AttackIsLeft_Implementation()
 {
 	enemyClass->AttackIsLeft();
+}
+void UEnemy_Animation::EndAnimationEvent_Implementation()
+{
+	enemyClass->EndAnimation();
+}
+
+void UEnemy_Animation::EndDamage_Implementation()
+{
+	enemyClass->EndDamage();
+}
+void UEnemy_Animation::EndDamageAnimation_Implementation()
+{
+	enemyClass->EndDamageAnimation();
+}
+
+void UEnemy_Animation::ActivateSlowMode_Implementation()
+{
+	enemyClass->ActivateSlowMode();
+}
+
+void UEnemy_Animation::StopAttackTurn_Implementation()
+{
+	enemyClass->StopAttackTurn();
+}
+
+void UEnemy_Animation::EndArmorDamage_Implementation()
+{
+	enemyClass->EndArmorDamage();
 }

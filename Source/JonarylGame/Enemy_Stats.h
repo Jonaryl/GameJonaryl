@@ -25,8 +25,8 @@ public:
 	FString Classe;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
-		int Health;
-	int Classe_Health;
+		float Health;
+	float Classe_Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
 		int Attack;
@@ -44,6 +44,10 @@ public:
 		int MagicDefense;
 	int Classe_MagicDefense;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistiques")
+		float ArmorValue;
+ 
 	int Classe_SpeedMove;
 	int Classe_SpeedRotate;
 

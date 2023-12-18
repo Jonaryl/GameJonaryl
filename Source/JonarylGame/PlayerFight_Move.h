@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Blueprint/UserWidget.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -23,6 +24,9 @@
 #include "inputActionValue.h"
 
 #include "PlayerFight_States.h"
+#include "PlayerFight_Lock.h"
+#include "PlayerFight_HUD.h"
+
 
 #include "PlayerFight_Move.generated.h"
 
@@ -62,6 +66,7 @@ public:
 	float valueSpeed = 0.0f;
 	float valueSpeedJoy = 0.0f;
 	float InitialSpeed;
+	float valueTurn = 50.0f;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -75,15 +80,35 @@ public:
 
 	void MoveRight(float Value);
 
+	// HUD //
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UPlayerFight_HUD> PlayerFightHUDClass;
+	UPROPERTY()
+		class UPlayerFight_HUD* PlayerFightHUD;
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UPlayerFight_HUD> EnemyHUDClass;
+	UPROPERTY()
+		class UPlayerFight_HUD* EnemyHUD;
+	
+	void EditEnemyHealth(float enemyHealthMax, float enemyHealth);
+	void EditEnemyArmor(float enemyArmorMax, float enemyArmor);
+	void EnemyHudIsVisible(bool isVisible);
 
 protected:
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayerReason)override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetCharacterState(APlayerFight_States::EPlayerFight_State NewState, float Time);
 	virtual void ChangeCharacterState(APlayerFight_States::EPlayerFight_State NewState);
 	//virtual void ChangeCharacterState(void* NewStatePtr);
+
+	virtual void Rotating();
+	virtual void RotatingFormDirection(FQuat InterpolatedRotationFormDirection);
+	FVector TargetLocation;
+	FQuat InterpolatedRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputMappingContext* PlayerMappingContext;
@@ -127,7 +152,14 @@ protected:
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-		UInputAction* DebugBtn;
+		UInputAction* DebugBtn;	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+		UInputAction* DeleteEnemyBtn;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particle)
+		TSubclassOf<UPlayerFight_Lock> PlayerFight_Lock;
+	UPlayerFight_Lock* PlayerFight_LockInstance;
 
 
 	APlayerController* PlayerController;
@@ -135,16 +167,20 @@ protected:
 	UPrimitiveComponent* PlayerMesh;
 	bool isMoveInput;
 	bool isSprintInput;
+	bool canMove;
+
+	float currentHealth;
+
+	bool canMoveWhenCombo;
 
 	bool canBeHit;
 	float canBeHitCoolDown;
 
+	bool canTurnAction;
+	float canTurnActionCoolDown;
+
 	float XMoveDirection;
 	float YMoveDirection;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TEST")
-		UStaticMeshComponent* MyMeshTest;
 
 	bool canDash = true;
 	bool bIsGrounded;
@@ -161,6 +197,8 @@ protected:
 	virtual void RBBtnActionEnd();
 
 
+	virtual void EndAnimation();
+
 	virtual void DebugBtnAction();
 	//virtual void BButton();
 	//virtual void XButton();
@@ -170,14 +208,26 @@ protected:
 	virtual bool GetisIdle();
 	virtual bool GetisSprint();
 	virtual bool GetisNearGround();
+	virtual bool GetCanMove();
+	virtual bool GetisMoving();
+	virtual bool GethasLanded();
 
 	bool isStartJump;
 	bool isIdleJump;
+	bool hasLanded;
 	bool isDashJump;
 	bool isDash;
 	bool isNearGround;
 	bool isSprint;
+	bool isMoving;
 
+
+	bool isAttacking;
+	bool RootMotionProblem;
 
 	bool isIdle;
+
+
+	////////////////////////////////////////// DEBUG //////////////////////////////////////////////////////
+	virtual void RemoveAllEnemy();
 };

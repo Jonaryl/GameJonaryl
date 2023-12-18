@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 
 #include "Enemy_Unit.h"
+#include "PlayerFight_Character.h"
 
 #include "NiagaraFunctionLibrary.h" 
 #include "Components/BoxComponent.h"
@@ -23,6 +24,8 @@ class JONARYLGAME_API AParticle_AttackEnemy : public AActor, public IIParticle_A
 public:	
 	AParticle_AttackEnemy();
 
+	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ParticlePosition", DisplayName = "Particle Spawn Position"))
+		FVector ParticleSpawnPosition;
 	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ParticlePosition", DisplayName = "Particle Position"))
 		FVector ParticlePosition;
 	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "ParticleRotation", DisplayName = "Particle Rotation"))
@@ -37,11 +40,25 @@ public:
 		UNiagaraSystem* Particle;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isSpeSlow;	
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isCounter;	
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isSpeTimeDestroy;	
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float speTimeDestroy;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BaseDamage;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float ArmorDamage;
 	float playerAttack;
 
 	bool isRightDamage;
 	UBoxComponent* CollisionAttack;
+	APlayerFight_Character* player;
+	AEnemy_Unit* currentEnemyLocked;
 
 protected:
 
@@ -55,7 +72,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack) override;
+	void SetAttack_Implementation(int AttackPlayer, bool isRightAttack, AActor* currentPlayer, AActor* enemyLocked) override;
+	void IsCountered_Implementation(AActor* EnemyCountered) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -67,6 +67,6 @@ AEnemy_Classes::AEnemy_Classes()
         break;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("%s"), *MyString);
+    //UE_LOG(LogTemp, Warning, TEXT("%s"), *MyString);
 
 }
