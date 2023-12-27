@@ -19,7 +19,8 @@ APlayerFight_Move::APlayerFight_Move()
 
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
-    CameraBoom->TargetArmLength = 300.0f;
+    //CameraBoom->TargetArmLength = 300.0f;
+    CameraBoom->TargetArmLength = 800.0f;
     CameraBoom->bUsePawnControlRotation = true;
 
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
