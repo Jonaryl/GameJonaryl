@@ -14,7 +14,7 @@ void AEnemy_Move::BeginPlay()
     PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (PlayerCharacter)
     {
-        ActionChoice();
+        //ActionChoice();
     }
     canBeHit = true;
     canCutAnimByDamage = true;
