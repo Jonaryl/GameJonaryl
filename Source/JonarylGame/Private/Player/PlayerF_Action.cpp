@@ -16,7 +16,7 @@ void APlayerF_Action::Tick(float DeltaTime)
 
     GroundRaycast();
     //// JUMP UP
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::JumpUp)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::JumpUp)
     {
         actionJumpTurn++;
         if (actionJumpTurn >= 0)
@@ -25,7 +25,7 @@ void APlayerF_Action::Tick(float DeltaTime)
         if (actionJumpTurn == JumpUpMaxTurn)
         {
             UE_LOG(LogTemp, Error, TEXT(" JUMP UP END "));
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::IdleJump, 0.0f);
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::IdleJump, 0.0f);
             actionJumpTurn = 0;
 
             isJumpIdle = true;
@@ -33,7 +33,7 @@ void APlayerF_Action::Tick(float DeltaTime)
         }
     }
     //// JUMP iDLE
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::IdleJump)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::IdleJump)
     {
         actionJumpTurn++;
         if (actionJumpTurn >= 0)
@@ -47,7 +47,7 @@ void APlayerF_Action::Tick(float DeltaTime)
         if (actionJumpTurn == JumpIdleMaxTurn)
         {
             UE_LOG(LogTemp, Error, TEXT(" JUMP IDLE END "));
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::JumpDown, 0.0f);
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::JumpDown, 0.0f);
             actionJumpTurn = 0;
             CancelGravity();
 
@@ -56,7 +56,7 @@ void APlayerF_Action::Tick(float DeltaTime)
         }
     }
     //// JUMP DOWN
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::JumpDown)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::JumpDown)
     {
         actionJumpTurn++;
         if (actionJumpTurn >= 0)
@@ -69,7 +69,7 @@ void APlayerF_Action::Tick(float DeltaTime)
         }
     }
     //// JUMP DASH
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::DashJump)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::DashJump)
     {
         actionJumpTurn++;
         if (actionJumpTurn >= 0)
@@ -82,7 +82,7 @@ void APlayerF_Action::Tick(float DeltaTime)
         }
     }
     //// DASH
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Dash)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Dash)
     {
         actionDashTurn++;
         if (actionDashTurn >= 0)
@@ -160,9 +160,9 @@ void APlayerF_Action::EndJump()
     EndAllActionAnim();
 
     if(isMoveInput)
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
     else
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
 
     NeutralAction();
     CancelGravity();
@@ -195,14 +195,14 @@ void APlayerF_Action::EndDash()
 
         isJumpIdle = true;
 
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::IdleJump, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::IdleJump, 0.0f);
     }
     else
     {
         if(isMoveInput)
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
         else
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
         canBeHit = true;
         canSprint = true;
 
@@ -228,10 +228,10 @@ void APlayerF_Action::AddForce(int sens, int speedV, int speedH)
 
     ///CALCUL FORCE UP DOWN
     FVector UpForce; 
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Dash)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Dash)
         UpForce = FVector(0,0,0);
-    else if (CurrentState == AStates_PlayerF::EStates_PlayerF::JumpDown && isNearGround 
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::DashJump && isNearGround)
+    else if (CurrentState == UStates_PlayerF::EStates_PlayerF::JumpDown && isNearGround
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::DashJump && isNearGround)
     {
         UpForce = (UpVector * speedV * sens) * (JumpForce / 10);
     }
@@ -243,14 +243,19 @@ void APlayerF_Action::AddForce(int sens, int speedV, int speedH)
     FVector XYForce;
     if (speedH == 1)
         XYForce = ForwardVector * (FMath::Abs(MoveValue.XValue) + FMath::Abs(MoveValue.YValue)) * JumpMoveSpeed;
-    else if (CurrentState == AStates_PlayerF::EStates_PlayerF::Dash)
+    else if (CurrentState == UStates_PlayerF::EStates_PlayerF::Dash)
         XYForce = ForwardVector * speedH + (FMath::Abs(MoveValue.XValue) + FMath::Abs(MoveValue.YValue));
     else
         XYForce = ForwardVector * speedH;
     ////////////////////////////
 
-    //const FVector AppliedForce = GetActorLocation() + (UpForce + XYForce) * GetWorld()->DeltaTimeSeconds;
-    const FVector AppliedForce = GetActorLocation() + ((UpForce * GetWorld()->DeltaTimeSeconds) + XYForce);
+    ///CALCUL FINAL FORCE 
+    FVector AppliedForce;
+    if(CurrentState == UStates_PlayerF::EStates_PlayerF::Dash || CurrentState == UStates_PlayerF::EStates_PlayerF::DashJump)
+        AppliedForce = GetActorLocation() + (UpForce  + XYForce) * GetWorld()->DeltaTimeSeconds;
+    else
+        AppliedForce = GetActorLocation() + ((UpForce * GetWorld()->DeltaTimeSeconds) + XYForce);
+    ////////////////////////////
 
     /*
     UE_LOG(LogTemp, Warning, TEXT(" isMoveInput = %s"), isMoveInput ? TEXT("True") : TEXT("False"));
@@ -275,35 +280,35 @@ void APlayerF_Action::AddForce(int sens, int speedV, int speedH)
 //////////////////////////// INPUT /////////////////////////////
 void APlayerF_Action::ABtnAction()
 {
-    if (CurrentState != AStates_PlayerF::EStates_PlayerF::JumpDown
-        && CurrentState != AStates_PlayerF::EStates_PlayerF::JumpUp
-        && CurrentState != AStates_PlayerF::EStates_PlayerF::IdleJump)
+    if (CurrentState != UStates_PlayerF::EStates_PlayerF::JumpDown
+        && CurrentState != UStates_PlayerF::EStates_PlayerF::JumpUp
+        && CurrentState != UStates_PlayerF::EStates_PlayerF::IdleJump)
     {
         EndAllActionAnim();
         actionJumpTurn = 0;
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::JumpUp, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::JumpUp, 0.0f);
 
         isJumpUp = true;
     }
-    else if (CurrentState == AStates_PlayerF::EStates_PlayerF::JumpDown
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::JumpUp
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::Dash && isGrounded == false
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::IdleJump)
+    else if (CurrentState == UStates_PlayerF::EStates_PlayerF::JumpDown
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::JumpUp
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::Dash && isGrounded == false
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::IdleJump)
     {
         EndAllActionAnim();
         actionJumpTurn = 0;
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::DashJump, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::DashJump, 0.0f);
 
         isJumpDash = true;
     }
 }
 void APlayerF_Action::RBBtnAction()
 {
-    if (CurrentState != AStates_PlayerF::EStates_PlayerF::Dash 
-        && CurrentState != AStates_PlayerF::EStates_PlayerF::DashJump
-        && CurrentState != AStates_PlayerF::EStates_PlayerF::JumpDown
-        && CurrentState != AStates_PlayerF::EStates_PlayerF::JumpUp
-        && CurrentState != AStates_PlayerF::EStates_PlayerF::IdleJump
+    if (CurrentState != UStates_PlayerF::EStates_PlayerF::Dash
+        && CurrentState != UStates_PlayerF::EStates_PlayerF::DashJump
+        && CurrentState != UStates_PlayerF::EStates_PlayerF::JumpDown
+        && CurrentState != UStates_PlayerF::EStates_PlayerF::JumpUp
+        && CurrentState != UStates_PlayerF::EStates_PlayerF::IdleJump
         )
     {
         StopRootMotion();
@@ -323,7 +328,7 @@ void APlayerF_Action::RBBtnAction()
         if (dashNumber == 4)
             dashNumber = 1;
 
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Dash, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Dash, 0.0f);
     }
 }
 void APlayerF_Action::DebugBtnAction()

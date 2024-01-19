@@ -20,6 +20,8 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, meta = (MetaAttribute = "Information", DisplayName = "Enemy name"))
+		FString EnemyName;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Type")
 		FString EnemyType;
 	FString Classe;

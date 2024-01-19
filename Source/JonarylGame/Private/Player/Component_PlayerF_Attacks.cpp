@@ -19,8 +19,6 @@ void UComponent_PlayerF_Attacks::BeginPlay()
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT(" attackID = %d"), attackID);
-		//TArray<UActorComponent*> ComponentList = OwnerActor->GetComponentsByClass(UComponent_PlayerF_Hits::StaticClass());
 		TInlineComponentArray<UActorComponent*> ComponentList;
 		OwnerActor->GetComponents(ComponentList);
 		for (UActorComponent* Component : ComponentList)
@@ -36,11 +34,6 @@ void UComponent_PlayerF_Attacks::BeginPlay()
 			{
 				return A.GethitID() < B.GethitID();
 			});
-		for (UComponent_PlayerF_Hits* Component : hitList)
-		{
-			UE_LOG(LogTemp, Log, TEXT(" hit attackID = %d"), Component->GetattackID());
-			UE_LOG(LogTemp, Log, TEXT(" hit hitID = %d"), Component->GethitID());
-		}
 	}
 	
 } 

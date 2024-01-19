@@ -5,26 +5,21 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "NiagaraFunctionLibrary.h" 
-#include "Components/BoxComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
-
 #include "Player/Particle_PlayerF_I.h"
 #include "Player/PlayerF_Character.h"
 #include "Structures/Struct_CharacterStats.h"
 #include "Structures/Struct_HitStats.h"
 #include "Enemies/Enemies_Unit.h"
 
-#include "Particle_PlayerF.generated.h"
+#include "Particle_Enemies.generated.h"
 
-class UNiagaraSystem;
 UCLASS()
-class AParticle_PlayerF : public AActor, public IParticle_PlayerF_I
+class AParticle_Enemies : public AActor, public IParticle_Enemies_I
 {
 	GENERATED_BODY()
 	
-public:	
-	AParticle_PlayerF();
+public:
+	AParticle_Enemies();
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,8 +27,8 @@ protected:
 
 	////////////////////////// OBJECT ///////////////////////////
 	UBoxComponent* CollisionAttack;
-	APlayerF_Character* player;
-	AEnemies_Unit* currentEnemyLocked;
+	APlayerF_Character* thisPlayer;
+	AEnemies_Unit* thisEnemy;
 
 
 	////////////////////////// PARTICLE ///////////////////////////
@@ -61,8 +56,8 @@ protected:
 		void OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 		void OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
-	void DamageEnemy(AEnemies_Unit* enemy);
+
+	void DamageEnemy(APlayerF_Character* player);
 
 	////////////////////////// STATS ///////////////////////////
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -78,6 +73,7 @@ protected:
 	FStruct_CharacterStats currentPlayerStats;
 	FStruct_HitStats currentHitStats;
 
-	void SetAttack_Implementation(FStruct_CharacterStats playerStats, FStruct_HitStats hitStats, AActor* currentPlayer, AActor* enemyLocked) override;
-	void IsCountered_Implementation(AActor* EnemyCountered) override;
+	void SetAttack_Implementation(FStruct_CharacterStats enemyStats, FStruct_HitStats hitStats, AActor* currentEnemy) override;
+	void IsCountered_Implementation(AActor* playerCountered) override;
+
 };

@@ -14,4 +14,37 @@ class AEnemies_Unit : public AEnemies_Behaviors
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void StopAllActions() override;
+
+public:
+
+	//MOVE
+	bool GetisIdle();
+	bool GetisMoving();
+	float GetxMoving();
+	float GetyMoving();
+
+	//ATTACK
+	bool GetisAttackStarted();
+	int GetcurrentHitCombo();
+	bool GetisAttackCombo();
+
+	///DASH
+	bool GetisDash();
+
+	//COUNTER
+	bool GetisCounterPose();
+	bool GetisCounter();
+
+	//DAMAGE
+	bool GetisDamaged();
+	bool GetisRightAttackHit();
+
+	float GetDmgBlendAlpha();
+	float GetDmgBlendR();
+	float GetDmgBlendL();
+
+	bool GetisSlowDownTake();
+
 };

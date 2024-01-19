@@ -25,6 +25,7 @@
 #include "TimerManager.h"
 
 #include "States_PlayerF.h"
+#include "Scene/Scene_EnemiesManager.h"
 
 #include "PlayerF_Move.generated.h"
 
@@ -127,10 +128,12 @@ protected:
 	void ActionMovingAndTurning(FVector AppliedForce, float actionTurn, float force, float timeTurning);
 
 	/////////////////////////// STATES ///////////////////////////
-	AStates_PlayerF::EStates_PlayerF CurrentState = AStates_PlayerF::EStates_PlayerF::Idle;
+	UStates_PlayerF::EStates_PlayerF CurrentState = UStates_PlayerF::EStates_PlayerF::Idle;
 
-	virtual void SetCharacterState(AStates_PlayerF::EStates_PlayerF NewState, float Time);
-	virtual void ChangeCharacterState(AStates_PlayerF::EStates_PlayerF NewState);
+	AScene_EnemiesManager* enemiesManager;
+
+	virtual void SetCharacterState(UStates_PlayerF::EStates_PlayerF NewState, float Time);
+	virtual void ChangeCharacterState(UStates_PlayerF::EStates_PlayerF NewState);
 
 
 

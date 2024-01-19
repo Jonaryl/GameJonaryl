@@ -1,24 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Player/Particle_PlayerF.h"
+#include "Enemies/Particle_Enemies.h"
 
-AParticle_PlayerF::AParticle_PlayerF()
+AParticle_Enemies::AParticle_Enemies()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
-void AParticle_PlayerF::BeginPlay()
+void AParticle_Enemies::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT(" Coucou c'est moi la Particle "));
 
 	LaunchParticle();
 	if (CollisionAttack && !isCounter)
 	{
-		CollisionAttack->OnComponentBeginOverlap.AddDynamic(this, &AParticle_PlayerF::OnAttackCollisionBeginOverlap);
-		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_PlayerF::OnAttackCollisionEndOverlap);
+		CollisionAttack->OnComponentBeginOverlap.AddDynamic(this, &AParticle_Enemies::OnAttackCollisionBeginOverlap);
+		CollisionAttack->OnComponentEndOverlap.AddDynamic(this, &AParticle_Enemies::OnAttackCollisionEndOverlap);
 	}
 
 	float DelayBeforeDestroy = 0.6f;
@@ -37,25 +36,25 @@ void AParticle_PlayerF::BeginPlay()
 	Destroy();
 		}, DelayBeforeDestroy, false);
 }
-void AParticle_PlayerF::Tick(float DeltaTime)
+
+void AParticle_Enemies::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-
 ////////////////////////// STATS ///////////////////////////
-void AParticle_PlayerF::SetAttack_Implementation(FStruct_CharacterStats playerStats, FStruct_HitStats hitStats, AActor* currentPlayer, AActor* enemyLocked)
+void AParticle_Enemies::SetAttack_Implementation(FStruct_CharacterStats enemyStats, FStruct_HitStats hitStats, AActor* currentEnemy)
 {
 
 }
-void AParticle_PlayerF::IsCountered_Implementation(AActor* EnemyCountered)
+void AParticle_Enemies::IsCountered_Implementation(AActor* EnemyCountered)
 {
 
 }
 
 ////////////////////////// PARTICLE ///////////////////////////
-void AParticle_PlayerF::LaunchParticle()
+void AParticle_Enemies::LaunchParticle()
 {
 	FVector SpwanedPosition = GetActorLocation();
 	FRotator SpwanedRotation = GetActorRotation();
@@ -67,17 +66,17 @@ void AParticle_PlayerF::LaunchParticle()
 }
 
 ////////////////////////// COLLISION ///////////////////////////
-void AParticle_PlayerF::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AParticle_Enemies::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
 }
-void AParticle_PlayerF::OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AParticle_Enemies::OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
 }
 
 
-void AParticle_PlayerF::DamageEnemy(AEnemies_Unit* enemy)
+void AParticle_Enemies::DamageEnemy(APlayerF_Character* player)
 {
 
 }

@@ -124,4 +124,7 @@ int APlayerF_Character::GetcounterNumber() { return counterNumber; }
 
 
 
+////////////////////////////////////////////////////////////////
+/////////////////////////  SHARE INFOS ///////////////////////////
+UStates_PlayerF::EStates_PlayerF APlayerF_Character::GetPlayerState() { return CurrentState; }
 

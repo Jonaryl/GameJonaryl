@@ -71,5 +71,7 @@ public:
 
 	/// EVENT ///
 	void EventAnim();
-	
+
+	/////////////////////////  SHARE INFOS ///////////////////////////
+	UStates_PlayerF::EStates_PlayerF GetPlayerState();
 };

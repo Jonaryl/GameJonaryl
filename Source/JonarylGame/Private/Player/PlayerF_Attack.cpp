@@ -50,7 +50,7 @@ void APlayerF_Attack::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
     // ATTACK
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Attack 
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
         && !attackList.IsEmpty() && currentHitCombo != -1 && isAttacking)
     {
         if (currentHitCombo >= 0 && currentHitCombo < attackList.Num() && attackList[currentHitCombo])
@@ -108,7 +108,7 @@ void APlayerF_Attack::Tick(float DeltaTime)
         }
     }
     // COUNTER POSE
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::CounterPose)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose)
     {
         timeCounterPose++;
         UE_LOG(LogTemp, Warning, TEXT(" timeCounterPose = %f"), timeCounterPose);
@@ -137,7 +137,7 @@ void APlayerF_Attack::Tick(float DeltaTime)
 
     }
     // COUNTER
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Counter)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Counter)
     {
         timeCounter++;
         if (timeCanAttackSpe == timeStopAnimCounter)
@@ -170,15 +170,13 @@ void APlayerF_Attack::Tick(float DeltaTime)
         //    PlayerFightHUD->SetClassPower(counterGaugeMax, currentCounterGauge);
     }
     // DAMAGE
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Damage && damagedCooldown >= 0)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Damage && damagedCooldown >= 0)
     {
         damagedCooldown--;
         if (damagedCooldown == 0)
         {
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::EndAction, 0.0f);
             Current_Armor = Max_Armor;
         }
-
     }
 
 }
@@ -193,12 +191,12 @@ void APlayerF_Attack::EndAttack()
     isAttacking = false;
     if (isMoveInput)
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
         isMoving = true;
     }
     else
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
         isIdle = true;
     }
     NeutralAction();
@@ -210,12 +208,12 @@ void APlayerF_Attack::EndCounterPose()
     isCounterPose = false;
     if (isMoveInput)
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
         isMoving = true;
     }
     else
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
         isIdle = true;
     }
 }
@@ -224,12 +222,12 @@ void APlayerF_Attack::EndCounter()
     isCounter = false;
     if (isMoveInput)
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
         isMoving = true;
     }
     else
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
         isIdle = true;
     }
 }
@@ -240,7 +238,7 @@ void APlayerF_Attack::SuperModeActivate()
     if (isSuperMode == true)
     {
         isSuperMode = false;
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
     }
     else
         isSuperMode = true;
@@ -256,7 +254,7 @@ void APlayerF_Attack::DamageTake(int damage, bool isRightDamage, bool isCutFromD
         {
             Current_Health -= damage;
 
-            if(CurrentState != AStates_PlayerF::EStates_PlayerF::Damage)
+            if(CurrentState != UStates_PlayerF::EStates_PlayerF::Damage)
                 Current_Armor -= damageCut;
 
             if (Current_Armor <= 0 || isCutFromDamage)
@@ -266,7 +264,7 @@ void APlayerF_Attack::DamageTake(int damage, bool isRightDamage, bool isCutFromD
 
                 isDamaged = true;
 
-                SetCharacterState(AStates_PlayerF::EStates_PlayerF::Damage, 0.0f);
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::Damage, 0.0f);
                 damagedCooldown = 10;
             }
         }
@@ -280,7 +278,7 @@ void APlayerF_Attack::DamageTake(int damage, bool isRightDamage, bool isCutFromD
             isCounterPose = false;
             isCounter = true;
 
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::Counter, 0.0f);
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Counter, 0.0f);
 
             counterNumber++;
             if (counterNumber == 4)
@@ -318,9 +316,9 @@ void APlayerF_Attack::BBtnAction()
     }
     else
     {
-        if (CurrentState == AStates_PlayerF::EStates_PlayerF::Run || CurrentState == AStates_PlayerF::EStates_PlayerF::Idle
-            || CurrentState == AStates_PlayerF::EStates_PlayerF::Attack || CurrentState == AStates_PlayerF::EStates_PlayerF::Counter
-            || CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == AStates_PlayerF::EStates_PlayerF::CounterPose
+        if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Idle
+            || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
+            || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose
             )
         {
             if (canCounterPose)
@@ -331,7 +329,7 @@ void APlayerF_Attack::BBtnAction()
                 isCounterPose = true;
                 canCounterPose = false;
                 timeCounterPose = 0;
-                SetCharacterState(AStates_PlayerF::EStates_PlayerF::CounterPose, 0.0f);
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::CounterPose, 0.0f);
 
                 counterPoseNumber++;
                 if (counterPoseNumber == 4)
@@ -362,9 +360,9 @@ void APlayerF_Attack::XBtnAction()
     }
     else
     {
-        if (CurrentState == AStates_PlayerF::EStates_PlayerF::Run || CurrentState == AStates_PlayerF::EStates_PlayerF::Idle
-            || CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == AStates_PlayerF::EStates_PlayerF::Dash
-            || CurrentState == AStates_PlayerF::EStates_PlayerF::Attack || CurrentState == AStates_PlayerF::EStates_PlayerF::EndAction 
+        if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Idle
+            || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Dash
+            || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
             )
         {
             if (canAttack)
@@ -372,7 +370,8 @@ void APlayerF_Attack::XBtnAction()
                 StopMovingAnim();
                 EndPartialAction();
 
-                SetCharacterState(AStates_PlayerF::EStates_PlayerF::Attack, 0.0f);
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::ChangeAction, 0.0f);
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::Attack, 0.0f);
                 currentHitCombo++;
                 if (!attackList.IsEmpty())
                 {

@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "States_PlayerF.generated.h"
+#include "States_EnemiesActions.generated.h"
 
- 
 UCLASS()
-class UStates_PlayerF : public UObject
+class UStates_EnemiesActions : public UObject
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-        enum class EStates_PlayerF
+    enum class EStates_EnemiesActions
     {
         Idle,
+        Walk,
         Run,
         Sprint,
         SuperRun,
@@ -32,7 +32,6 @@ public:
         OnGround,
         CounterPose,
         Counter,
-        CounterAttack,
-        ChangeAction
+        CounterAttack
     };
 };

@@ -77,6 +77,13 @@ void APlayerF_Move::BeginPlay()
     PlayerController = Cast<APlayerController>(GetController());
     PlayerMesh = Cast<UPrimitiveComponent>(PlayerController->GetCharacter()->GetMesh());
 
+    TArray<AActor*> FoundActors;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AScene_EnemiesManager::StaticClass(), FoundActors);
+    if (FoundActors.Num() > 0)
+    {
+        enemiesManager = Cast<AScene_EnemiesManager>(FoundActors[0]);
+    }
+
     if (PlayerController)
     {
         UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
@@ -133,11 +140,11 @@ MovementValues APlayerF_Move::XYGetValue(const FInputActionValue& Value)
     {
         valueSpeed += (100.2f * GetWorld()->DeltaTimeSeconds);
         if (
-            CurrentState == AStates_PlayerF::EStates_PlayerF::JumpUp ||
-            CurrentState == AStates_PlayerF::EStates_PlayerF::IdleJump ||
-            CurrentState == AStates_PlayerF::EStates_PlayerF::JumpDown)
+            CurrentState == UStates_PlayerF::EStates_PlayerF::JumpUp ||
+            CurrentState == UStates_PlayerF::EStates_PlayerF::IdleJump ||
+            CurrentState == UStates_PlayerF::EStates_PlayerF::JumpDown)
             valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxAirRunSpeed);
-        else if (CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint)
+        else if (CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
             valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxSprintSpeed);
         else
             valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed);
@@ -194,12 +201,12 @@ FQuat APlayerF_Move::GetRotation(FVector TargetLocation)
 
 void APlayerF_Move::Moving(FVector TargetLocation, FQuat InterpolatedRotation)
 {
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Idle)
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Idle)
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
 
     isMoving = true;
 
-    UE_LOG(LogTemp, Warning, TEXT(" TargetLocation = %s"), *TargetLocation.ToString());
+    //UE_LOG(LogTemp, Warning, TEXT(" TargetLocation = %s"), *TargetLocation.ToString());
 
     SetActorLocationAndRotation(
         FMath::VInterpTo(GetActorLocation(), TargetLocation, GetWorld()->DeltaTimeSeconds, 100.0f),
@@ -217,8 +224,8 @@ void APlayerF_Move::ActionMovingAndTurning(FVector AppliedForce, float actionTur
     NewRotation.Roll = 0.0f;
 
 
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::DashJump 
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::Attack
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::DashJump
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
         )
     {
         if (actionTurn > 0 && actionTurn < timeTurning)
@@ -258,9 +265,9 @@ void APlayerF_Move::ActionMovingAndTurning(FVector AppliedForce, float actionTur
 void APlayerF_Move::StartMoving()
 { 
     UE_LOG(LogTemp, Log, TEXT(" StartMoving"));
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Run || CurrentState == AStates_PlayerF::EStates_PlayerF::Idle
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == AStates_PlayerF::EStates_PlayerF::Attack
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == AStates_PlayerF::EStates_PlayerF::Counter
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Idle
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
         )
     {
         if (canMove)
@@ -281,22 +288,22 @@ void APlayerF_Move::MoveForward(const FInputActionValue& Value)
     const FVector TargetLocation = MoveValue.TargetLocation;
 
 
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Run || CurrentState == AStates_PlayerF::EStates_PlayerF::Idle 
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == AStates_PlayerF::EStates_PlayerF::Attack
-        || CurrentState == AStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == AStates_PlayerF::EStates_PlayerF::Counter
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Idle
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
         )
     {
         if (Controller && valueSpeed != 0.0f && canMove)
         {
-            if (CurrentState == AStates_PlayerF::EStates_PlayerF::Attack
-                || CurrentState == AStates_PlayerF::EStates_PlayerF::CounterPose
-                || CurrentState == AStates_PlayerF::EStates_PlayerF::Counter
+            if (CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
+                || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose
+                || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
                 )
             {
                 EndAllActionAnim();
             }
-            if (CurrentState != AStates_PlayerF::EStates_PlayerF::Run)
-                SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+            if (CurrentState != UStates_PlayerF::EStates_PlayerF::Run)
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
 
             FVector NewPosition = GetPosition(TargetLocation);
             FQuat InterpolatedRotation = GetRotation(TargetLocation);
@@ -311,11 +318,11 @@ void APlayerF_Move::StopMoving()
 
     if (isMoving == true)
         isMoving = false;
-    if (CurrentState == AStates_PlayerF::EStates_PlayerF::Run || CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint)
+    if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
     {
         if (isIdle == false)
             isIdle = true;
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
         timeStoppingMoving = timeStoppingMovingMax;
         speedStoppingMoving = maxRunSpeed;
     }
@@ -343,10 +350,10 @@ void APlayerF_Move::RBBtnActionHold()
     if (isMoveInput && canSprint)
     {
         UE_LOG(LogTemp, Log, TEXT(" RBBtnActionHold")); 
-        if (isMoveInput == true && CurrentState == AStates_PlayerF::EStates_PlayerF::Run ||
-            isMoveInput == true && CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint)
+        if (isMoveInput == true && CurrentState == UStates_PlayerF::EStates_PlayerF::Run ||
+            isMoveInput == true && CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
         {
-            SetCharacterState(AStates_PlayerF::EStates_PlayerF::Sprint, 0.0f);
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Sprint, 0.0f);
             isSprint = true;
         }
     }
@@ -354,10 +361,10 @@ void APlayerF_Move::RBBtnActionHold()
 void APlayerF_Move::RBBtnActionEnd()
 {
     UE_LOG(LogTemp, Log, TEXT(" RBBtnActionEnd"));
-    if (isMoveInput == true && CurrentState == AStates_PlayerF::EStates_PlayerF::Run ||
-        isMoveInput == true && CurrentState == AStates_PlayerF::EStates_PlayerF::Sprint)
+    if (isMoveInput == true && CurrentState == UStates_PlayerF::EStates_PlayerF::Run ||
+        isMoveInput == true && CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
     {
-        SetCharacterState(AStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
     }
     isSprint = false;
 }
@@ -376,14 +383,19 @@ void APlayerF_Move::DebugBtnAction()
 
 ///////////////////////////////////////////////////////////////////
 /////////////////////////// STATES METHOD //////////////////////////
-void APlayerF_Move::ChangeCharacterState(AStates_PlayerF::EStates_PlayerF NewState)
+void APlayerF_Move::ChangeCharacterState(UStates_PlayerF::EStates_PlayerF NewState)
 {
     CurrentState = NewState;
+    if (enemiesManager)
+    {
+        UE_LOG(LogTemp, Error, TEXT(" enemiesManager "));
+        enemiesManager->SharePlayerState(NewState);
+    }
     UE_LOG(LogTemp, Log, TEXT("change d'etat CurrentState = %d"), CurrentState);
 }
 
 
-void APlayerF_Move::SetCharacterState(AStates_PlayerF::EStates_PlayerF NewState, float Time)
+void APlayerF_Move::SetCharacterState(UStates_PlayerF::EStates_PlayerF NewState, float Time)
 {
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDel;
