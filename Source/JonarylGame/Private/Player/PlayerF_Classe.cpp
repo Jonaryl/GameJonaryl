@@ -4,8 +4,9 @@
 #include "Player/PlayerF_Classe.h"
 
 
-APlayerF_Classe::APlayerF_Classe()
+void APlayerF_Classe::BeginPlay()
 {
+    Super::BeginPlay();
     FString MyString;
 
     ////////////////// Define classes stats //////////////////

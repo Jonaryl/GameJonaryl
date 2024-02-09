@@ -17,6 +17,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
+#include "EngineUtils.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -25,7 +26,10 @@
 #include "TimerManager.h"
 
 #include "States_PlayerF.h"
-#include "Scene/Scene_EnemiesManager.h"
+#include "Player/SendMessage_PlayerF_I.h"
+#include "Player/Component_PlayerF_Lock.h"
+#include "../Huds/HUD_PlayerF.h"
+#include "Structures/Struct_SendMessage.h"
 
 #include "PlayerF_Move.generated.h"
 
@@ -111,12 +115,20 @@ protected:
 	float InitialSpeed;
 	float valueTurn = 50.0f;
 
+	float timeMoving;
+	bool isTimeMoving;
 
 	////////////// MOVING ANIMATION VARIABLE /////////////
 	bool isIdle;
 	bool isMoving;
 	bool isSprint;
 	float sideMoving;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Lock")
+		TSubclassOf<UComponent_PlayerF_Lock> PlayerFight_Lock;
+	UComponent_PlayerF_Lock* PlayerFight_LockInstance;
+
+	AActor* enemyTargetLock;
 
 	///// MOVING METHOD //////
 	MovementValues XYGetValue(const FInputActionValue& Value);
@@ -127,16 +139,32 @@ protected:
 	//void Turning(FRotator NewRotation, float force);
 	void ActionMovingAndTurning(FVector AppliedForce, float actionTurn, float force, float timeTurning);
 
+	void TurningTo(FVector destinationToLookAt, float speed = 1.0f);
 	/////////////////////////// STATES ///////////////////////////
 	UStates_PlayerF::EStates_PlayerF CurrentState = UStates_PlayerF::EStates_PlayerF::Idle;
-
-	AScene_EnemiesManager* enemiesManager;
 
 	virtual void SetCharacterState(UStates_PlayerF::EStates_PlayerF NewState, float Time);
 	virtual void ChangeCharacterState(UStates_PlayerF::EStates_PlayerF NewState);
 
+	UPROPERTY(EditAnywhere, Category = "SendMessage")
+		TSubclassOf<AActor> SendMessage;
+	FString CheckStateInString(UStates_PlayerF::EStates_PlayerF NewState);
 
+	/////////////////////////// HUD ///////////////////////////
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UHUD_PlayerF> PlayerFightHUDClass;
+	UPROPERTY()
+		class UHUD_PlayerF* PlayerFightHUD;
 
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UHUD_PlayerF> EnemyHUDClass;
+	UPROPERTY()
+		class UHUD_PlayerF* EnemyHUD;
+public:
+	void EditEnemyHealth(float enemyHealthMax, float enemyHealth);
+	void EditEnemyArmor(float enemyArmorMax, float enemyArmor);
+	void EnemyHudIsVisible(bool isVisible);
+protected:
 	/////////////////////////// INPUT ///////////////////////////
 	
 	///// INPUT METHOD //////
@@ -209,4 +237,8 @@ protected:
 		UInputAction* DebugBtn;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		UInputAction* DeleteEnemyBtn;
+
+
+	////// DEBUG
+	void LogCurrentState();
 };

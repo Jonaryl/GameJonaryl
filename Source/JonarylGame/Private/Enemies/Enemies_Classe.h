@@ -15,5 +15,5 @@ class AEnemies_Classe : public AEnemies_Stats
 	GENERATED_BODY()
 
 protected:
-	AEnemies_Classe();
+	virtual void BeginPlay() override;
 };

@@ -25,6 +25,7 @@ void APlayerF_Character::NeutralAction()
 	canAttack = true;
 	canBeHit = true;
 	canSprint = true;
+	canCounterPose = true;
 }
 
 void APlayerF_Character::EndAllActionAnim()
@@ -67,11 +68,23 @@ void APlayerF_Character::StopMovingAnim()
 	isIdle = false;
 	canMove = false;
 
-	UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
-	UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim isIdle = %s"), isIdle ? TEXT("True") : TEXT("False"));
-	UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim  canMove = %s"), canMove ? TEXT("True") : TEXT("False"));
+	//UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
+	//UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim isIdle = %s"), isIdle ? TEXT("True") : TEXT("False"));
+	//UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim  canMove = %s"), canMove ? TEXT("True") : TEXT("False"));
 }
 
+void APlayerF_Character::EndSpecialAtk()
+{
+	isSpeActionA = false;
+	isSpeActionB = false;
+	isSpeActionX = false;
+	isSpeActionY = false;
+	EndAttack();
+}
+void APlayerF_Character::SetisSpeActionA(bool isActivate) { isSpeActionA = isActivate; }
+void APlayerF_Character::SetisSpeActionB(bool isActivate) { isSpeActionB = isActivate; }
+void APlayerF_Character::SetisSpeActionX(bool isActivate) { isSpeActionX = isActivate; }
+void APlayerF_Character::SetisSpeActionY(bool isActivate) { isSpeActionY = isActivate; }
 
 /// VARIABLE ///
 //MOVE
@@ -80,6 +93,7 @@ bool APlayerF_Character::GetisMoving() { return isMoving; }
 bool APlayerF_Character::GetisSprint() { return isSprint; }
 
 float APlayerF_Character::GetsideMoving() { return sideMoving; }
+bool APlayerF_Character::GetisTimeMoving() { return isTimeMoving; }
 
 //JUMP
 bool APlayerF_Character::GetisJumpUp() { return isJumpUp; }
@@ -94,6 +108,8 @@ int APlayerF_Character::GetdashNumber() { return dashNumber; }
 
 //DAMAGE
 bool APlayerF_Character::GetisDamaged() { return isDamaged; }
+bool APlayerF_Character::GetisDamageRight() { return isDamageRight; }
+int APlayerF_Character::GetdamageAnimNumber() { return damageAnimNumber; }
 
 //ATTACK
 bool APlayerF_Character::GetisAttacking() { return isAttacking; }
@@ -127,4 +143,21 @@ int APlayerF_Character::GetcounterNumber() { return counterNumber; }
 ////////////////////////////////////////////////////////////////
 /////////////////////////  SHARE INFOS ///////////////////////////
 UStates_PlayerF::EStates_PlayerF APlayerF_Character::GetPlayerState() { return CurrentState; }
+
+FStruct_CharacterStats APlayerF_Character::GetPlayerStats() 
+{ 
+	FStruct_CharacterStats playerStats;
+	playerStats.Health = Current_Health;
+	playerStats.Attack = Current_Attack;
+	playerStats.Defense = Current_Defense;
+	playerStats.MagicAttack = Current_MagicAttack;
+	playerStats.MagicDefense = Current_MagicDefense;
+
+	playerStats.MaxHealth = Max_Health;
+
+	playerStats.Armor = Current_Armor;
+	playerStats.MaxArmor = Max_Armor;
+
+	return playerStats;
+}
 

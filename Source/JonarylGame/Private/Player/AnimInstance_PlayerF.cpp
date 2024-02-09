@@ -42,6 +42,8 @@ void UAnimInstance_PlayerF::UpdateAnimProperties()
 
 	sideMoving = playerClass->GetsideMoving();
 
+	isTimeMoving = playerClass->GetisTimeMoving();
+
 	//JUMP
 	isJumpUp = playerClass->GetisJumpUp();
 	isJumpIdle = playerClass->GetisJumpIdle();
@@ -54,6 +56,8 @@ void UAnimInstance_PlayerF::UpdateAnimProperties()
 
 	//DAMAGE
 	isDamaged = playerClass->GetisDamaged();
+	isDamageRight = playerClass->GetisDamageRight();
+	damageAnimNumber = playerClass->GetdamageAnimNumber();
 
 	//ATTACK
 	isAttacking = playerClass->GetisAttacking();
@@ -76,6 +80,7 @@ void UAnimInstance_PlayerF::UpdateAnimProperties()
 
 	counterPoseNumber = playerClass->GetcounterPoseNumber();
 	counterNumber = playerClass->GetcounterNumber();
+
 }
 
 //EVENTS

@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
 		void SetAttack(FStruct_CharacterStats playerStats, FStruct_HitStats hitStats, AActor* currentPlayer, AActor* enemyLocked);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Attack")
+		void EnableDamage();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Counter")
 		void IsCountered(AActor* EnemyCountered);
 };

@@ -60,6 +60,8 @@ protected:
 		bool isDamaged;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isRightAttackHit;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int hitCountDamageAnimation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		float DmgBlendAlpha;
@@ -71,6 +73,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isSlowDownTake;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterTake;
 
 
+
+	/////////////// EVENT ////////////////////
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EventAnim();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void LaunchParticle();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EnableDamage();
 };

@@ -8,12 +8,15 @@
 #include "NiagaraFunctionLibrary.h" 
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Math/UnrealMathUtility.h"
 
 #include "Player/Particle_PlayerF_I.h"
 #include "Player/PlayerF_Character.h"
 #include "Structures/Struct_CharacterStats.h"
 #include "Structures/Struct_HitStats.h"
+#include "Structures/Struct_DeathData.h"
 #include "Enemies/Enemies_Unit.h"
+#include "../Scene/Scene_EnemiesManager.h"
 
 #include "Particle_PlayerF.generated.h"
 
@@ -50,11 +53,11 @@ protected:
 
 
 	////////////////////////// COLLISION ///////////////////////////
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision")
 		FVector ColisionPosition;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision")
 		FRotator ColisionRotation;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision")
 		FVector CollisionSize;
 
 	UFUNCTION()
@@ -64,11 +67,16 @@ protected:
 	
 	void DamageEnemy(AEnemies_Unit* enemy);
 
+	AScene_EnemiesManager* enemiesManager;
+	void SendMessagesManager(AEnemies_Unit* enemy);
+
 	////////////////////////// STATS ///////////////////////////
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		bool isSpeSlow;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		bool isCounter;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isOnlyView;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		bool isSpeTimeDestroy;
@@ -80,4 +88,8 @@ protected:
 
 	void SetAttack_Implementation(FStruct_CharacterStats playerStats, FStruct_HitStats hitStats, AActor* currentPlayer, AActor* enemyLocked) override;
 	void IsCountered_Implementation(AActor* EnemyCountered) override;
+	void EnableDamage_Implementation() override;
+
+	////////////////////////// OTHER ///////////////////////////
+	int damageID;
 };

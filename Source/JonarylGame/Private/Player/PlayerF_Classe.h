@@ -14,6 +14,6 @@ class APlayerF_Classe : public APlayerF_Stats
 {
 	GENERATED_BODY()
 
-public:
-	APlayerF_Classe();
+protected:
+	virtual void BeginPlay() override;
 };

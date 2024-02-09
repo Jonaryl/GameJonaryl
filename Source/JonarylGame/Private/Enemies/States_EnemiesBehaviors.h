@@ -21,6 +21,7 @@ public:
         SearchingPlayer,
         TurnAroundPlayer,
         EvaluatePlayer,
-        IsInterrupted
+        IsInterrupted,
+        Dead
     };
 };

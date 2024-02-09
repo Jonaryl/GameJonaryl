@@ -33,6 +33,7 @@ public:
         CounterPose,
         Counter,
         CounterAttack,
-        ChangeAction
+        ChangeAction,
+        Dead
     };
 };

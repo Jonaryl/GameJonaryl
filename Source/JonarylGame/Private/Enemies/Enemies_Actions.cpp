@@ -20,6 +20,8 @@ bool AEnemies_Actions::ActionDash(FVector mainVector, int actionDashTurn)
     int numberOfElements = sizeof(speed) / sizeof(speed[0]);
 
     isDash = true;
+    canBeHit = false;
+
     SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Dash, 0.0f);
 
     if(actionDashTurn < numberOfElements)

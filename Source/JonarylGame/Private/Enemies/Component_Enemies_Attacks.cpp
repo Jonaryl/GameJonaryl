@@ -16,42 +16,7 @@ void UComponent_Enemies_Attacks::BeginPlay()
 {
 	Super::BeginPlay();
 
-	currentHit = 0;
-	AActor* OwnerActor = GetOwner();
-	if (OwnerActor)
-	{
-		UE_LOG(LogTemp, Warning, TEXT(" attackID = %d"), attackID);
-
-		TInlineComponentArray<UActorComponent*> ComponentList;
-		OwnerActor->GetComponents(ComponentList);
-		for (UActorComponent* Component : ComponentList)
-		{
-			UComponent_Enemies_Hits* HitComponent = Cast<UComponent_Enemies_Hits>(Component);
-			if (HitComponent)
-			{
-				if (HitComponent->GetisCombo() == false)
-				{
-					if (attackID == HitComponent->GetattackID())
-						hitList.Add(HitComponent);
-				}
-				else
-				{
-					if (attackID == HitComponent->GetattackID() && comboID == HitComponent->GetcomboID())
-						hitList.Add(HitComponent);
-				}
-			}
-		}
-		hitList.Sort([](UComponent_Enemies_Hits& A, UComponent_Enemies_Hits& B)
-			{
-				return A.GethitID() < B.GethitID();
-			});
-		for (UComponent_Enemies_Hits* Component : hitList)
-		{
-			UE_LOG(LogTemp, Log, TEXT(" hit comboID = %d"), Component->GetcomboID());
-			UE_LOG(LogTemp, Log, TEXT(" hit attackID = %d"), Component->GetattackID());
-			UE_LOG(LogTemp, Log, TEXT(" hit hitID = %d"), Component->GethitID());
-		}
-	}
+	
 	
 }
 void UComponent_Enemies_Attacks::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -68,6 +33,45 @@ void UComponent_Enemies_Attacks::StartAttack(FStruct_CharacterStats enemyStatist
 	enemyStats = enemyStatistics;
 
 	currentHit = 0;
+	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" attackID = %d"), attackID);
+		/*
+		UE_LOG(LogTemp, Warning, TEXT(" hit is combo = %s"),isCombo ? TEXT("True") : TEXT("False"));
+		*/
+		hitList.Empty();
+
+		TInlineComponentArray<UActorComponent*> ComponentList;
+		OwnerActor->GetComponents(ComponentList);
+		for (UActorComponent* Component : ComponentList)
+		{
+			UComponent_Enemies_Hits* HitComponent = Cast<UComponent_Enemies_Hits>(Component);
+			if (HitComponent)
+			{
+				if (HitComponent->GetisCombo() == isCombo && attackID == HitComponent->GetattackID() && comboID == HitComponent->GetcomboID())
+						hitList.Add(HitComponent);
+			}
+		}
+		hitList.Sort([](UComponent_Enemies_Hits& A, UComponent_Enemies_Hits& B)
+			{
+				return A.GethitID() < B.GethitID();
+			});
+			/*
+		for (UComponent_Enemies_Hits* Component : hitList)
+		{
+			UE_LOG(LogTemp, Warning, TEXT(" hit GetisCombo = %s"), Component->GetisCombo() ? TEXT("True") : TEXT("False"));
+			UE_LOG(LogTemp, Log, TEXT(" hit comboID = %d"), Component->GetcomboID());
+			UE_LOG(LogTemp, Log, TEXT(" hit attackID = %d"), Component->GetattackID());
+			UE_LOG(LogTemp, Log, TEXT(" hit hitID = %d"), Component->GethitID());
+		}
+
+					UE_LOG(LogTemp, Log, TEXT(" GettimeWhenHit = %f"), hitInstance->GettimeWhenHit());
+					UE_LOG(LogTemp, Log, TEXT(" GettimeWhenLaunchParticle = %f"), hitInstance->GettimeWhenLaunchParticle());
+					UE_LOG(LogTemp, Log, TEXT(" GettimeWhenEnableDamage = %f"), hitInstance->GettimeWhenEnableDamage());
+					UE_LOG(LogTemp, Log, TEXT(" GettimeWhenEndHit = %f"), hitInstance->GettimeWhenEndHit());
+			*/
+	}
 }
 void UComponent_Enemies_Attacks::Attack(float timeCurrentAttack)
 {
@@ -75,37 +79,49 @@ void UComponent_Enemies_Attacks::Attack(float timeCurrentAttack)
 	{
 		if (currentHit >= 0 && currentHit < hitList.Num() && hitList[currentHit])
 		{
-			UComponent_Enemies_Hits* hitInstance = hitList[currentHit];
+			hitInstance = hitList[currentHit];
 			if (hitInstance)
 			{
 				// START HIT
 				if (timeCurrentAttack == hitInstance->GettimeWhenHit())
 				{
+					/*
 					UE_LOG(LogTemp, Warning, TEXT(" HIT = %d"), currentHit);
 					UE_LOG(LogTemp, Warning, TEXT(" HIT ID = %d"), hitInstance->GethitID());
+					*/
 				}
+					/*
 				// Launch Particle
 				if (timeCurrentAttack == hitInstance->GettimeWhenLaunchParticle())
 				{
-					UE_LOG(LogTemp, Warning, TEXT(" Launch Particle "));
+					UE_LOG(LogTemp, Error, TEXT(" Launch Particle %f"), timeCurrentAttack);
 					hitInstance->SpawnParticleAttack(enemyStats);
 				}
 				// Enable Damage
 				if (timeCurrentAttack == hitInstance->GettimeWhenEnableDamage())
 				{
-					UE_LOG(LogTemp, Warning, TEXT(" Enable Damage "));
+					UE_LOG(LogTemp, Error, TEXT(" Enable Damage %f"), timeCurrentAttack);
+					hitInstance->ParticleEnableDamage();
 				}
+					*/
 				// END HIT
 				if (timeCurrentAttack == hitInstance->GettimeWhenEndHit())
 				{
 					currentHit++;
-					UE_LOG(LogTemp, Warning, TEXT(" END HIT currentHit = %d"), currentHit);
 				}
 			}
 		}
 	}
 }
 
+void UComponent_Enemies_Attacks::LaunchParticle() 
+{ 
+	hitInstance->SpawnParticleAttack(enemyStats);
+}
+void UComponent_Enemies_Attacks::EnableDamage() 
+{ 
+	hitInstance->ParticleEnableDamage();
+}
 
 ////////////////////////// STATS ///////////////////////////
 bool UComponent_Enemies_Attacks::GetisCombo() { return isCombo; }

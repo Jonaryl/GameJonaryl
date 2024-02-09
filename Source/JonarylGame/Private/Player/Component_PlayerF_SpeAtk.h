@@ -7,7 +7,7 @@
 
 #include "GameFramework/WorldSettings.h"
 
-#include "../../Enemy_Unit.h"
+#include "../Enemies/Enemies_Unit.h"
 #include "Player/Particle_PlayerF_I.h"
 #include "Structures/Struct_CharacterStats.h"
 #include "Structures/Struct_HitStats.h"
@@ -24,7 +24,8 @@ public:
 	UComponent_PlayerF_SpeAtk();
 
 	/////////////////////////// START ///////////////////////////
-	virtual void SpecialAttack();
+	virtual void SpecialAttack(bool launchParticle);
+	virtual void EndSpecialAttack();
 
 	/////////////////////////// SLOW MOTION ///////////////////////////
 	virtual void StartSlowMotion(float slowStrength);
@@ -51,11 +52,15 @@ protected:
 	////////////////////////// PARTICLE ///////////////////////////
 	// 0=A 1=B 2=X 3=Y
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TSubclassOf<AActor> particleSuperMode;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
 		TArray<TSubclassOf<AActor>> particleSpecials;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
 		TArray<float> timeWhenLaunchParticle;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
 		TArray<float> timeWhenEnableDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TArray<float> timeWhenEndAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
 		TArray<float> BaseDamages;
@@ -63,6 +68,7 @@ protected:
 		TArray<float> ArmorDamages;
 	
 	IParticle_PlayerF_I* AttackInterface;
+	AActor* AttackInstance;
 	float timeCurrentSpecialAtk;
 	int indexParticle;
 
@@ -72,6 +78,8 @@ protected:
 	AActor* enemyLocked;
 
 	virtual void LaunchParticle(FStruct_CharacterStats playerStatistics, AActor* enemy, int index);
+	virtual void EnableDamage();
+	virtual void LaunchSuperModeParticle();
 
 
 		

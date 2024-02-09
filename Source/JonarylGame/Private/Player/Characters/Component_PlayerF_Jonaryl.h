@@ -14,14 +14,15 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UComponent_PlayerF_Jonaryl : public UComponent_PlayerF_SpeAtk
 {
 	GENERATED_BODY()
 
 public:
 	/////////////////////////// START ///////////////////////////
-	virtual void SpecialAttack() override;
+	virtual void SpecialAttack(bool launchParticle) override;
+	virtual void EndSpecialAttack() override;
 
 	/////////////////////////// SLOW MOTION ///////////////////////////
 	virtual void StartSlowMotion(float slowStrength) override;

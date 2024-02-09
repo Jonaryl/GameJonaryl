@@ -12,17 +12,25 @@ AScene_EnemiesManager::AScene_EnemiesManager()
 void AScene_EnemiesManager::BeginPlay()
 {
 	Super::BeginPlay();
-
+    UE_LOG(LogTemp, Log, TEXT("AScene_EnemiesManager BeginPlay()"));
     TArray<AActor*> FoundActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemies_Unit::StaticClass(), FoundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AScene_EnemiesZones::StaticClass(), FoundActors);
 
     for (AActor* Actor : FoundActors)
     {
-        AEnemies_Unit* EnemyUnit = Cast<AEnemies_Unit>(Actor);
-        if (EnemyUnit)
+        AScene_EnemiesZones* EnemySpawnerZone = Cast<AScene_EnemiesZones>(Actor);
+        if (EnemySpawnerZone)
         {
-            allEnemies.Add(EnemyUnit);
+            EnemySpawnerZone->Begin();
+            allEnemiesZones.Add(EnemySpawnerZone);
         }
+    }
+
+    TArray<AActor*> FoundActorsPlayer;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerF_Character::StaticClass(), FoundActorsPlayer);
+    for (AActor* Actor : FoundActorsPlayer)
+    {
+        PlayerCharacter = Cast<APlayerF_Character>(Actor);
     }
 }
 void AScene_EnemiesManager::Tick(float DeltaTime)
@@ -32,14 +40,27 @@ void AScene_EnemiesManager::Tick(float DeltaTime)
 
 void AScene_EnemiesManager::SharePlayerState(UStates_PlayerF::EStates_PlayerF playerState)
 {
-    UE_LOG(LogTemp, Log, TEXT("SharePlayerState = %d"), playerState);
-
     CurrentPlayerState = playerState;
-    for (AEnemies_Unit* Component : allEnemies)
+    for (AScene_EnemiesZones* Zone : allEnemiesZones)
     {
-        if (Component)
+        if (Zone)
         {
-            Component->SetPlayerState(playerState);
+            if(Zone->GetisActive() == true)
+                Zone->SharePlayerState(playerState);
+        }
+    }
+}
+
+
+
+void AScene_EnemiesManager::EnemyIsDead(int id, int idZone, int idWave)
+{
+    for (AScene_EnemiesZones* Zone : allEnemiesZones)
+    {
+        if (Zone)
+        {
+            if(Zone->GetidZone() == idZone)
+                Zone->CheckIsEnemiesDead(id, idWave);
         }
     }
 }

@@ -49,4 +49,34 @@ void UAnimInstance_Enemies::UpdateAnimProperties()
 
 	//DASH
 	isDash = enemyClass->GetisDash();
+
+	//DAMAGE
+	isDamaged = enemyClass->GetisDamaged();
+	isRightAttackHit = enemyClass->GetisRightAttackHit();
+
+	hitCountDamageAnimation = enemyClass->GethitCountDamageAnimation();
+
+	DmgBlendAlpha = enemyClass->GetDmgBlendAlpha();
+	DmgBlendR = enemyClass->GetDmgBlendR();
+	DmgBlendL = enemyClass->GetDmgBlendL();
+
+	isCounterTake = enemyClass->GetisCounterTake();
+	isSlowDownTake = enemyClass->GetisSlowDownTake();
+}
+
+
+
+
+//EVENTS
+void UAnimInstance_Enemies::EventAnim_Implementation()
+{
+	enemyClass->EventAnim();
+}
+void UAnimInstance_Enemies::LaunchParticle_Implementation()
+{
+	enemyClass->LaunchParticle();
+}
+void UAnimInstance_Enemies::EnableDamage_Implementation()
+{
+	enemyClass->EnableDamage();
 }

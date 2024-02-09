@@ -31,7 +31,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 
-
+	void SendMessageManager();
 	/////////////////////////// BASE BEHAVIOURS ///////////////////////////
 	BehaviorValues behaviorValues;
 	float waitingTime;
@@ -59,9 +59,51 @@ protected:
 	virtual void ReactionToPlayer() override;
 
 
+	void ReactionToAttacks();
 	void DodgeAttack();
 	void CounterAttack();
 
+	///////////////////////////  BEHAVIOURS probability ///////////////////////////
+	TArray<FString> ListBehaviors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		bool canChasing;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		int probabilityChasing;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		bool canAttack;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		int probabilityAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		bool canTurningAround;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		int probabilityTurningAround;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		bool canEvaluate;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		int probabilityEvaluate;
+
+
+	/////// REACTIONS
+	TArray<FString> ListReactionsBehaviors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		float timeLagReactionMin;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		float timeLagReactionMax;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		bool canDodgeProba;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		int probabilityDodge;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		bool canCounterProba;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		int probabilityCounter;
+
 	/////////////////////////// DELEGATE ///////////////////////////
 	virtual void StopAllActions()  override;
+	virtual void NewAction()  override;
 };

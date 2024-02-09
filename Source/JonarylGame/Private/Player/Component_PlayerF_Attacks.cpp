@@ -66,25 +66,26 @@ void UComponent_PlayerF_Attacks::Attack()
 				// START HIT
 				if (timeCurrentAttack == hitInstance->GettimeWhenHit())
 				{
-					UE_LOG(LogTemp, Warning, TEXT(" HIT = %d"), currentHit);
-					UE_LOG(LogTemp, Warning, TEXT(" HIT ID = %d"), hitInstance->GethitID());
+					/*UE_LOG(LogTemp, Warning, TEXT(" HIT = %d"), currentHit);
+					UE_LOG(LogTemp, Warning, TEXT(" HIT ID = %d"), hitInstance->GethitID());*/
 				}
 				// Launch Particle
 				if (timeCurrentAttack == hitInstance->GettimeWhenLaunchParticle())
 				{
-					UE_LOG(LogTemp, Warning, TEXT(" Launch Particle "));
+					//UE_LOG(LogTemp, Warning, TEXT(" Launch Particle "));
 					hitInstance->SpawnParticleAttack(playerStats, enemyLocked);
 				}
 				// Enable Damage
 				if (timeCurrentAttack == hitInstance->GettimeWhenEnableDamage())
 				{
-					UE_LOG(LogTemp, Warning, TEXT(" Enable Damage "));
+					//UE_LOG(LogTemp, Warning, TEXT(" Enable Damage "));
+					hitInstance->ParticleEnableDamage();
 				}
 				// END HIT
 				if (timeCurrentAttack == hitInstance->GettimeWhenEndHit())
 				{
 					currentHit++;
-					UE_LOG(LogTemp, Warning, TEXT(" END HIT currentHit = %d"), currentHit);
+					//UE_LOG(LogTemp, Warning, TEXT(" END HIT currentHit = %d"), currentHit);
 				}
 			}
 		}
@@ -94,12 +95,10 @@ void UComponent_PlayerF_Attacks::Attack()
 
 void UComponent_PlayerF_Attacks::SetEnemyLocked(AActor* enemy)
 {
-	UE_LOG(LogTemp, Warning, TEXT(" SetEnemyLocked "));
 	enemyLocked = enemy;
 }
 void UComponent_PlayerF_Attacks::SetPlayerStats(FStruct_CharacterStats playerStatistics)
 {
-	UE_LOG(LogTemp, Warning, TEXT(" SetPlayerStats "));
 	playerStats = playerStatistics;
 }
 

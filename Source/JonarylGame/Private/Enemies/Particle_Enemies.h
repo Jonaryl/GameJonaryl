@@ -5,6 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "NiagaraFunctionLibrary.h" 
+#include "Components/BoxComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Math/UnrealMathUtility.h"
+
 #include "Player/Particle_PlayerF_I.h"
 #include "Player/PlayerF_Character.h"
 #include "Structures/Struct_CharacterStats.h"
@@ -13,6 +18,7 @@
 
 #include "Particle_Enemies.generated.h"
 
+class UNiagaraSystem;
 UCLASS()
 class AParticle_Enemies : public AActor, public IParticle_Enemies_I
 {
@@ -28,7 +34,7 @@ protected:
 	////////////////////////// OBJECT ///////////////////////////
 	UBoxComponent* CollisionAttack;
 	APlayerF_Character* thisPlayer;
-	AEnemies_Unit* thisEnemy;
+	AActor* thisEnemy;
 
 
 	////////////////////////// PARTICLE ///////////////////////////
@@ -57,7 +63,7 @@ protected:
 	UFUNCTION()
 		void OnAttackCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	void DamageEnemy(APlayerF_Character* player);
+	void DamagePlayer(APlayerF_Character* player);
 
 	////////////////////////// STATS ///////////////////////////
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -70,10 +76,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float speTimeDestroy;
 
-	FStruct_CharacterStats currentPlayerStats;
+	FStruct_CharacterStats currentEnemyStats;
 	FStruct_HitStats currentHitStats;
 
 	void SetAttack_Implementation(FStruct_CharacterStats enemyStats, FStruct_HitStats hitStats, AActor* currentEnemy) override;
 	void IsCountered_Implementation(AActor* playerCountered) override;
+	void EnableDamage_Implementation() override;
 
+	////////////////////////// OTHER ///////////////////////////
+	int damageID;
 };

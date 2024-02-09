@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "Player/PlayerF_Action.h"
 
+#include "Components/PostProcessComponent.h"
+
 #include "Player/Component_PlayerF_Attacks.h"
 #include "Player/Component_PlayerF_SpeAtk.h"
+#include "Player/Particle_PlayerF_I.h"
 #include "Structures/Struct_CharacterStats.h"
 
 #include "PlayerF_Attack.generated.h"
@@ -47,10 +50,16 @@ protected:
 	int AttackOneNumber;
 
 	///// ATTACK METHOD //////
-	void EndAttack();
+	virtual void EndAttack();
 
 	/////////////////////////// SPECIAL ///////////////////////////
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+		TSubclassOf<UComponent_PlayerF_SpeAtk> SpecialAttackSubClass;
 	UComponent_PlayerF_SpeAtk* SpecialAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TSubclassOf<AActor> CanAtkSpeFlashParticle;
+
 	bool canAttackSpe;
 
 	////////////// SPECIAL ANIMATION VARIABLE /////////////
@@ -61,14 +70,34 @@ protected:
 	bool isSpeActionX;
 	bool isSpeActionY;
 
+public:
 	void SuperModeActivate();
+	virtual void PostProcessSlowActivate(bool isActivate);
+	void LaunchAtkSpeFlashParticle();
 	 
 	/////////////////////////// DAMAGE ///////////////////////////
-	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut, AActor* Enemy) override;
+	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, AActor* Enemy, float ArmorDamage, int damageId) override;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+		float timeCanMoveDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+		float timeEndDamage;
 	float damagedCooldown;
+	float regenArmorCooldown;
+	int lastDamageID;
+
+	int damageAnimNumber;
+	bool isDamageRight;
 
 	/////////////////////////// COUNTER ///////////////////////////
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TSubclassOf<AActor> CounterParticleL;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TSubclassOf<AActor> CounterParticleR;
+
+	UPostProcessComponent* PostProcessSlow;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Counter")
 		float timeStartCounterPose;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Counter")
@@ -109,10 +138,12 @@ protected:
 
 	void EndCounterPose();
 	void EndCounter();
-
+	
+	void SpawnParticleCounter(bool isRightDamage, AActor* Enemy);
 
 	////////////// DEBUG /////////////
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
 		int whishAttackToDebug;
+	virtual void DebugBtnAction() override;
 
 };

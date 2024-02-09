@@ -20,5 +20,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float MagicAttack;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float MagicDefense;
+	float MagicDefense;	
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MaxHealth;	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+
+	float Armor;	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MaxArmor;
 };

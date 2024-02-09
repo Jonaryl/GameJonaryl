@@ -34,6 +34,7 @@ protected:
 	TArray<UComponent_Enemies_Attacks*> comboE;
 
 	TArray<UComponent_Enemies_Attacks*> currentAttacklist;
+	UComponent_Enemies_Attacks* attackInstance;
 	int numberOfCombo;
 
 	bool isAttackStarted;
@@ -49,12 +50,38 @@ protected:
 	virtual void EndAttack();
 	virtual void NextAttack();
 
-	/////////////////////////// DAMAGE ///////////////////////////
-	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, float ArmorDamage);
-	void ModifyDmgBlend(float alpha, float alphaR, float alphaL);
+	virtual void LaunchParticle();
+	virtual void EnableDamage();
 
-	bool canBeHit;
-	float damagedCooldown;
+	/////////////////////////// DAMAGE ///////////////////////////
+public:
+	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, float ArmorDamage, int damageId);
+	virtual void SlowDownTake();
+	virtual bool GetisSlowDownTake();
+	virtual void EndSlowMode();
+
+protected:
+	void ModifyDmgBlend(float alpha, float alphaR, float alphaL);
+	virtual void CounterTake();
+
+	virtual void ActivateSlowMode();
+
+	bool isSlow;
+	int slowMotionCountDown;
+	bool isSlowDownTake;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+		float maxDamagedCooldown;
+	float currentDamagedCooldown;
+	float regenArmorCooldown;
+
+	int lastDamageID;
+	float HitCooldown;
+	int hitCountDamageAnimation;
+
+	bool isCounterTake;
+
+	bool isDamaged;
+	bool isRightAttackHit;
 
 	float DmgBlendAlpha;
 	float DmgBlendR;
@@ -63,4 +90,24 @@ protected:
 	/////////////////////////// COUNTER   ///////////////////////////
 	bool isCounterPose;
 	bool isCounter;
+
+	bool canCounter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CounterPose") 
+		int timeStopCounterPose; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CounterPose")
+		int timeStopAnimCounterPose;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Counter")
+		int timeStopCounter;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Counter")
+		int timeEndCounter;
+
+	virtual bool CounterPose(int actionCounterPoseTurn);
+	virtual bool Counter(int actionCounterTurn);
+	/////////////////////////// DEBUG   ///////////////////////////
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
+		int whishAttackToDebug;
+
+
 };

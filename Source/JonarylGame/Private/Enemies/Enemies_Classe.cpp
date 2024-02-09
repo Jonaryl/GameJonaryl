@@ -3,8 +3,9 @@
 
 #include "Enemies/Enemies_Classe.h"
 
-AEnemies_Classe::AEnemies_Classe()
+void AEnemies_Classe::BeginPlay()
 {
+    Super::BeginPlay();
     FString MyString;
 
     ////////////////// Define classes stats //////////////////

@@ -10,7 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Player/States_PlayerF.h"
-#include "Enemies/Enemies_Unit.h"
+#include "Scene/Scene_EnemiesZones.h"
+#include "Player/PlayerF_Character.h"
 
 #include "Scene_EnemiesManager.generated.h"
 
@@ -27,10 +28,15 @@ protected:
 
 
 	/////////////////////////// ENEMY INFOS ///////////////////////////
-	TArray<AEnemies_Unit*> allEnemies;
+	TArray<AScene_EnemiesZones*> allEnemiesZones;
 	
 	/////////////////////////// PLAYER INFOS ///////////////////////////
+	APlayerF_Character* PlayerCharacter;
 	UStates_PlayerF::EStates_PlayerF CurrentPlayerState = UStates_PlayerF::EStates_PlayerF::Idle;
 public:
+	///////////////////////// FOR PLAYER /////////////////////////
 	void SharePlayerState(UStates_PlayerF::EStates_PlayerF playerState);
+
+	///////////////////////// FOR ENEMIES /////////////////////////
+	void EnemyIsDead(int id, int idZone, int idWave);
 };

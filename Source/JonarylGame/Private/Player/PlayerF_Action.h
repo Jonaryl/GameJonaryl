@@ -110,5 +110,5 @@ protected:
 	////////////// DAMAGE ANIMATION VARIABLE /////////////
 	bool isDamaged;
 
-	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut, AActor* Enemy);
+	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, AActor* Enemy, float ArmorDamage, int damageId);
 };

@@ -23,29 +23,39 @@ void UComponent_PlayerF_SpeAtk::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (isSpecialAttacking)
+	if (isSpecialAttacking && !timeWhenLaunchParticle.IsEmpty())
 	{
 		timeCurrentSpecialAtk++;
+		//UE_LOG(LogTemp, Log, TEXT("SPE ATK timeCurrentSpecialAtk %f"), timeCurrentSpecialAtk);
 		// Launch Particle
 		if (timeCurrentSpecialAtk == timeWhenLaunchParticle[indexParticle])
 		{
-			UE_LOG(LogTemp, Warning, TEXT(" Launch Particle "));
+			//UE_LOG(LogTemp, Warning, TEXT("SPE ATK Launch Particle  %f"), timeCurrentSpecialAtk);
 			LaunchParticle(playerStats, enemyLocked, indexParticle);
 		}
 		// Enable Damage
 		if (timeCurrentSpecialAtk == timeWhenEnableDamage[indexParticle])
 		{
-			UE_LOG(LogTemp, Warning, TEXT(" Enable Damage "));
+			//UE_LOG(LogTemp, Warning, TEXT("SPE ATK Enable Damage  %f"), timeCurrentSpecialAtk);
+			AllEnemyEndSlow();
+			EnableDamage();
+		}
+		// END Anim
+		if (timeCurrentSpecialAtk == timeWhenEndAnim[indexParticle])
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("SPE ATK END Anim %f"), timeCurrentSpecialAtk);
 			isSpecialAttacking = false;
+			EndSpecialAttack();
 		}
 	}
 }
 
 
 /////////////////////////// START ///////////////////////////
-void UComponent_PlayerF_SpeAtk::SpecialAttack(){}
+void UComponent_PlayerF_SpeAtk::SpecialAttack(bool launchParticle){} 
+void UComponent_PlayerF_SpeAtk::EndSpecialAttack(){}
 
-/////////////////////////// START ///////////////////////////
+/////////////////////////// PARTICLE ///////////////////////////
 void UComponent_PlayerF_SpeAtk::LaunchParticle(FStruct_CharacterStats playerStatistics, AActor* enemy, int index)
 {
 	if (!particleSpecials.IsEmpty())
@@ -54,7 +64,7 @@ void UComponent_PlayerF_SpeAtk::LaunchParticle(FStruct_CharacterStats playerStat
 		if (particle)
 		{
 			AActor* OwnerActor = GetOwner();
-			AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(particle, OwnerActor->GetActorLocation(), OwnerActor->GetActorRotation());
+			AttackInstance = GetWorld()->SpawnActor<AActor>(particle, OwnerActor->GetActorLocation(), OwnerActor->GetActorRotation());
 
 			AttackInterface = Cast<IParticle_PlayerF_I>(AttackInstance);
 
@@ -62,6 +72,7 @@ void UComponent_PlayerF_SpeAtk::LaunchParticle(FStruct_CharacterStats playerStat
 			hitStats.BaseDamage = BaseDamages[index];
 			hitStats.ArmorDamage = ArmorDamages[index];
 			hitStats.isRightDamage = false;
+			hitStats.isCutFromDamage = true;
 
 			if (AttackInterface)
 			{
@@ -70,7 +81,34 @@ void UComponent_PlayerF_SpeAtk::LaunchParticle(FStruct_CharacterStats playerStat
 		}
 	}
 }
+void UComponent_PlayerF_SpeAtk::LaunchSuperModeParticle()
+{
+	if (particleSuperMode)
+	{
+		AActor* OwnerActor = GetOwner();
+		AActor* SuperModeInstance = GetWorld()->SpawnActor<AActor>(particleSuperMode, OwnerActor->GetActorLocation(), OwnerActor->GetActorRotation());
 
+		AttackInterface = Cast<IParticle_PlayerF_I>(SuperModeInstance);
+
+		FStruct_HitStats hitStats;
+		hitStats.BaseDamage = 0;
+		FStruct_CharacterStats playerStatistics;
+		playerStatistics.Health = 0;
+
+		if (AttackInterface)
+		{
+			AttackInterface->Execute_SetAttack(SuperModeInstance, playerStatistics, hitStats, OwnerActor, OwnerActor);
+		}
+	}
+}
+
+void UComponent_PlayerF_SpeAtk::EnableDamage() 
+{
+	if (AttackInterface)
+	{
+		AttackInterface->Execute_EnableDamage(AttackInstance);
+	}
+}
 /////////////////////////// SLOW MOTION ///////////////////////////
 void UComponent_PlayerF_SpeAtk::StartSlowMotion(float slowStrength)
 {
@@ -93,11 +131,11 @@ void UComponent_PlayerF_SpeAtk::EndSlowMotion()
 void UComponent_PlayerF_SpeAtk::AllEnemyEndSlow()
 {
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Unit::StaticClass(), FoundActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemies_Unit::StaticClass(), FoundActors);
 
 	for (AActor* Actor : FoundActors)
 	{
-		AEnemy_Unit* EnemyUnit = Cast<AEnemy_Unit>(Actor);
+		AEnemies_Unit* EnemyUnit = Cast<AEnemies_Unit>(Actor);
 		if (EnemyUnit)
 		{
 			EnemyUnit->EndSlowMode();
@@ -115,7 +153,6 @@ void UComponent_PlayerF_SpeAtk::YBtnActionSpe(){}
 void UComponent_PlayerF_SpeAtk::GetPlayer(AActor* player){}
 void UComponent_PlayerF_SpeAtk::SetEnemyLocked(AActor* enemy)
 {
-	UE_LOG(LogTemp, Warning, TEXT(" SetEnemyLocked "));
 	enemyLocked = enemy;
 }
 void UComponent_PlayerF_SpeAtk::SetPlayerStats(FStruct_CharacterStats playerStatistics)

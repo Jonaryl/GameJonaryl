@@ -8,20 +8,29 @@ void UComponent_PlayerF_Hits::SpawnParticleAttack(FStruct_CharacterStats playerS
 {
 	if (particle)
 	{
-		AActor* OwnerActor = GetOwner();
-		AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(particle, OwnerActor->GetActorLocation(), OwnerActor->GetActorRotation());
-
-		AttackInterface = Cast<IParticle_PlayerF_I>(AttackInstance);
 
 		FStruct_HitStats hitStats;
 		hitStats.BaseDamage = BaseDamage;
 		hitStats.ArmorDamage = ArmorDamage;
 		hitStats.isRightDamage = isRightDamage;
+		hitStats.isCutFromDamage = isCutFromDamage;
+
+		AActor* OwnerActor = GetOwner();
+		AttackInstance = GetWorld()->SpawnActor<AActor>(particle, OwnerActor->GetActorLocation(), OwnerActor->GetActorRotation());
+
+		AttackInterface = Cast<IParticle_PlayerF_I>(AttackInstance);
 
 		if (AttackInterface)
 		{
 			AttackInterface->Execute_SetAttack(AttackInstance, playerStats, hitStats, OwnerActor, enemyLocked);
 		}
+	}
+}
+void UComponent_PlayerF_Hits::ParticleEnableDamage()
+{
+	if (AttackInterface)
+	{
+		AttackInterface->Execute_EnableDamage(AttackInstance);
 	}
 }
 

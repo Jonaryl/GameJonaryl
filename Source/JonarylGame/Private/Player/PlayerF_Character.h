@@ -23,6 +23,13 @@ public:
 	virtual void EndPartialAction() override;
 	virtual void StopMovingAnim() override;
 
+
+	void EndSpecialAtk();
+	void SetisSpeActionA(bool isActivate = true);
+	void SetisSpeActionB(bool isActivate = true);
+	void SetisSpeActionX(bool isActivate = true);
+	void SetisSpeActionY(bool isActivate = true);
+
 	/// VARIABLE ///
 	//MOVE
 	bool GetisIdle();
@@ -30,6 +37,7 @@ public:
 	bool GetisSprint();
 
 	float GetsideMoving();
+	bool GetisTimeMoving();
 
 	//JUMP
 	bool GetisJumpUp();
@@ -44,6 +52,8 @@ public:
 
 	//DAMAGE
 	bool GetisDamaged();
+	bool GetisDamageRight();
+	int GetdamageAnimNumber();
 
 	//ATTACK
 	bool GetisAttacking();
@@ -74,4 +84,5 @@ public:
 
 	/////////////////////////  SHARE INFOS ///////////////////////////
 	UStates_PlayerF::EStates_PlayerF GetPlayerState();
+	FStruct_CharacterStats GetPlayerStats();
 };

@@ -70,6 +70,7 @@ void APlayerF_Move::BeginPlay()
 
     canMove = true;
     canSprint = true;
+    timeMoving = 0;
 
     sideMoving = 50.0f;
     timeStoppingMoving = 0.0f;
@@ -77,19 +78,29 @@ void APlayerF_Move::BeginPlay()
     PlayerController = Cast<APlayerController>(GetController());
     PlayerMesh = Cast<UPrimitiveComponent>(PlayerController->GetCharacter()->GetMesh());
 
-    TArray<AActor*> FoundActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AScene_EnemiesManager::StaticClass(), FoundActors);
-    if (FoundActors.Num() > 0)
-    {
-        enemiesManager = Cast<AScene_EnemiesManager>(FoundActors[0]);
-    }
-
     if (PlayerController)
     {
         UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
         if (Subsystem)
         {
             Subsystem->AddMappingContext(PlayerMappingContext, 0);
+        }
+    }
+
+    if (PlayerFight_Lock)
+        PlayerFight_LockInstance = NewObject<UComponent_PlayerF_Lock>(this, PlayerFight_Lock);
+
+    if (PlayerFightHUDClass)
+    {
+        PlayerFightHUD = CreateWidget<UHUD_PlayerF>(GetWorld(), PlayerFightHUDClass);
+        EnemyHUD = CreateWidget<UHUD_PlayerF>(GetWorld(), EnemyHUDClass);
+
+        if (PlayerFightHUD)
+            PlayerFightHUD->AddToPlayerScreen();
+        if (EnemyHUD)
+        {
+            EnemyHUD->AddToPlayerScreen();
+            EnemyHudIsVisible(false);
         }
     }
 }
@@ -165,6 +176,13 @@ MovementValues APlayerF_Move::XYGetValue(const FInputActionValue& Value)
     Result.TargetLocation = TargetLocation;
     Result.lookAtRotation = lookAtRotation;
 
+    if (PlayerFight_LockInstance)
+    {
+        PlayerFight_LockInstance->Update(GetActorLocation(), TargetLocation);
+        enemyTargetLock = PlayerFight_LockInstance->GetLastTarget();
+    }
+
+    ///DEBUG CUBE
     TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerF_Move::StaticClass(), FoundActors);
     for (AActor* Actor : FoundActors)
@@ -184,6 +202,7 @@ MovementValues APlayerF_Move::XYGetValue(const FInputActionValue& Value)
             MeshComponent->SetWorldLocation(TargetLocation);
         }
     }
+    ///////////////
 
     return Result;
 }
@@ -214,6 +233,16 @@ void APlayerF_Move::Moving(FVector TargetLocation, FQuat InterpolatedRotation)
     );
 }
 
+void APlayerF_Move::TurningTo(FVector destinationToLookAt, float speed)
+{
+    FVector DirectionToLook = destinationToLookAt - GetActorLocation();
+    DirectionToLook.Z = 0.0f;
+    FRotator LookAtRotation = FRotationMatrix::MakeFromX(DirectionToLook).Rotator();
+    FRotator InterpolatedRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, GetWorld()->DeltaTimeSeconds, runRotationSpeed * speed);
+
+    SetActorRotation(InterpolatedRotation);
+}
+
 void APlayerF_Move::ActionMovingAndTurning(FVector AppliedForce, float actionTurn, float force, float timeTurning)
 {
     FVector Direction = MoveValue.TargetLocation;
@@ -223,30 +252,35 @@ void APlayerF_Move::ActionMovingAndTurning(FVector AppliedForce, float actionTur
     NewRotation.Pitch = 0.0f;
     NewRotation.Roll = 0.0f;
 
-
     if (CurrentState == UStates_PlayerF::EStates_PlayerF::DashJump
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
         )
     {
         if (actionTurn > 0 && actionTurn < timeTurning)
         {
-            /*SetActorLocationAndRotation(
-                FMath::VInterpTo(GetActorLocation(), AppliedForce, GetWorld()->DeltaTimeSeconds, 100.0f),
-                FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, force)
-            );*/
+            FRotator finalRotation = InterpolatedRotation.Rotator();
+            if (enemyTargetLock != nullptr && CurrentState == UStates_PlayerF::EStates_PlayerF::Attack)
+            {
+                FRotator lookAtRotationForTarget = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), enemyTargetLock->GetActorLocation());
+                FQuat InterpolatedRotationForTarget = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotationForTarget.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
+
+                float InterpAlpha = 0.2f;
+                FQuat CombinedRotation = FQuat::Slerp(InterpolatedRotation, InterpolatedRotationForTarget, InterpAlpha);
+
+                if (!isMoveInput)
+                    finalRotation = InterpolatedRotationForTarget.Rotator();
+                else
+                    finalRotation = CombinedRotation.Rotator();
+            }
+
             SetActorLocationAndRotation(
                 AppliedForce,
-                FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, force)
+                FMath::RInterpTo(GetActorRotation(), finalRotation, GetWorld()->DeltaTimeSeconds, force)
             );
         }
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT(" AppliedForce = %s"), *AppliedForce.ToString());
-        /*SetActorLocationAndRotation(
-            FMath::VInterpTo(GetActorLocation(), AppliedForce, GetWorld()->DeltaTimeSeconds, 100.0f),
-            FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 5.0f)
-        );*/
         SetActorLocationAndRotation(
             AppliedForce,
             FMath::RInterpTo(GetActorRotation(), InterpolatedRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 5.0f)
@@ -260,14 +294,32 @@ void APlayerF_Move::ActionMovingAndTurning(FVector AppliedForce, float actionTur
 
 
 ///////////////////////////////////////////////////////////////////
+/////////////////////////// HUD //////////////////////////
+void APlayerF_Move::EnemyHudIsVisible(bool isVisible)
+{
+    EnemyHUD->SetVisible(isVisible);
+}
+void APlayerF_Move::EditEnemyHealth(float enemyHealthMax, float enemyHealth)
+{
+    EnemyHUD->SetHealth(enemyHealthMax, enemyHealth);
+}
+void APlayerF_Move::EditEnemyArmor(float enemyArmorMax, float enemyArmor)
+{
+    EnemyHUD->SetClassPower(enemyArmorMax, enemyArmor);
+}
+///////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////
 /////////////////////////// INPUT METHOD //////////////////////////
 // MOVE
 void APlayerF_Move::StartMoving()
 { 
-    UE_LOG(LogTemp, Log, TEXT(" StartMoving"));
+    //UE_LOG(LogTemp, Log, TEXT(" StartMoving"));
     if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Idle
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
         || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::Damage || CurrentState == UStates_PlayerF::EStates_PlayerF::AttackSpe
         )
     {
         if (canMove)
@@ -277,6 +329,7 @@ void APlayerF_Move::StartMoving()
                 isMoving = true;
             if (isIdle == true)
                 isIdle = false;
+            timeMoving = 0;
         }
     }
 }
@@ -290,7 +343,8 @@ void APlayerF_Move::MoveForward(const FInputActionValue& Value)
 
     if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Idle
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
-        || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter 
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::Damage || CurrentState == UStates_PlayerF::EStates_PlayerF::AttackSpe
         )
     {
         if (Controller && valueSpeed != 0.0f && canMove)
@@ -298,9 +352,12 @@ void APlayerF_Move::MoveForward(const FInputActionValue& Value)
             if (CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
                 || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose
                 || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
+                || CurrentState == UStates_PlayerF::EStates_PlayerF::Damage
+                || CurrentState == UStates_PlayerF::EStates_PlayerF::AttackSpe
                 )
             {
                 EndAllActionAnim();
+                timeMoving = 0;
             }
             if (CurrentState != UStates_PlayerF::EStates_PlayerF::Run)
                 SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
@@ -308,12 +365,14 @@ void APlayerF_Move::MoveForward(const FInputActionValue& Value)
             FVector NewPosition = GetPosition(TargetLocation);
             FQuat InterpolatedRotation = GetRotation(TargetLocation);
             Moving(NewPosition, InterpolatedRotation);
+
+            timeMoving++;
         }
     }
 }
 void APlayerF_Move::StopMoving()
 { 
-    UE_LOG(LogTemp, Log, TEXT(" StopMoving")); 
+    //UE_LOG(LogTemp, Log, TEXT(" StopMoving")); 
     isMoveInput = false;
 
     if (isMoving == true)
@@ -323,9 +382,18 @@ void APlayerF_Move::StopMoving()
         if (isIdle == false)
             isIdle = true;
         SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
-        timeStoppingMoving = timeStoppingMovingMax;
-        speedStoppingMoving = maxRunSpeed;
+
+        isTimeMoving = false;
+        if (timeMoving > 30)
+        {
+            timeStoppingMoving = timeStoppingMovingMax;
+            speedStoppingMoving = maxRunSpeed;
+            isTimeMoving = true;
+        }
     }
+    //UE_LOG(LogTemp, Warning, TEXT(" isTimeMoving = %s"), isTimeMoving ? TEXT("True") : TEXT("False"));
+    //UE_LOG(LogTemp, Log, TEXT(" timeMoving %f"), timeMoving);
+    timeMoving = 0;
 }
 
 // CAMERA
@@ -373,6 +441,8 @@ void APlayerF_Move::RBBtnActionEnd()
 void APlayerF_Move::DebugBtnAction()
 {
     UE_LOG(LogTemp, Error, TEXT(" MOVE "));
+    UE_LOG(LogTemp, Warning, TEXT(" CurrentState = %d"), CurrentState);
+
     UE_LOG(LogTemp, Warning, TEXT(" isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
     UE_LOG(LogTemp, Warning, TEXT(" isIdle = %s"), isIdle ? TEXT("True") : TEXT("False"));
 }
@@ -386,14 +456,95 @@ void APlayerF_Move::DebugBtnAction()
 void APlayerF_Move::ChangeCharacterState(UStates_PlayerF::EStates_PlayerF NewState)
 {
     CurrentState = NewState;
-    if (enemiesManager)
+/*
+*/
+    if (SendMessage)
     {
-        UE_LOG(LogTemp, Error, TEXT(" enemiesManager "));
-        enemiesManager->SharePlayerState(NewState);
-    }
-    UE_LOG(LogTemp, Log, TEXT("change d'etat CurrentState = %d"), CurrentState);
-}
+        AActor* MessageInstance = GetWorld()->SpawnActor<AActor>(SendMessage, GetActorLocation(), GetActorRotation());
 
+        ISendMessage_PlayerF_I* MessageInterface = Cast<ISendMessage_PlayerF_I>(MessageInstance);
+
+        if (MessageInterface)
+        {
+            FStruct_SendMessage message;
+            message.CurrentState = CheckStateInString(NewState);
+            MessageInterface->Execute_ManagerSendState(MessageInstance, message);
+        }
+    }
+
+    LogCurrentState();
+}
+FString APlayerF_Move::CheckStateInString(UStates_PlayerF::EStates_PlayerF NewState)
+{
+    FString stateString = "";
+
+    switch (NewState) {
+    case UStates_PlayerF::EStates_PlayerF::Idle:
+        stateString = "Idle";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Run:
+        stateString = "Run";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Sprint:
+        stateString = "Sprint";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::SuperRun:
+        stateString = "SuperRun";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::JumpUp:
+        stateString = "JumpUp";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::IdleJump:
+        stateString = "IdleJump";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::JumpDown:
+        stateString = "JumpDown";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::DashJump:
+        stateString = "DashJump";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Attack:
+        stateString = "Attack";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::StanceSpe:
+        stateString = "StanceSpe";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::AttackSpe:
+        stateString = "AttackSpe";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Dash:
+        stateString = "Dash";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Dodge:
+        stateString = "Dodge";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Damage:
+        stateString = "Damage";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::OnAir:
+        stateString = "OnAir";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::OnGround:
+        stateString = "OnGround";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::CounterPose:
+        stateString = "CounterPose";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Counter:
+        stateString = "Counter";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::CounterAttack:
+        stateString = "CounterAttack";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::ChangeAction:
+        stateString = "ChangeAction";
+        break;
+    default:
+        break;
+    }
+
+    return stateString;
+}
 
 void APlayerF_Move::SetCharacterState(UStates_PlayerF::EStates_PlayerF NewState, float Time)
 {
@@ -408,6 +559,76 @@ void APlayerF_Move::SetCharacterState(UStates_PlayerF::EStates_PlayerF NewState,
 /////////////////////////// STATES METHOD //////////////////////////
 ///////////////////////////////////////////////////////////////////
 
+void APlayerF_Move::LogCurrentState()
+{
+    //UE_LOG(LogTemp, Log, TEXT("change d'etat CurrentState = %d"), CurrentState);
+    UStates_PlayerF::EStates_PlayerF state = static_cast<UStates_PlayerF::EStates_PlayerF>(CurrentState);
+    switch (state) {
+    case UStates_PlayerF::EStates_PlayerF::Idle:
+        UE_LOG(LogTemp, Log, TEXT("Idle"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Run:
+        UE_LOG(LogTemp, Log, TEXT("Run"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Sprint:
+        UE_LOG(LogTemp, Log, TEXT("Sprint"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::SuperRun:
+        UE_LOG(LogTemp, Log, TEXT("SuperRun"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::JumpUp:
+        UE_LOG(LogTemp, Log, TEXT("JumpUp"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::IdleJump:
+        UE_LOG(LogTemp, Log, TEXT("IdleJump"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::JumpDown:
+        UE_LOG(LogTemp, Log, TEXT("JumpDown"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::DashJump:
+        UE_LOG(LogTemp, Log, TEXT("DashJump"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Attack:
+        UE_LOG(LogTemp, Log, TEXT("Attack"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::StanceSpe:
+        UE_LOG(LogTemp, Log, TEXT("StanceSpe"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::AttackSpe:
+        UE_LOG(LogTemp, Log, TEXT("AttackSpe"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Dash:
+        UE_LOG(LogTemp, Log, TEXT("Dash"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Dodge:
+        UE_LOG(LogTemp, Log, TEXT("Dodge"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Damage:
+        UE_LOG(LogTemp, Log, TEXT("Damage"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::OnAir:
+        UE_LOG(LogTemp, Log, TEXT("OnAir"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::OnGround:
+        UE_LOG(LogTemp, Log, TEXT("OnGround"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::CounterPose:
+        UE_LOG(LogTemp, Log, TEXT("CounterPose"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::Counter:
+        UE_LOG(LogTemp, Log, TEXT("Counter"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::CounterAttack:
+        UE_LOG(LogTemp, Log, TEXT("CounterAttack"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::ChangeAction:
+        UE_LOG(LogTemp, Log, TEXT("ChangeAction"));
+        break;
+    default:
+        break;
+    }
+    //UE_LOG(LogTemp, Log, TEXT("//////////////////////////////////"));
+}
 
 
 

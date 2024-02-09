@@ -17,4 +17,6 @@ public:
 	float ArmorDamage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool isRightDamage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool isCutFromDamage;
 };

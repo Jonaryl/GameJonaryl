@@ -26,6 +26,8 @@ protected:
 		float ArmorDamage;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		bool isRightDamage;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool isCutFromDamage;
 
 	////////////////////////// PARTICLE ///////////////////////////
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
@@ -36,6 +38,7 @@ protected:
 		float timeWhenEnableDamage;
 
 	IParticle_PlayerF_I* AttackInterface;
+	AActor* AttackInstance;
 
 	////////////////////////// HIT ///////////////////////////
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit")
@@ -51,6 +54,7 @@ protected:
 
 public:
 	void SpawnParticleAttack(FStruct_CharacterStats playerStats, AActor* enemyLocked);
+	void ParticleEnableDamage();
 
 	void GettimeCurrentAttack(float time);
 	int GetattackID();

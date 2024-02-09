@@ -45,11 +45,14 @@ protected:
 	int currentCombo;
 	int currentHit;
 
-		
+	UComponent_Enemies_Hits* hitInstance;
+
 public:
 	void StartAttack(FStruct_CharacterStats enemyStatistics);
 	void Attack(float timeCurrentAttack);
 
+	void LaunchParticle();
+	void EnableDamage();
 
 	////////////////////////// STATS ///////////////////////////
 	bool GetisCombo();

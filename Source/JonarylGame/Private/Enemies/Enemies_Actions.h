@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 		float dashForce;
 
+	bool canBeHit;
+	bool canDodge;
+
 	////////////// DASH ANIMATION VARIABLE /////////////
 	bool isDash;
 

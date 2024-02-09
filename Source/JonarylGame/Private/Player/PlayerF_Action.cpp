@@ -416,4 +416,4 @@ void APlayerF_Action::StopRootMotion()
 }
 
 /////////////////////////// DAMAGE ///////////////////////////
-void APlayerF_Action::DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, int damageCut, AActor* Enemy){}
+void APlayerF_Action::DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, AActor* Enemy, float ArmorDamage, int damageId) {}

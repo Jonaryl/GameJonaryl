@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "States_EnemiesActions.h"
 #include "States_EnemiesBehaviors.h"
@@ -32,7 +33,7 @@ protected:
 
 	/////////////////////////// BASE Variable ///////////////////////////
 	ACharacter* EnemyPawn;
-
+	UBoxComponent* CollisionEnemy;
 
 	/////////////////////////// MOVING ///////////////////////////
 	///// MOVING VARIABLE //////
@@ -61,10 +62,17 @@ protected:
 
 	///// MOVING METHOD //////
 	virtual void Moving(FVector destinationToGo);
-	virtual void Turning(FVector destinationToLookAt);
+	virtual void Turning(FVector destinationToLookAt, float speed = 1.0f);
 
 	virtual FVector GetPlacePosition();
 	float GetPlaceDistance(FVector place);
+	/////////////////////////// DEAD ///////////////////////////
+	int id;
+	int idZone;
+	int idWave;
+	bool isEnemyDead;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dead")
+		float deathAnimationCooldown;
 	/////////////////////////// STATES ///////////////////////////
 	////ACTIONS/////
 	UStates_EnemiesActions::EStates_EnemiesActions CurrentActionState = UStates_EnemiesActions::EStates_EnemiesActions::Idle;
@@ -93,11 +101,15 @@ protected:
 	virtual void ReactionToPlayer();
 	virtual void StopAllActions();
 
+	virtual void NewAction();
+
 	/////////////////////////// TOOLS  ///////////////////////////
 	float GenerateRandomFloat(float Min, float Max);
 	int GenerateRandomInt(int Min, int Max);
 
-
 public:
+	void SetIds(int currentId, int currentIdZone, int currentIdWave);
+
+
 	void SetPlayerState(UStates_PlayerF::EStates_PlayerF playerStates);
 };

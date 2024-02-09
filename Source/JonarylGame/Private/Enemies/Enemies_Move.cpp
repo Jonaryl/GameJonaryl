@@ -13,6 +13,9 @@ void AEnemies_Move::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+	CollisionEnemy = AEnemies_Move::FindComponentByClass<UBoxComponent>();
+	if (CollisionEnemy) { }
 }
 void AEnemies_Move::Tick(float DeltaTime)
 {
@@ -51,12 +54,12 @@ void AEnemies_Move::Moving(FVector destinationToGo)
 	GetxyMovingValue(PreviousLocation, CurrentLocation);
 }
 
-void AEnemies_Move::Turning(FVector destinationToLookAt)
+void AEnemies_Move::Turning(FVector destinationToLookAt, float speed)
 {
 	FVector DirectionToLook = destinationToLookAt - GetActorLocation();
 	DirectionToLook.Z = 0.0f;
 	FRotator LookAtRotation = FRotationMatrix::MakeFromX(DirectionToLook).Rotator();
-	FRotator InterpolatedRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, GetWorld()->DeltaTimeSeconds, runRotationSpeed);
+	FRotator InterpolatedRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, GetWorld()->DeltaTimeSeconds, runRotationSpeed * speed);
 
 	SetActorRotation(InterpolatedRotation);
 }
@@ -176,4 +179,13 @@ int AEnemies_Move::GenerateRandomInt(int Min, int Max)
 /////////////////////////// DELEGATE ///////////////////////////
 void AEnemies_Move::ReactionToPlayer() {}
 void AEnemies_Move::StopAllActions() {}
+void AEnemies_Move::NewAction() {}
+
+/////////////////////////// SEND MESSAGES ///////////////////////////
+void AEnemies_Move::SetIds(int currentId, int currentIdZone, int currentIdWave) 
+{
+	id = currentId;
+	idZone = currentIdZone;
+	idWave = currentIdWave;
+}
 

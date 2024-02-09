@@ -28,10 +28,12 @@ public:
         Dash,
         Dodge,
         Damage,
+        Slow,
         OnAir,
         OnGround,
         CounterPose,
         Counter,
-        CounterAttack
+        CounterAttack,
+        Dead
     };
 };

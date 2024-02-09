@@ -21,19 +21,19 @@ protected:
 		FString CharacterName;
 							
 	/////////////////////////// Basic stats ///////////////////////////
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY(EditAnywhere, Category = "Statistics")
 		float Base_Health;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY(EditAnywhere, Category = "Statistics")
 		float Base_Attack;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY(EditAnywhere, Category = "Statistics")
 		float Base_Defense;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY(EditAnywhere, Category = "Statistics")
 		float Base_MagicAttack;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY(EditAnywhere, Category = "Statistics")
 		float Base_MagicDefense;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY(EditAnywhere, Category = "Statistics")
 		float Base_Armor;
 
 
