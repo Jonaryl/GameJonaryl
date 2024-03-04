@@ -58,6 +58,8 @@ protected:
 		int JumpForce;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Jump")
 		int JumpDashForwardSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Jump")
+		float JumpDashDownSpeed;
 
 	////////////// JUMP ANIMATION VARIABLE /////////////
 	bool isJumpUp;
@@ -90,7 +92,7 @@ protected:
 
 
 	//////////////////////////// ADD FORCE /////////////////////////////
-	void AddForce(int sens, int speedV, int speedH);
+	void AddForce(int sens, float speedV, int speedH);
 
 	//////////////////////////// INPUT /////////////////////////////
 	virtual void ABtnAction() override;

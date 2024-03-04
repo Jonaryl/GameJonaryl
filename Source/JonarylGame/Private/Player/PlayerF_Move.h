@@ -59,6 +59,10 @@ public:
 		USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		UCameraComponent* FollowCamera;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		float cameraSpeedRotationX;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		float cameraSpeedRotationY;
 
 
 protected:
@@ -97,6 +101,8 @@ protected:
 		float forceStoppingMoving;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moving")
 		float timeStoppingMovingMax;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moving")
+		float timeStoppingSprintMax;
 	float timeStoppingMoving;
 	float speedStoppingMoving;
 
@@ -129,7 +135,9 @@ protected:
 	UComponent_PlayerF_Lock* PlayerFight_LockInstance;
 
 	AActor* enemyTargetLock;
-
+public:
+	virtual void EnemyLockedIsDead();
+protected:
 	///// MOVING METHOD //////
 	MovementValues XYGetValue(const FInputActionValue& Value);
 

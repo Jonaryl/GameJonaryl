@@ -64,9 +64,17 @@ void AParticle_Enemies::SetAttack_Implementation(FStruct_CharacterStats enemySta
 	currentHitStats = hitStats;
 	thisEnemy = currentEnemy;
 }
-void AParticle_Enemies::IsCountered_Implementation(AActor* EnemyCountered)
+void AParticle_Enemies::IsCountered_Implementation(AActor* playerCountered)
 {
-
+	LaunchParticle();
+	if (playerCountered)
+	{
+		APlayerF_Character* PlayerCharacter = Cast<APlayerF_Character>(playerCountered);
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->CounterTake();
+		}
+	}
 }
 
 ////////////////////////// PARTICLE ///////////////////////////

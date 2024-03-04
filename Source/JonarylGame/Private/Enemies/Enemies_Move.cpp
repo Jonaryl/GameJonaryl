@@ -39,12 +39,21 @@ void AEnemies_Move::Moving(FVector destinationToGo)
 
 	isMoving = true;
 	float speed = 1.0f;
-	if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::Run)
+	if (CurrentActionState == EStates_EnemiesActions::Run)
+	{
 		speed = maxRunSpeed;
-	else if(CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::Sprint)
+		isRuning = true;
+	}
+	else if (CurrentActionState == EStates_EnemiesActions::Sprint)
+	{
 		speed = maxSprintSpeed;
+		isRuning = true;
+	}
 	else
+	{
 		speed = maxWalkSpeed;
+		isRuning = false;
+	}
 		
 	FVector NewLocation = GetActorLocation() + Direction * (speed * 10) * GetWorld()->DeltaTimeSeconds;
 	SetActorLocation(NewLocation);
@@ -130,7 +139,7 @@ void AEnemies_Move::SetPlayerState(UStates_PlayerF::EStates_PlayerF playerStates
 
 /////////////////////////// STATES ///////////////////////////
 	////ACTIONS/////
-void AEnemies_Move::SetActionState(UStates_EnemiesActions::EStates_EnemiesActions NewState, float Time)
+void AEnemies_Move::SetActionState(EStates_EnemiesActions NewState, float Time)
 {
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDel;
@@ -140,13 +149,13 @@ void AEnemies_Move::SetActionState(UStates_EnemiesActions::EStates_EnemiesAction
 	else
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, Time, false);
 }
-void AEnemies_Move::ChangeActionState(UStates_EnemiesActions::EStates_EnemiesActions NewState)
+void AEnemies_Move::ChangeActionState(EStates_EnemiesActions NewState)
 {
 	CurrentActionState = NewState;
 }
 
 ////BEHAVIOURS/////
-void AEnemies_Move::SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors NewState, float Time)
+void AEnemies_Move::SetBehaviorState(EStates_EnemiesBehaviors NewState, float Time)
 {
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDel;
@@ -156,7 +165,7 @@ void AEnemies_Move::SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBe
 	else
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, Time, false);
 }
-void AEnemies_Move::ChangeBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors NewState)
+void AEnemies_Move::ChangeBehaviorState(EStates_EnemiesBehaviors NewState)
 {
 	CurrentBehaviorsState = NewState;
 }

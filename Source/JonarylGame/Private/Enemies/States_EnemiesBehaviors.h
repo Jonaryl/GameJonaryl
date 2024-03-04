@@ -5,23 +5,18 @@
 #include "CoreMinimal.h"
 #include "States_EnemiesBehaviors.generated.h"
 
-UCLASS()
-class UStates_EnemiesBehaviors : public UObject
+UENUM()
+enum EStates_EnemiesBehaviors
 {
-    GENERATED_BODY()
-
-public:
-    enum class EStates_EnemiesBehaviors
-    {
-        WaitingNextAction,
-        ChasingPlayer,
-        AttackPlayer,
-        CounterAttack,
-        DodgeAttack,
-        SearchingPlayer,
-        TurnAroundPlayer,
-        EvaluatePlayer,
-        IsInterrupted,
-        Dead
-    };
+    WaitingNextAction,
+    ChasingPlayer,
+    AttackPlayer,
+    CounterAttacking,
+    DodgeAttack,
+    SearchingPlayer,
+    TurnAroundPlayer,
+    EvaluatePlayer,
+    IsInterrupted,
+    Death
 };
+

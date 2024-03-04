@@ -54,6 +54,7 @@ protected:
 	////////////// MOVING ANIMATION VARIABLE /////////////
 	FVector xyMovingValue;
 	bool isMoving;
+	bool isRuning;
 	bool isIdle;
 
 	////////////// MOVING ANIMATION METHOD /////////////
@@ -75,16 +76,16 @@ protected:
 		float deathAnimationCooldown;
 	/////////////////////////// STATES ///////////////////////////
 	////ACTIONS/////
-	UStates_EnemiesActions::EStates_EnemiesActions CurrentActionState = UStates_EnemiesActions::EStates_EnemiesActions::Idle;
+	EStates_EnemiesActions CurrentActionState = EStates_EnemiesActions::Idle;
 
-	virtual void SetActionState(UStates_EnemiesActions::EStates_EnemiesActions NewState, float Time);
-	virtual void ChangeActionState(UStates_EnemiesActions::EStates_EnemiesActions NewState);
+	virtual void SetActionState(EStates_EnemiesActions NewState, float Time);
+	virtual void ChangeActionState(EStates_EnemiesActions NewState);
 
 	////BEHAVIOURS/////
-	UStates_EnemiesBehaviors::EStates_EnemiesBehaviors CurrentBehaviorsState = UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::WaitingNextAction;
+	EStates_EnemiesBehaviors CurrentBehaviorsState = EStates_EnemiesBehaviors::WaitingNextAction;
 
-	virtual void SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors NewState, float Time);
-	virtual void ChangeBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors NewState);
+	virtual void SetBehaviorState(EStates_EnemiesBehaviors NewState, float Time);
+	virtual void ChangeBehaviorState(EStates_EnemiesBehaviors NewState);
 
 	/////////////////////////// PLAYER INFO ///////////////////////////
 	///// PLAYER INFO VARIABLE //////

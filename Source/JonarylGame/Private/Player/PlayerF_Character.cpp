@@ -14,6 +14,9 @@ void APlayerF_Character::EventAnim()
 {
 	UE_LOG(LogTemp, Error, TEXT("EventAnim"));
 }
+void APlayerF_Character::EventCanHitTurning() { Super::EventCanHitTurning(); }
+void APlayerF_Character::EventRightHit() { isRightCountered = true; }
+void APlayerF_Character::EventLeftHit(){ isRightCountered = false; }
 
 
 
@@ -40,8 +43,10 @@ void APlayerF_Character::EndAllActionAnim()
 	isDash = false;
 
 	isDamaged = false;
+	isCounterTake = false;
 
 	isAttacking = false;
+	canHitTurning = false;
 	currentHitCombo = -1;
 
 	isCounterPose = false;
@@ -56,8 +61,10 @@ void APlayerF_Character::EndPartialAction()
 	isDash = false;
 
 	isDamaged = false;
+	isCounterTake = false;
 
 	isAttacking = false;
+	canHitTurning = false;
 
 	isCounterPose = false;
 	isCounter = false;
@@ -67,10 +74,6 @@ void APlayerF_Character::StopMovingAnim()
 	isMoving = false;
 	isIdle = false;
 	canMove = false;
-
-	//UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
-	//UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim isIdle = %s"), isIdle ? TEXT("True") : TEXT("False"));
-	//UE_LOG(LogTemp, Warning, TEXT(" StopMovingAnim  canMove = %s"), canMove ? TEXT("True") : TEXT("False"));
 }
 
 void APlayerF_Character::EndSpecialAtk()
@@ -79,6 +82,9 @@ void APlayerF_Character::EndSpecialAtk()
 	isSpeActionB = false;
 	isSpeActionX = false;
 	isSpeActionY = false;
+
+	canMove = true;
+	PostProcessSlowActivate(false);
 	EndAttack();
 }
 void APlayerF_Character::SetisSpeActionA(bool isActivate) { isSpeActionA = isActivate; }
@@ -110,6 +116,9 @@ int APlayerF_Character::GetdashNumber() { return dashNumber; }
 bool APlayerF_Character::GetisDamaged() { return isDamaged; }
 bool APlayerF_Character::GetisDamageRight() { return isDamageRight; }
 int APlayerF_Character::GetdamageAnimNumber() { return damageAnimNumber; }
+
+bool APlayerF_Character::GetisCounterTake() { return isCounterTake; }
+bool APlayerF_Character::GetisRightCountered() { return isRightCountered; }
 
 //ATTACK
 bool APlayerF_Character::GetisAttacking() { return isAttacking; }

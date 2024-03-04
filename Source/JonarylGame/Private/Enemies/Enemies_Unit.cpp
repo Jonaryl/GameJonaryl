@@ -27,6 +27,10 @@ void AEnemies_Unit::EndSlowMode()
 {
 	Super::EndSlowMode();
 }
+void AEnemies_Unit::AdvertAttack()
+{
+	Super::AdvertAttack();
+}
 
 /// METHOD
 void AEnemies_Unit::StopAllActions()
@@ -37,9 +41,13 @@ void AEnemies_Unit::StopAllActions()
 	isMoving = false;
 	xyMovingValue = FVector(0, 0, 0);
 
-	isDash = false;
+	isDashBack = false;
+	isDashLeft = false;
+	isDashRight = false;
 
 	isDamaged = false;
+	if(CurrentActionState != EStates_EnemiesActions::Dead)
+		canBeHit = true;
 
 	isCounterPose = false;
 	isCounter = false;
@@ -54,6 +62,7 @@ void AEnemies_Unit::StopAllActions()
 //MOVE
 bool AEnemies_Unit::GetisIdle() { return isIdle; }
 bool AEnemies_Unit::GetisMoving() { return isMoving; }
+bool AEnemies_Unit::GetisRuning() { return isRuning; }
 float AEnemies_Unit::GetxMoving() { return xyMovingValue.X * 100; }
 float AEnemies_Unit::GetyMoving() { return xyMovingValue.Y * 100; }
 
@@ -63,15 +72,15 @@ int AEnemies_Unit::GetcurrentHitCombo() { return currentHitCombo; }
 bool AEnemies_Unit::GetisAttackCombo() { return isAttackCombo; }
 
 ///DASH
-bool AEnemies_Unit::GetisDash() { return isDash; }
+bool AEnemies_Unit::GetisDashBack() { return isDashBack; }
+bool AEnemies_Unit::GetisDashRight() { return isDashRight; }
+bool AEnemies_Unit::GetisDashLeft() { return isDashLeft; }
+int AEnemies_Unit::GetdashNumber() { return dashNumber; }
 
 //COUNTER
-/*
+
 bool AEnemies_Unit::GetisCounterPose() { return isCounterPose; }
 bool AEnemies_Unit::GetisCounter() { return isCounter; }
-
-
-*/
 
 //DAMAGE
 bool AEnemies_Unit::GetisDamaged() { return isDamaged; }
@@ -105,6 +114,8 @@ FStruct_CharacterStats AEnemies_Unit::GetEnemyStats()
 	return enemyStats;
 }
 bool AEnemies_Unit::GetisEnemyDead(){ return isEnemyDead; }
+float AEnemies_Unit::GetdeathAnimationCooldown(){ return deathAnimationCooldown; }
+int AEnemies_Unit::GetEnemyId(){ return id; }
 
 FStruct_DeathData AEnemies_Unit::GetDeathData() 
 { 

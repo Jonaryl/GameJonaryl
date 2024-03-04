@@ -55,6 +55,9 @@ public:
 	bool GetisDamageRight();
 	int GetdamageAnimNumber();
 
+	bool GetisCounterTake();
+	bool GetisRightCountered();
+
 	//ATTACK
 	bool GetisAttacking();
 
@@ -81,6 +84,9 @@ public:
 
 	/// EVENT ///
 	void EventAnim();
+	virtual void EventCanHitTurning() override;
+	void EventRightHit();
+	void EventLeftHit();
 
 	/////////////////////////  SHARE INFOS ///////////////////////////
 	UStates_PlayerF::EStates_PlayerF GetPlayerState();

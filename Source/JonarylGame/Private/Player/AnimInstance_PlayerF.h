@@ -66,6 +66,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		int damageAnimNumber;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isCounterTake;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isRightCountered;
+
 	///ATTACK
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isAttacking;
@@ -104,4 +109,11 @@ protected:
 	/////////////// EVENT ////////////////////
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EventAnim();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EventCanHitTurning();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EventRightHit();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void EventLeftHit();
 };

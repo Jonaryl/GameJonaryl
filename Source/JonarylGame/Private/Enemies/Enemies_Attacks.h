@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "Enemies/Enemies_Actions.h"
 
+#include "Components/CapsuleComponent.h"
+
 #include "Enemies/Component_Enemies_Attacks.h"
+#include "Enemies/Particle_Enemies_I.h"
 
 #include "Enemies_Attacks.generated.h"
 
@@ -44,6 +47,9 @@ protected:
 	int choiceCombo;
 	int numberOfHit;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TSubclassOf<AActor> advertAttackParticule;
+
 	///// ATTACK METHOD //////
 	void StartAttack(bool isCombo);
 	void Attack(int timeCurrentAttack);
@@ -52,13 +58,15 @@ protected:
 
 	virtual void LaunchParticle();
 	virtual void EnableDamage();
+public:
+	virtual void AdvertAttack();
 
 	/////////////////////////// DAMAGE ///////////////////////////
-public:
 	void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, float ArmorDamage, int damageId);
 	virtual void SlowDownTake();
 	virtual bool GetisSlowDownTake();
 	virtual void EndSlowMode();
+	void SpawnParticleCounter(AActor* Player);
 
 protected:
 	void ModifyDmgBlend(float alpha, float alphaR, float alphaL);
@@ -102,6 +110,9 @@ protected:
 		int timeStopCounter;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Counter")
 		int timeEndCounter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
+		TSubclassOf<AActor> CounterParticle;
 
 	virtual bool CounterPose(int actionCounterPoseTurn);
 	virtual bool Counter(int actionCounterTurn);

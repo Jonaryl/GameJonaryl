@@ -16,6 +16,7 @@ public:
 	void Update(FVector playerPosition, FVector playerNextPosition);
 
 	AActor* GetLastTarget();
+	void EnemyDead();
 
 protected:
 	AActor* EnemyTarget;

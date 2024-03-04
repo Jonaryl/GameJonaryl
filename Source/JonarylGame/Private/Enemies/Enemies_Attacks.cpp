@@ -206,7 +206,7 @@ void AEnemies_Attacks::Attack(int timeCurrentAttack)
             attackInstance = currentAttacklist[currentHitCombo];
             if (attackInstance)
             {
-                SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Attack, 0.0f);
+                SetActionState(EStates_EnemiesActions::Attack, 0.0f);
                 attackInstance->Attack(timeCurrentAttack);
                 if (timeCurrentAttack < 5)
                 {
@@ -279,10 +279,32 @@ void AEnemies_Attacks::EndAttack()
     currentHitCombo = 0;
 }
 
+void AEnemies_Attacks::AdvertAttack()
+{
+    if (advertAttackParticule)
+    {
+        AActor* AdvertAttackInstance = GetWorld()->SpawnActor<AActor>(advertAttackParticule, GetActorLocation(), GetActorRotation());
+    }
+}
+
 void AEnemies_Attacks::LaunchParticle()
 {
     attackInstance->LaunchParticle();
     //UE_LOG(LogTemp, Warning, TEXT(" ENEMY LaunchParticle"));
+}
+void AEnemies_Attacks::SpawnParticleCounter(AActor* Player)
+{
+    if (CounterParticle)
+    {
+        AActor* AttackInstance = GetWorld()->SpawnActor<AActor>(CounterParticle, GetActorLocation(), GetActorRotation());
+
+        IParticle_Enemies_I* AttackInterface = Cast<IParticle_Enemies_I>(AttackInstance);
+
+        if (AttackInterface)
+        {
+            AttackInterface->Execute_IsCountered(AttackInstance, Player);
+        }
+    }
 }
 void AEnemies_Attacks::EnableDamage()
 {
@@ -304,9 +326,9 @@ void AEnemies_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFrom
         lastDamageID = damageId;
         HitCooldown = 20;
         // COUNTER
-        if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::CounterPose && canCounter == true)
+        if (CurrentActionState == EStates_EnemiesActions::CounterPose && canCounter == true)
         {
-            UE_LOG(LogTemp, Error, TEXT("33333 ENEMY COUNTER"));                
+            UE_LOG(LogTemp, Error, TEXT(" ENEMY COUNTER"));                
             
             NewAction();
 
@@ -314,10 +336,14 @@ void AEnemies_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFrom
             isCounter = true;
             canCounter = true;
 
-            SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
-            SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::CounterAttack, 0.0f);
-            SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Counter, 0.0f);
+            SetBehaviorState(EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
+            SetBehaviorState(EStates_EnemiesBehaviors::CounterAttacking, 0.0f);
+            SetActionState(EStates_EnemiesActions::Counter, 0.0f);
 
+            if (PlayerCharacter)
+            {
+                SpawnParticleCounter(PlayerCharacter);
+            }
             /*counterNumber++;
             if (counterNumber == 4)
                 counterNumber = 1;*/
@@ -327,14 +353,14 @@ void AEnemies_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFrom
         {
             Current_Health -= damage;
 
-            if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::CounterPose
-                || CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::Counter)
+            if (CurrentActionState == EStates_EnemiesActions::CounterPose
+                || CurrentActionState == EStates_EnemiesActions::Counter)
             {
-                SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
+                SetBehaviorState(EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
                 StopAllActions();
             }
 
-            if (CurrentActionState != UStates_EnemiesActions::EStates_EnemiesActions::Damage)
+            if (CurrentActionState != EStates_EnemiesActions::Damage)
                 Current_Armor -= ArmorDamage;
 
             UE_LOG(LogTemp, Error, TEXT("ENEMY DAMAGE TAKE"));
@@ -355,8 +381,8 @@ void AEnemies_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFrom
 
             if (Current_Armor <= 0 || isCutFromDamage)
             {
-                SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
-                SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Damage, 0.0f);
+                SetBehaviorState(EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
+                SetActionState(EStates_EnemiesActions::Damage, 0.0f);
 
                 StopAllActions();
 
@@ -367,12 +393,12 @@ void AEnemies_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFrom
             }
             else
             {
-                if (CurrentActionState != UStates_EnemiesActions::EStates_EnemiesActions::Attack)
+                if (CurrentActionState != EStates_EnemiesActions::Attack)
                 {
                     if (isRightDamage)
-                        ModifyDmgBlend(0.9f, 1.0f, 0.0f);
+                        ModifyDmgBlend(0.7f, 1.0f, 0.0f);
                     else
-                        ModifyDmgBlend(0.9f, 0.0f, 1.0f);
+                        ModifyDmgBlend(0.7f, 0.0f, 1.0f);
                 }
             }
 
@@ -381,9 +407,14 @@ void AEnemies_Attacks::DamageTake(int damage, bool isRightDamage, bool isCutFrom
                 canBeHit = false;
                 isEnemyDead = true;
                 StopAllActions();
-                SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
-                SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Dead, 0.0f);
-                UE_LOG(LogTemp, Error, TEXT("ENEMY  DAMAGE TAKE  DEAD ---"));
+                SetBehaviorState(EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
+                SetActionState(EStates_EnemiesActions::Dead, 0.0f);
+
+                UCapsuleComponent* CapsuleCollisionEnemy = AEnemies_Move::FindComponentByClass<UCapsuleComponent>();
+                if (CapsuleCollisionEnemy)
+                    CapsuleCollisionEnemy->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                if(CollisionEnemy)
+                    CollisionEnemy->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             }
         }
     }
@@ -413,8 +444,8 @@ void AEnemies_Attacks::SlowDownTake()
     {
         isSlowDownTake = true;
         //isDamaged = true;
-        SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
-        SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Slow, 0.0f);
+        SetBehaviorState(EStates_EnemiesBehaviors::IsInterrupted, 0.0f);
+        SetActionState(EStates_EnemiesActions::Slow, 0.0f);
 
         FTimerHandle TimerHandle;
         GetWorldTimerManager().SetTimer(TimerHandle, [this]()

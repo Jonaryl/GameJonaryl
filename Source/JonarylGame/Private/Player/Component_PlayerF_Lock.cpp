@@ -7,6 +7,10 @@ AActor* UComponent_PlayerF_Lock::GetLastTarget()
 {
 	return EnemyTarget;
 }
+void UComponent_PlayerF_Lock::EnemyDead()
+{
+	EnemyTarget = nullptr;
+}
 
 void UComponent_PlayerF_Lock::Update(FVector playerPosition, FVector playerNextPosition)
 {
@@ -24,7 +28,7 @@ void UComponent_PlayerF_Lock::Update(FVector playerPosition, FVector playerNextP
     FHitResult HitResult;
     FCollisionQueryParams QueryParams;
 
-    DrawDebugLine(GetWorld(), StartLocation , EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
+    //DrawDebugLine(GetWorld(), StartLocation , EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
     bool detectEnemy = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_WorldStatic, QueryParams);
 
     if (detectEnemy)

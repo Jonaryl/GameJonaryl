@@ -65,6 +65,7 @@ void AScene_EnemiesZones::CheckIsEnemiesDead(int idEnemy, int wave)
 		if (spawner.idSpwaner == idEnemy && spawner.idWave == wave)
 		{
 			spawner.isEnemyDead = true;
+			spawner.enemySpawn->DeleteEnemy();
 			break;
 		}
 	}
@@ -93,7 +94,11 @@ void AScene_EnemiesZones::CheckIsAllDead(int currentDeadCount)
 	{
 		currentWave++;
 		enemySpawned.Empty();
-		SpawnEnemies(currentWave);
+		FTimerHandle TimerHandle;
+		GetWorldTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				SpawnEnemies(currentWave);
+			}, 1.5f, false);
 	}
 }
 

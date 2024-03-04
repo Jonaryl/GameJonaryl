@@ -46,7 +46,7 @@ void AEnemies_Behaviors::BeginPlay()
 		}
 	}
 
-	WaitingTimeBetwenAction();
+	ChooseNextAction();
 	UE_LOG(LogTemp, Warning, TEXT(" CurrentBehaviorsState = %d"), CurrentBehaviorsState);
 }
 
@@ -55,46 +55,51 @@ void AEnemies_Behaviors::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//IsInterrupted
-	if (CurrentBehaviorsState != UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::Dead)
+	if (CurrentBehaviorsState != EStates_EnemiesBehaviors::Death)
 	{
-		if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted)
+		if (CurrentBehaviorsState == EStates_EnemiesBehaviors::IsInterrupted)
 		{
-			if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::Damage && currentDamagedCooldown >= 0)
+			if (CurrentActionState == EStates_EnemiesActions::Damage && currentDamagedCooldown >= 0)
 			{
 				currentDamagedCooldown--;
 				if (currentDamagedCooldown == 0)
 				{
-					SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::WaitingNextAction, 0.0f);
+					SetBehaviorState(EStates_EnemiesBehaviors::WaitingNextAction, 0.0f);
 					WaitingTimeBetwenAction();
 				}
 			}
-			if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::Dead && deathAnimationCooldown >= 0)
+			if (CurrentActionState == EStates_EnemiesActions::Dead && deathAnimationCooldown >= 0)
 			{
 				deathAnimationCooldown--;
+				if (deathAnimationCooldown < 1)
+				{
+					FVector PlayerLocation = GetPlayerPosition();
+					Turning(PlayerLocation);
+				}
 				if (deathAnimationCooldown <= 0)
 				{
-					SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::Dead, 0.0f);					
+					SetBehaviorState(EStates_EnemiesBehaviors::Death, 0.0f);
 					SendMessageManager();
 				}
 			}
 		}
 		//CHASING PLAYER
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::ChasingPlayer)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::ChasingPlayer)
 		{
 			if (behaviorValues.timeBehavior < 600.0f && behaviorValues.isActionEnded == false)
 			{
 				if(CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Run)
-					MoveToPlayer(1.2f, UStates_EnemiesActions::EStates_EnemiesActions::Run);
+					MoveToPlayer(1.2f, EStates_EnemiesActions::Run);
 				else if(CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Sprint)
-					MoveToPlayer(1.8f, UStates_EnemiesActions::EStates_EnemiesActions::Sprint);
+					MoveToPlayer(1.8f, EStates_EnemiesActions::Sprint);
 				else
-					MoveToPlayer(0.8f, UStates_EnemiesActions::EStates_EnemiesActions::Walk);
+					MoveToPlayer(0.8f, EStates_EnemiesActions::Walk);
 			}
 			else
 				WaitingTimeBetwenAction();
 		}
 		//DODGE ATTACK PLAYER
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::DodgeAttack)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::DodgeAttack)
 		{
 			//if (behaviorValues.timeBehavior < 100.0f && behaviorValues.isActionEnded == false)
 			if (behaviorValues.isActionEnded == false)
@@ -108,7 +113,7 @@ void AEnemies_Behaviors::Tick(float DeltaTime)
 			}
 		}
 		//COUNTER ATTACK PLAYER
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::CounterAttack)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::CounterAttacking)
 		{
 			if (behaviorValues.isActionEnded == false)
 			{
@@ -118,19 +123,19 @@ void AEnemies_Behaviors::Tick(float DeltaTime)
 				WaitingTimeBetwenAction();
 		}
 		//ATTACK PLAYER
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::AttackPlayer)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::AttackPlayer)
 		{
 			if (behaviorValues.isActionEnded == false)
 			{
 				float playerDistance = GetPlayerDistance();
-				if (playerDistance > distanceToStopToPlayer && CurrentActionState != UStates_EnemiesActions::EStates_EnemiesActions::Attack)
+				if (playerDistance > distanceToStopToPlayer && CurrentActionState != EStates_EnemiesActions::Attack)
 				{
 					if (CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Run)
-						MoveToPlayer(1.0f, UStates_EnemiesActions::EStates_EnemiesActions::Run);
+						MoveToPlayer(1.0f, EStates_EnemiesActions::Run);
 					else if (CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Sprint)
-						MoveToPlayer(1.0f, UStates_EnemiesActions::EStates_EnemiesActions::Sprint);
+						MoveToPlayer(1.0f, EStates_EnemiesActions::Sprint);
 					else
-						MoveToPlayer(1.0f, UStates_EnemiesActions::EStates_EnemiesActions::Walk);
+						MoveToPlayer(1.0f, EStates_EnemiesActions::Walk);
 				}
 				else
 					AttackPlayer();
@@ -139,7 +144,7 @@ void AEnemies_Behaviors::Tick(float DeltaTime)
 				WaitingTimeBetwenAction();
 		}
 		//CAUTIOUS MOVING
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::TurnAroundPlayer)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::TurnAroundPlayer)
 		{
 			if (behaviorValues.isActionEnded == false)
 			{
@@ -147,29 +152,29 @@ void AEnemies_Behaviors::Tick(float DeltaTime)
 				if (playerDistance > (distanceTurnPlayer * distanceToStopToPlayer))
 				{
 					if (CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Run)
-						MoveToPlayer((distanceTurnPlayer), UStates_EnemiesActions::EStates_EnemiesActions::Run);
+						MoveToPlayer((distanceTurnPlayer), EStates_EnemiesActions::Run);
 					else if (CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Sprint)
-						MoveToPlayer((distanceTurnPlayer), UStates_EnemiesActions::EStates_EnemiesActions::Sprint);
+						MoveToPlayer((distanceTurnPlayer), EStates_EnemiesActions::Sprint);
 					else
-						MoveToPlayer((distanceTurnPlayer), UStates_EnemiesActions::EStates_EnemiesActions::Walk);
+						MoveToPlayer((distanceTurnPlayer), EStates_EnemiesActions::Walk);
 				}
 				else
-					TurningAroundPlayer((distanceTurnPlayer), UStates_EnemiesActions::EStates_EnemiesActions::Run);
+					TurningAroundPlayer((distanceTurnPlayer), EStates_EnemiesActions::Run);
 			}
 			else
 				WaitingTimeBetwenAction();
 		}
 		//TURNING AROUND PLAYER
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::EvaluatePlayer)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::EvaluatePlayer)
 		{
 			if (behaviorValues.isActionEnded == false)
 			{
 				if (CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Run)
-					MoveToPlace(UStates_EnemiesActions::EStates_EnemiesActions::Run);
+					MoveToPlace(EStates_EnemiesActions::Run);
 				else if (CurrentPlayerState == UStates_PlayerF::EStates_PlayerF::Sprint)
-					MoveToPlace(UStates_EnemiesActions::EStates_EnemiesActions::Sprint);
+					MoveToPlace(EStates_EnemiesActions::Sprint);
 				else
-					MoveToPlace(UStates_EnemiesActions::EStates_EnemiesActions::Walk);
+					MoveToPlace(EStates_EnemiesActions::Walk);
 			}
 			else
 			{
@@ -189,7 +194,7 @@ void AEnemies_Behaviors::Tick(float DeltaTime)
 			}
 		}
 		//WAITING
-		else if (CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::WaitingNextAction)
+		else if (CurrentBehaviorsState == EStates_EnemiesBehaviors::WaitingNextAction)
 		{
 			if (waitingTime > 0)
 			{
@@ -209,39 +214,39 @@ void AEnemies_Behaviors::SendMessageManager()
 /////////////////////////// BASE BEHAVIOURS ///////////////////////////
 void AEnemies_Behaviors::WaitingTimeBetwenAction()
 {
-	if (CurrentBehaviorsState != UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted && 
-		CurrentBehaviorsState != UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::Dead && 
-		CurrentActionState != UStates_EnemiesActions::EStates_EnemiesActions::Dead)
+	if (CurrentBehaviorsState != EStates_EnemiesBehaviors::IsInterrupted && 
+		CurrentBehaviorsState != EStates_EnemiesBehaviors::Death &&
+		CurrentActionState != EStates_EnemiesActions::Dead)
 	{
 		StopAllActions();
 		isIdle = true;
-		SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Idle, 0.0f);
+		SetActionState(EStates_EnemiesActions::Idle, 0.0f);
 
 		waitingTime = GenerateRandomFloat(50, 100);
 
-		SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::WaitingNextAction, 0.0f);
+		SetBehaviorState(EStates_EnemiesBehaviors::WaitingNextAction, 0.0f);
 		behaviorValues.timeBehavior = 0;
 		behaviorValues.isActionEnded = false;
 	}
 }
 void AEnemies_Behaviors::ChooseNextAction()
 {
-	if (CurrentBehaviorsState != UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted && ListBehaviors.Num() > 0 &&
-		CurrentBehaviorsState != UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::Dead &&
-		CurrentActionState != UStates_EnemiesActions::EStates_EnemiesActions::Dead)
+	if (CurrentBehaviorsState != EStates_EnemiesBehaviors::IsInterrupted && ListBehaviors.Num() > 0 &&
+		CurrentBehaviorsState != EStates_EnemiesBehaviors::Death &&
+		CurrentActionState != EStates_EnemiesActions::Dead)
 	{
 		int randomChoice = GenerateRandomInt(0, ListBehaviors.Num());
 		//CHASING
 		if (ListBehaviors[randomChoice] == "Chasing")
 		{
 			UE_LOG(LogTemp, Error, TEXT(" ChasingPlayer "));
-			SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::ChasingPlayer, 0.0f);
+			SetBehaviorState(EStates_EnemiesBehaviors::ChasingPlayer, 0.0f);
 		}
 		//ATTACK
 		if (ListBehaviors[randomChoice] == "Attack")
 		{
 			UE_LOG(LogTemp, Error, TEXT(" AttackPlayer "));
-			SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::AttackPlayer, 0.0f);
+			SetBehaviorState(EStates_EnemiesBehaviors::AttackPlayer, 0.0f);
 		}
 		//TURNING
 		if (ListBehaviors[randomChoice] == "TurningAround")
@@ -254,7 +259,7 @@ void AEnemies_Behaviors::ChooseNextAction()
 				directiontoTurn = 1;
 			else
 				directiontoTurn = -1;
-			SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::TurnAroundPlayer, 0.0f);
+			SetBehaviorState(EStates_EnemiesBehaviors::TurnAroundPlayer, 0.0f);
 		}
 		//EVALUATE
 		if (ListBehaviors[randomChoice] == "Evaluate")
@@ -262,17 +267,17 @@ void AEnemies_Behaviors::ChooseNextAction()
 			UE_LOG(LogTemp, Error, TEXT(" EvaluatePlayer "));
 			PlaceToMoveLocation = GetPlacePosition();
 			maxTimeAction = GenerateRandomFloat(100, 300);
-			SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::EvaluatePlayer, 0.0f);
+			SetBehaviorState(EStates_EnemiesBehaviors::EvaluatePlayer, 0.0f);
 		}
 		/*
-			SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::ChasingPlayer, 0.0f);
+			SetBehaviorState(EStates_EnemiesBehaviors::ChasingPlayer, 0.0f);
 		*/
 	}
 	
 }
 
 
-void AEnemies_Behaviors::MoveToPlayer(float distanceMaxMultiple, UStates_EnemiesActions::EStates_EnemiesActions state)
+void AEnemies_Behaviors::MoveToPlayer(float distanceMaxMultiple, EStates_EnemiesActions state)
 {
 	if (PlayerCharacter)
 	{
@@ -291,7 +296,7 @@ void AEnemies_Behaviors::MoveToPlayer(float distanceMaxMultiple, UStates_Enemies
 		behaviorValues.timeBehavior++;
 	}
 }
-void AEnemies_Behaviors::MoveToPlace(UStates_EnemiesActions::EStates_EnemiesActions state)
+void AEnemies_Behaviors::MoveToPlace(EStates_EnemiesActions state)
 {
 	if (PlayerCharacter)
 	{
@@ -316,7 +321,7 @@ void AEnemies_Behaviors::MoveToPlace(UStates_EnemiesActions::EStates_EnemiesActi
 	}
 }
 
-void AEnemies_Behaviors::TurningAroundPlayer(float distanceMaxMultiple, UStates_EnemiesActions::EStates_EnemiesActions state)
+void AEnemies_Behaviors::TurningAroundPlayer(float distanceMaxMultiple, EStates_EnemiesActions state)
 {
 	if (PlayerCharacter)
 	{
@@ -382,7 +387,17 @@ void AEnemies_Behaviors::EndAttack()
 /////////////////////////// REACTION BEHAVIOURS ///////////////////////////
 void AEnemies_Behaviors::ReactionToPlayer()
 {
-	if (CurrentBehaviorsState != UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::Dead)
+	canReact = true;
+	for (EStates_EnemiesActions state : StateEnemyWhenCantReact)
+	{
+		if (CurrentActionState == state)
+		{
+			canReact = false;
+			break;
+		}
+	}
+
+	if (CurrentBehaviorsState != EStates_EnemiesBehaviors::Death && canReact)
 	{
 		float playerDistance = GetPlayerDistance();
 
@@ -418,52 +433,76 @@ void AEnemies_Behaviors::ReactionToAttacks()
 		UE_LOG(LogTemp, Warning, TEXT(" ENEMY DODGE"));
 		randomIntChoice = GenerateRandomInt(1, 90);
 		canBeHit = false;
-		SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::DodgeAttack, 0.0f);
+		SetBehaviorState(EStates_EnemiesBehaviors::DodgeAttack, 0.0f);
 	}
 	else if (ListReactionsBehaviors[RandomInt] == "Counter")
 	{
 		UE_LOG(LogTemp, Warning, TEXT(" ENEMY COUNTER"));
 		canCounter = true;
-		SetBehaviorState(UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::CounterAttack, 0.0f);
-		SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::CounterPose, 0.0f);
+		SetBehaviorState(EStates_EnemiesBehaviors::CounterAttacking, 0.0f);
+		SetActionState(EStates_EnemiesActions::CounterPose, 0.0f);
 	}
 }
 void AEnemies_Behaviors::DodgeAttack()
 {
 	FVector PlayerLocation = GetPlayerPosition();
-	Turning(PlayerLocation);
+	if (behaviorValues.timeBehavior == dashMaxTurn)
+		Turning(PlayerLocation);
+	else
+		Turning(PlayerLocation, 0.05f);
 
 	const FVector RightVector = GetActorRightVector();
 	const FVector ForwardVector = GetActorForwardVector();
-	SetActionState(UStates_EnemiesActions::EStates_EnemiesActions::Dash, 0.0f);
-	////RIGHT
-	if (randomIntChoice <= 30)
+	SetActionState(EStates_EnemiesActions::Dash, 0.0f);
+	if(!DashValues.IsEmpty())
 	{
-		behaviorValues.isActionEnded = ActionDash(RightVector, behaviorValues.timeBehavior);
+		////RIGHT
+		if (randomIntChoice <= 30)
+		{
+			FString direction = "right";
+			behaviorValues.isActionEnded = ActionDash(RightVector, behaviorValues.timeBehavior, direction, DashValues);
+		}
+		////LEFT
+		else if (randomIntChoice <= 60 && randomIntChoice > 30)
+		{
+			FString direction = "left";
+			behaviorValues.isActionEnded = ActionDash(-RightVector, behaviorValues.timeBehavior, direction, DashValues);
+		}
+		////BACK
+		else
+		{
+			FString direction = "back";
+			behaviorValues.isActionEnded = ActionDash(-ForwardVector, behaviorValues.timeBehavior, direction, DashValues);
+		}
 	}
-	////LEFT
-	else if (randomIntChoice <= 60 && randomIntChoice > 30)
-	{
-		behaviorValues.isActionEnded = ActionDash(-RightVector, behaviorValues.timeBehavior);
-	}
-	////BACK
-	else
-	{
-		behaviorValues.isActionEnded = ActionDash(-ForwardVector, behaviorValues.timeBehavior);
-	}
-
+	dashNumber++;
+	if (dashNumber == 4)
+		dashNumber = 1;
 	behaviorValues.timeBehavior++;
 }
 void AEnemies_Behaviors::CounterAttack()
 {
-	if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::CounterPose && behaviorValues.isActionEnded == false)
+	if (CurrentActionState == EStates_EnemiesActions::CounterPose && behaviorValues.isActionEnded == false)
 	{
 		behaviorValues.timeBehavior++;
+		if (behaviorValues.timeBehavior < 2)
+		{
+			FVector PlayerLocation = GetPlayerPosition();
+			Turning(PlayerLocation);
+		}
+		isCounterPose = true;
 		behaviorValues.isActionEnded = CounterPose(behaviorValues.timeBehavior);
 	}
-	if (CurrentActionState == UStates_EnemiesActions::EStates_EnemiesActions::Counter && behaviorValues.isActionEnded == false)
+	if (CurrentActionState == EStates_EnemiesActions::Counter && behaviorValues.isActionEnded == false)
 	{
 		behaviorValues.timeBehavior++;
+		if (behaviorValues.timeBehavior < 2)
+		{
+			FVector PlayerLocation = GetPlayerPosition();
+			Turning(PlayerLocation);
+		}
+		isCounterPose = false;
+		isCounter = true;
 		behaviorValues.isActionEnded = Counter(behaviorValues.timeBehavior);
 	}
 }
@@ -472,7 +511,7 @@ void AEnemies_Behaviors::CounterAttack()
 /////////////////////////// DELEGATE ///////////////////////////
 void AEnemies_Behaviors::StopAllActions() 
 { 
-	if(CurrentBehaviorsState == UStates_EnemiesBehaviors::EStates_EnemiesBehaviors::IsInterrupted, 0.0f)
+	if(CurrentBehaviorsState == EStates_EnemiesBehaviors::IsInterrupted, 0.0f)
 		waitingTime = 100; 
 }
 void AEnemies_Behaviors::NewAction()

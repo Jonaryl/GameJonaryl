@@ -39,6 +39,7 @@ void UAnimInstance_Enemies::UpdateAnimProperties()
 	//MOVE
 	isIdle = enemyClass->GetisIdle();
 	isMoving = enemyClass->GetisMoving();
+	isRuning = enemyClass->GetisRuning();
 	xValueMove = enemyClass->GetxMoving();
 	yValueMove = enemyClass->GetyMoving();
 
@@ -48,7 +49,10 @@ void UAnimInstance_Enemies::UpdateAnimProperties()
 	isAttackCombo = enemyClass->GetisAttackCombo();
 
 	//DASH
-	isDash = enemyClass->GetisDash();
+	isDashBack = enemyClass->GetisDashBack();
+	isDashLeft = enemyClass->GetisDashLeft();
+	isDashRight = enemyClass->GetisDashRight();
+	dashNumber = enemyClass->GetdashNumber();
 
 	//DAMAGE
 	isDamaged = enemyClass->GetisDamaged();
@@ -62,6 +66,12 @@ void UAnimInstance_Enemies::UpdateAnimProperties()
 
 	isCounterTake = enemyClass->GetisCounterTake();
 	isSlowDownTake = enemyClass->GetisSlowDownTake();
+
+	isEnemyDead = enemyClass->GetisEnemyDead();
+
+	//COUNTER
+	isCounterPose = enemyClass->GetisCounterPose();
+	isCounter = enemyClass->GetisCounter();
 }
 
 
@@ -79,4 +89,8 @@ void UAnimInstance_Enemies::LaunchParticle_Implementation()
 void UAnimInstance_Enemies::EnableDamage_Implementation()
 {
 	enemyClass->EnableDamage();
+}
+void UAnimInstance_Enemies::AdvertAttack_Implementation()
+{
+	enemyClass->AdvertAttack();
 }

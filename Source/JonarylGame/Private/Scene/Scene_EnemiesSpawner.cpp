@@ -30,6 +30,17 @@ void AScene_EnemiesSpawner::SharePlayerState(UStates_PlayerF::EStates_PlayerF pl
 		SpawnedEnemy->SetPlayerState(playerState);
 	}
 }
+void AScene_EnemiesSpawner::DeleteEnemy()
+{
+	if (SpawnedEnemy)
+	{
+		FTimerHandle TimerHandle;
+		GetWorldTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				SpawnedEnemy->Destroy();
+			}, SpawnedEnemy->GetdeathAnimationCooldown(), false);
+	}
+}
 
 int AScene_EnemiesSpawner::GetidZone() { return idZone; }
 int AScene_EnemiesSpawner::GetidWave() { return idWave; }

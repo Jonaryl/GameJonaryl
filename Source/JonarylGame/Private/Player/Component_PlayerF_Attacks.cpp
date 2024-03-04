@@ -53,7 +53,7 @@ void UComponent_PlayerF_Attacks::StartAttack(AActor* enemy, FStruct_CharacterSta
 	currentHit = 0;
 	UE_LOG(LogTemp, Warning, TEXT(" timeCurrentAttack StartAttack = %f"), timeCurrentAttack);
 }
-void UComponent_PlayerF_Attacks::Attack()
+void UComponent_PlayerF_Attacks::Attack(bool isCountered)
 {
 	timeCurrentAttack++;
 	if (!hitList.IsEmpty())
@@ -70,19 +70,19 @@ void UComponent_PlayerF_Attacks::Attack()
 					UE_LOG(LogTemp, Warning, TEXT(" HIT ID = %d"), hitInstance->GethitID());*/
 				}
 				// Launch Particle
-				if (timeCurrentAttack == hitInstance->GettimeWhenLaunchParticle())
+				if (timeCurrentAttack == hitInstance->GettimeWhenLaunchParticle() && !isCountered)
 				{
 					//UE_LOG(LogTemp, Warning, TEXT(" Launch Particle "));
 					hitInstance->SpawnParticleAttack(playerStats, enemyLocked);
 				}
 				// Enable Damage
-				if (timeCurrentAttack == hitInstance->GettimeWhenEnableDamage())
+				if (timeCurrentAttack == hitInstance->GettimeWhenEnableDamage() && !isCountered)
 				{
 					//UE_LOG(LogTemp, Warning, TEXT(" Enable Damage "));
 					hitInstance->ParticleEnableDamage();
 				}
 				// END HIT
-				if (timeCurrentAttack == hitInstance->GettimeWhenEndHit())
+				if (timeCurrentAttack == hitInstance->GettimeWhenEndHit() && !isCountered)
 				{
 					currentHit++;
 					//UE_LOG(LogTemp, Warning, TEXT(" END HIT currentHit = %d"), currentHit);

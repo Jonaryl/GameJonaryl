@@ -124,7 +124,6 @@ void APlayerF_Move::Tick(float DeltaTime)
             FMath::VInterpTo(GetActorLocation(), AppliedForce, GetWorld()->DeltaTimeSeconds, 100.0f)
         );
     }
-    
 }
 
 void APlayerF_Move::NeutralAction() {}
@@ -134,7 +133,10 @@ void APlayerF_Move::StopMovingAnim() {}
 /////////////////////////// BASE METHOD ///////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-
+void APlayerF_Move::EnemyLockedIsDead() 
+{ 
+    enemyTargetLock = nullptr; 
+}
 
 ///////////////////////////////////////////////////////////////////
 /////////////////////////// MOVING ////////////////////////////////
@@ -150,13 +152,14 @@ MovementValues APlayerF_Move::XYGetValue(const FInputActionValue& Value)
     else
     {
         valueSpeed += (100.2f * GetWorld()->DeltaTimeSeconds);
-        if (
-            CurrentState == UStates_PlayerF::EStates_PlayerF::JumpUp ||
+        if (CurrentState == UStates_PlayerF::EStates_PlayerF::JumpUp ||
             CurrentState == UStates_PlayerF::EStates_PlayerF::IdleJump ||
             CurrentState == UStates_PlayerF::EStates_PlayerF::JumpDown)
             valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxAirRunSpeed);
         else if (CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
             valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxSprintSpeed);
+        else if (CurrentState == UStates_PlayerF::EStates_PlayerF::MoveSpe)
+            valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed/3);
         else
             valueSpeed = FMath::Clamp(valueSpeed, 0.f, maxRunSpeed);
     }
@@ -261,6 +264,7 @@ void APlayerF_Move::ActionMovingAndTurning(FVector AppliedForce, float actionTur
             FRotator finalRotation = InterpolatedRotation.Rotator();
             if (enemyTargetLock != nullptr && CurrentState == UStates_PlayerF::EStates_PlayerF::Attack)
             {
+
                 FRotator lookAtRotationForTarget = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), enemyTargetLock->GetActorLocation());
                 FQuat InterpolatedRotationForTarget = FQuat::Slerp(GetActorRotation().Quaternion(), lookAtRotationForTarget.Quaternion(), GetWorld()->DeltaTimeSeconds * runRotationSpeed);
 
@@ -320,6 +324,7 @@ void APlayerF_Move::StartMoving()
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
         || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Damage || CurrentState == UStates_PlayerF::EStates_PlayerF::AttackSpe
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::StanceSpe || CurrentState == UStates_PlayerF::EStates_PlayerF::MoveSpe
         )
     {
         if (canMove)
@@ -345,6 +350,7 @@ void APlayerF_Move::MoveForward(const FInputActionValue& Value)
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || CurrentState == UStates_PlayerF::EStates_PlayerF::Attack
         || CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose || CurrentState == UStates_PlayerF::EStates_PlayerF::Counter 
         || CurrentState == UStates_PlayerF::EStates_PlayerF::Damage || CurrentState == UStates_PlayerF::EStates_PlayerF::AttackSpe
+        || CurrentState == UStates_PlayerF::EStates_PlayerF::StanceSpe || CurrentState == UStates_PlayerF::EStates_PlayerF::MoveSpe
         )
     {
         if (Controller && valueSpeed != 0.0f && canMove)
@@ -357,16 +363,24 @@ void APlayerF_Move::MoveForward(const FInputActionValue& Value)
                 )
             {
                 EndAllActionAnim();
-                timeMoving = 0;
             }
-            if (CurrentState != UStates_PlayerF::EStates_PlayerF::Run)
+
+            if (isSprint == false && isTimeMoving == true)
+            {
+                timeMoving++;
+                if (timeMoving > 10)
+                    isTimeMoving = false;
+            }
+
+            if (CurrentState == UStates_PlayerF::EStates_PlayerF::StanceSpe || CurrentState == UStates_PlayerF::EStates_PlayerF::AttackSpe)
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::MoveSpe, 0.0f);
+            else if (CurrentState != UStates_PlayerF::EStates_PlayerF::Run && CurrentState != UStates_PlayerF::EStates_PlayerF::Sprint 
+                && CurrentState != UStates_PlayerF::EStates_PlayerF::MoveSpe)
                 SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
 
             FVector NewPosition = GetPosition(TargetLocation);
             FQuat InterpolatedRotation = GetRotation(TargetLocation);
-            Moving(NewPosition, InterpolatedRotation);
-
-            timeMoving++;
+            Moving(NewPosition, InterpolatedRotation);            
         }
     }
 }
@@ -375,6 +389,8 @@ void APlayerF_Move::StopMoving()
     //UE_LOG(LogTemp, Log, TEXT(" StopMoving")); 
     isMoveInput = false;
 
+    if (isSprint == true)
+        isSprint = false;
     if (isMoving == true)
         isMoving = false;
     if (CurrentState == UStates_PlayerF::EStates_PlayerF::Run || CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
@@ -383,16 +399,12 @@ void APlayerF_Move::StopMoving()
             isIdle = true;
         SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
 
-        isTimeMoving = false;
-        if (timeMoving > 30)
-        {
+        if (CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint || isTimeMoving == true)
+            timeStoppingMoving = timeStoppingSprintMax;
+        else
             timeStoppingMoving = timeStoppingMovingMax;
-            speedStoppingMoving = maxRunSpeed;
-            isTimeMoving = true;
-        }
+        speedStoppingMoving = maxRunSpeed;
     }
-    //UE_LOG(LogTemp, Warning, TEXT(" isTimeMoving = %s"), isTimeMoving ? TEXT("True") : TEXT("False"));
-    //UE_LOG(LogTemp, Log, TEXT(" timeMoving %f"), timeMoving);
     timeMoving = 0;
 }
 
@@ -401,8 +413,8 @@ void APlayerF_Move::TurnCamera(const FInputActionValue& Value)
 {
     const FVector2D CurrentValue = Value.Get<FVector2D>();
 
-    PlayerController->AddYawInput(CurrentValue.X * 40.0f * GetWorld()->GetDeltaSeconds());
-    PlayerController->AddPitchInput(CurrentValue.Y * 40.0f * GetWorld()->GetDeltaSeconds());
+    PlayerController->AddYawInput(CurrentValue.X * cameraSpeedRotationX * GetWorld()->GetDeltaSeconds());
+    PlayerController->AddPitchInput(CurrentValue.Y * cameraSpeedRotationY * GetWorld()->GetDeltaSeconds());
 }
 
 // BUTTON
@@ -421,8 +433,12 @@ void APlayerF_Move::RBBtnActionHold()
         if (isMoveInput == true && CurrentState == UStates_PlayerF::EStates_PlayerF::Run ||
             isMoveInput == true && CurrentState == UStates_PlayerF::EStates_PlayerF::Sprint)
         {
-            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Sprint, 0.0f);
-            isSprint = true;
+            if (CurrentState != UStates_PlayerF::EStates_PlayerF::Sprint)
+                SetCharacterState(UStates_PlayerF::EStates_PlayerF::Sprint, 0.0f);
+            if(isSprint == false)
+                isSprint = true;
+            if(isTimeMoving == false)
+                isTimeMoving = true;
         }
     }
 }
@@ -445,6 +461,7 @@ void APlayerF_Move::DebugBtnAction()
 
     UE_LOG(LogTemp, Warning, TEXT(" isMoving = %s"), isMoving ? TEXT("True") : TEXT("False"));
     UE_LOG(LogTemp, Warning, TEXT(" isIdle = %s"), isIdle ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Warning, TEXT(" isSprint = %s"), isSprint ? TEXT("True") : TEXT("False"));
 }
 /////////////////////////// INPUT METHOD //////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -511,6 +528,9 @@ FString APlayerF_Move::CheckStateInString(UStates_PlayerF::EStates_PlayerF NewSt
         break;
     case UStates_PlayerF::EStates_PlayerF::AttackSpe:
         stateString = "AttackSpe";
+        break;
+    case UStates_PlayerF::EStates_PlayerF::MoveSpe:
+        stateString = "MoveSpe";
         break;
     case UStates_PlayerF::EStates_PlayerF::Dash:
         stateString = "Dash";
@@ -593,6 +613,9 @@ void APlayerF_Move::LogCurrentState()
         break;
     case UStates_PlayerF::EStates_PlayerF::StanceSpe:
         UE_LOG(LogTemp, Log, TEXT("StanceSpe"));
+        break;
+    case UStates_PlayerF::EStates_PlayerF::MoveSpe:
+        UE_LOG(LogTemp, Log, TEXT("MoveSpe"));
         break;
     case UStates_PlayerF::EStates_PlayerF::AttackSpe:
         UE_LOG(LogTemp, Log, TEXT("AttackSpe"));

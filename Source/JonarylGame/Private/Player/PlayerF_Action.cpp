@@ -28,7 +28,8 @@ void APlayerF_Action::Tick(float DeltaTime)
             SetCharacterState(UStates_PlayerF::EStates_PlayerF::IdleJump, 0.0f);
             actionJumpTurn = 0;
 
-            isJumpIdle = true;
+            //isJumpIdle = true;
+            isJumpDown = true;
             isJumpUp = false;
         }
     }
@@ -51,8 +52,8 @@ void APlayerF_Action::Tick(float DeltaTime)
             actionJumpTurn = 0;
             CancelGravity();
 
-            isJumpDown = true;
-            isJumpIdle = false;
+            //isJumpDown = true;
+            //isJumpIdle = false;
         }
     }
     //// JUMP DOWN
@@ -109,7 +110,7 @@ void APlayerF_Action::EndAllActionAnim()
 //// JUMP UP
 void APlayerF_Action::ActionJumpUp()
 {
-    int speed[30]{
+    float speed[30]{
         900.0f, 450.0f, 220.0f, 160.0f,
         90.0f, 70.0f, 50.0f, 35.0f, 18.0f, 16.0f, 11.0f, 8.0f, 5.0f, 
         3.0f, 1.0f, 0.80f, 0.50f, 0.30f, 0.150f, 0.0f, 0.0f, 0.0f, 
@@ -121,7 +122,7 @@ void APlayerF_Action::ActionJumpUp()
 //// JUMP IDLE
 void APlayerF_Action::ActionJumpIdle()
 {
-    int speed[30]{
+    float speed[30]{
         4.0f, 3.0f, 0.8f, 0.6f,
         0.2f, 0.08f, 0.04f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -134,7 +135,7 @@ void APlayerF_Action::ActionJumpIdle()
 //// JUMP DOWN
 void APlayerF_Action::ActionJumpDown()
 {
-    int speed[21]{
+    float speed[21]{
         0.1f, 0.5f, 1.0f, 2.0f, 5.0f, 10.0f, 20.0f,
         40.0f, 60.0f, 80.0f, 100.0f,
         200.0f, 200.0f, 200.0f, 200.0f, 200.0f, 200.0f, 200.0f, 200.0f, 200.0f,
@@ -145,7 +146,7 @@ void APlayerF_Action::ActionJumpDown()
 //// JUMP DASH
 void APlayerF_Action::ActionJumpDash()
 {
-    int speed[30]{
+    float speed[30]{
         800.0f, 600.0f, 400.0f, 200.0f,
         100.0f, 80.0f, 40.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -219,7 +220,7 @@ void APlayerF_Action::EndDash()
 ///////////////////////////////////////////////////////////////
 
 //////////////////////////// ADD FORCE /////////////////////////////
-void APlayerF_Action::AddForce(int sens, int speedV, int speedH)
+void APlayerF_Action::AddForce(int sens, float speedV, int speedH)
 {
     const FVector UpVector = GetActorUpVector();
     const FVector RightVector = GetActorRightVector();
@@ -263,9 +264,9 @@ void APlayerF_Action::AddForce(int sens, int speedV, int speedH)
     UE_LOG(LogTemp, Warning, TEXT(" AppliedForce = %s"), *AppliedForce.ToString());
     */
     if (isMoveInput)
-    {
         ActionMovingAndTurning(AppliedForce, actionJumpTurn, 5000000000.0f, 2.0f);
-    }
+    else if(CurrentState == UStates_PlayerF::EStates_PlayerF::DashJump)
+        ActionMovingAndTurning(AppliedForce, actionJumpTurn, JumpDashDownSpeed, 2.0f);
     else
         ActionMovingAndTurning(AppliedForce, actionJumpTurn, 0, 0);
 
@@ -354,7 +355,7 @@ void APlayerF_Action::GroundRaycast()
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(this);
 
-    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
+    //DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 0.1f, 0, 2.0f);
     bool bIsGrounded = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams);
 
     if (bIsGrounded)

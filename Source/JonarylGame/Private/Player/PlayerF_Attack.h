@@ -46,12 +46,17 @@ protected:
 
 	int currentHitCombo;
 	bool isAttacking;
+
+	bool canHitTurning;
+	float timeHitTurning;
 	////////////// ATTACK ANIMATION VARIABLE /////////////
 	int AttackOneNumber;
 
 	///// ATTACK METHOD //////
 	virtual void EndAttack();
-
+public:
+	virtual void EventCanHitTurning();
+protected:
 	/////////////////////////// SPECIAL ///////////////////////////
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
 		TSubclassOf<UComponent_PlayerF_SpeAtk> SpecialAttackSubClass;
@@ -60,7 +65,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
 		TSubclassOf<AActor> CanAtkSpeFlashParticle;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Special")
+		float animTimeToSupeMode;
+
+	/// using for launch stance
 	bool canAttackSpe;
+
+	/// using for launch attacks
+	bool canAttackSpecial;
 
 	////////////// SPECIAL ANIMATION VARIABLE /////////////
 	bool isSuperMode;
@@ -71,12 +84,15 @@ protected:
 	bool isSpeActionY;
 
 public:
+	virtual void EnemyLockedIsDead() override;
+
 	void SuperModeActivate();
 	virtual void PostProcessSlowActivate(bool isActivate);
 	void LaunchAtkSpeFlashParticle();
 	 
 	/////////////////////////// DAMAGE ///////////////////////////
 	virtual void DamageTake(int damage, bool isRightDamage, bool isCutFromDamage, AActor* Enemy, float ArmorDamage, int damageId) override;
+	virtual void CounterTake ();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
@@ -90,6 +106,8 @@ protected:
 	int damageAnimNumber;
 	bool isDamageRight;
 
+	bool isCounterTake;
+	bool isRightCountered;
 	/////////////////////////// COUNTER ///////////////////////////
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Particle")
 		TSubclassOf<AActor> CounterParticleL;
@@ -136,10 +154,12 @@ protected:
 	int counterNumber;
 
 
+	////////////// COUNTER METHOD /////////////
 	void EndCounterPose();
 	void EndCounter();
 	
 	void SpawnParticleCounter(bool isRightDamage, AActor* Enemy);
+	void CounterSlowMotion(float slowStrength, float slowTime);
 
 	////////////// DEBUG /////////////
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")

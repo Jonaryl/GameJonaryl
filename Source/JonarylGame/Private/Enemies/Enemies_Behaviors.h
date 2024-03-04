@@ -9,6 +9,8 @@
 #include "Math/RandomStream.h"
 #include "Math/UnrealMathUtility.h"
 
+#include "States_EnemiesActions.h"
+
 #include "Enemies_Behaviors.generated.h"
 
 struct BehaviorValues
@@ -44,10 +46,10 @@ protected:
 	void WaitingTimeBetwenAction();
 	void ChooseNextAction();
 
-	void MoveToPlayer(float distanceMaxMultiple, UStates_EnemiesActions::EStates_EnemiesActions state);
-	void MoveToPlace(UStates_EnemiesActions::EStates_EnemiesActions state);
+	void MoveToPlayer(float distanceMaxMultiple, EStates_EnemiesActions state);
+	void MoveToPlace(EStates_EnemiesActions state);
 
-	void TurningAroundPlayer(float distanceMaxMultiple, UStates_EnemiesActions::EStates_EnemiesActions state);
+	void TurningAroundPlayer(float distanceMaxMultiple, EStates_EnemiesActions state);
 
 	void AttackPlayer();
 	virtual void NextAttack() override;
@@ -88,6 +90,11 @@ protected:
 
 
 	/////// REACTIONS
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")
+		TArray<TEnumAsByte<EStates_EnemiesActions>> StateEnemyWhenCantReact;
+
+	bool canReact;
+
 	TArray<FString> ListReactionsBehaviors;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Probability")

@@ -70,7 +70,7 @@ void APlayerF_Attack::Tick(float DeltaTime)
             UComponent_PlayerF_Attacks* attackInstance = attackList[currentHitCombo];
             if (attackInstance)
             {
-                attackInstance->Attack();
+                attackInstance->Attack(isCounterTake);
                 timeCurrentAttack = attackInstance->GettimeCurrentAttack();
 
                 ///TURNING
@@ -125,6 +125,22 @@ void APlayerF_Attack::Tick(float DeltaTime)
             }
         }
     }
+    if (canHitTurning == true)
+    {
+        timeHitTurning--;
+        ///TURNING
+        if (enemyTargetLock != nullptr)
+        {
+            ActionMovingAndTurning(GetActorLocation(), 1, 50000000.0f, 3.0f);
+        }
+        else if (isMoveInput)
+        {
+            ActionMovingAndTurning(GetActorLocation(), 1, 50000000.0f, 3.0f);
+        }
+
+        if(timeHitTurning <= 0)
+            canHitTurning = false;
+    }
     // COUNTER POSE
     if (CurrentState == UStates_PlayerF::EStates_PlayerF::CounterPose)
     {
@@ -143,6 +159,8 @@ void APlayerF_Attack::Tick(float DeltaTime)
         if (timeCounterPose == timeCanActionCounterPose)
         {
             //UE_LOG(LogTemp, Warning, TEXT(" Can Action CounterPose %f"), timeCounterPose);
+            onCombo = false;
+            currentHitCombo = 0;
             canAttack = true;
             canMove = true;
             canCounterPose = true;
@@ -160,15 +178,12 @@ void APlayerF_Attack::Tick(float DeltaTime)
     {
         timeCounter++;
         //UE_LOG(LogTemp, Log, TEXT(" timeCounter = %f"), timeCounter);
-        if (timeCounter == (timeCanAttackSpe -1))
-        {
-            float TierCounterGauge = counterGaugeMax / 3;
-            if (currentCounterGauge > TierCounterGauge)
-                LaunchAtkSpeFlashParticle();
-        }
         if (timeCounter == timeCanAttackSpe)
         {
             //UE_LOG(LogTemp, Warning, TEXT(" Can AttackSpe "));
+            float TierCounterGauge = counterGaugeMax / 3;
+            if (currentCounterGauge > TierCounterGauge)
+                LaunchAtkSpeFlashParticle();
             canAttackSpe = true;
         }
         if (timeCounter == timeStopCanAttackSpe)
@@ -229,22 +244,41 @@ void APlayerF_Attack::NeutralAction() {}
 void APlayerF_Attack::StopMovingAnim() {}
 void APlayerF_Attack::EndPartialAction() {}
 
+void APlayerF_Attack::EnemyLockedIsDead() 
+{
+    Super::EnemyLockedIsDead();
+    PlayerFight_LockInstance->EnemyDead();
+}
+
 /////////////////////////// ATTACK ///////////////////////////
 void APlayerF_Attack::EndAttack()
 {
+    isCounterTake = false;
     isAttacking = false;
     isDamaged = false;
     if (isMoveInput)
     {
-        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
+        if(isSuperMode)
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::MoveSpe, 0.0f);
+        else
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Run, 0.0f);
         isMoving = true;
     }
     else
     {
-        SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
+        if (isSuperMode)
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::StanceSpe, 0.0f);
+        else
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
         isIdle = true;
     }
     NeutralAction();
+}
+void APlayerF_Attack::EventCanHitTurning()
+{
+    UE_LOG(LogTemp, Error, TEXT("EventCanHitTurning"));
+    canHitTurning = true;
+    timeHitTurning = 4.0f;
 }
 
 /////////////////////////// COUNTER ///////////////////////////
@@ -322,7 +356,10 @@ void APlayerF_Attack::SuperModeActivate()
         SetCharacterState(UStates_PlayerF::EStates_PlayerF::Idle, 0.0f);
     }
     else
+    {
         isSuperMode = true;
+        SetCharacterState(UStates_PlayerF::EStates_PlayerF::StanceSpe, 0.0f);
+    }
 }
 
 /////////////////////////// DAMAGE ///////////////////////////
@@ -380,6 +417,9 @@ void APlayerF_Attack::DamageTake(int damage, bool isRightDamage, bool isCutFromD
             StopMovingAnim();
             timeCounter = 0;
             currentCounterGauge += 10;
+
+            if (currentCounterGauge > counterGaugeMax)
+                currentCounterGauge = counterGaugeMax;
             
             isRightCounter = isRightDamage;
             isCounterPose = false;
@@ -396,16 +436,36 @@ void APlayerF_Attack::DamageTake(int damage, bool isRightDamage, bool isCutFromD
 
             if (PlayerFightHUD)
                 PlayerFightHUD->SetClassPower(counterGaugeMax, currentCounterGauge);
+
+            CounterSlowMotion(0.3f, 0.08f);
         }
     }
 }
+void APlayerF_Attack::CounterTake()
+{
+    isCounterTake = true;
+    CounterSlowMotion(0.3f, 0.06f);
+}
 
+void APlayerF_Attack::CounterSlowMotion(float slowStrength, float slowTime)
+{
+    if (SpecialAttack)
+    {
+        SpecialAttack->StartSlowMotion(slowStrength);
+
+        FTimerHandle TimerHandle;
+        GetWorldTimerManager().SetTimer(TimerHandle, [this]()
+            {
+                SpecialAttack->EndSlowMotion();
+            }, slowTime, false);
+    }
+}
 /////////////////////////// INPUT ///////////////////////////
 void APlayerF_Attack::ABtnAction()
 {
     if (isSuperMode)
     {
-        if (SpecialAttack)
+        if (SpecialAttack && canAttackSpecial)
             SpecialAttack->ABtnActionSpe();
     }
     else
@@ -417,8 +477,9 @@ void APlayerF_Attack::BBtnAction()
     //UE_LOG(LogTemp, Warning, TEXT(" BBtnAction  canCounterPose = %s"), canCounterPose ? TEXT("True") : TEXT("False"));
     if (isSuperMode)
     {
-        if (SpecialAttack)
+        if (SpecialAttack && canAttackSpecial)
         {
+            canMove = false;
             SpecialAttack->GetPlayer(this);
             if (enemyTargetLock)
                 SpecialAttack->SetEnemyLocked(enemyTargetLock);
@@ -427,6 +488,8 @@ void APlayerF_Attack::BBtnAction()
             currentCounterGauge -= TierCounterGauge;
             if (currentCounterGauge < 0)
                 currentCounterGauge = 0;
+
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::AttackSpe, 0.0f);
         }
     }
     else
@@ -460,8 +523,9 @@ void APlayerF_Attack::XBtnAction()
 
     if (isSuperMode)
     {
-        if (SpecialAttack)
+        if (SpecialAttack && canAttackSpecial)
         {
+            canMove = false;
             SpecialAttack->GetPlayer(this);
             if (enemyTargetLock)
                 SpecialAttack->SetEnemyLocked(enemyTargetLock);
@@ -470,6 +534,8 @@ void APlayerF_Attack::XBtnAction()
             currentCounterGauge -= TierCounterGauge;
             if (currentCounterGauge < 0)
                 currentCounterGauge = 0;
+
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::AttackSpe, 0.0f);
         }
     }
     else
@@ -481,6 +547,7 @@ void APlayerF_Attack::XBtnAction()
         {
             if (canAttack)
             {
+                isCounterTake = false;
                 StopMovingAnim();
                 EndPartialAction();
 
@@ -538,14 +605,17 @@ void APlayerF_Attack::YBtnAction()
   
     if (isSuperMode)
     {
-        if (SpecialAttack)
+        if (SpecialAttack && canAttackSpecial)
         {
+            canMove = false;
             SpecialAttack->GetPlayer(this);
             SpecialAttack->YBtnActionSpe();
             float TierCounterGauge = counterGaugeMax / 3;
             currentCounterGauge -= TierCounterGauge;
             if (currentCounterGauge < 0)
                 currentCounterGauge = 0;
+
+            SetCharacterState(UStates_PlayerF::EStates_PlayerF::AttackSpe, 0.0f);
         }
     }
     else
@@ -561,6 +631,9 @@ void APlayerF_Attack::YBtnAction()
                 UE_LOG(LogTemp, Warning, TEXT(" Launch ATTACK SPE POSE "));
                 if (SpecialAttack)
                 {
+                    canAttackSpecial = false;
+                    canMove = false;
+
                     SpecialAttack->GetPlayer(this);
                     if(enemyTargetLock)
                         SpecialAttack->SetEnemyLocked(enemyTargetLock);
@@ -568,6 +641,14 @@ void APlayerF_Attack::YBtnAction()
                         SpecialAttack->SpecialAttack(true);
                     else
                         SpecialAttack->SpecialAttack(false);
+
+                    FTimerHandle TimerHandle;
+                    GetWorldTimerManager().SetTimer(TimerHandle, [this]() 
+                        { 
+                            canAttackSpecial = true; 
+                            canMove = true;
+                        }, 
+                        animTimeToSupeMode, false);
                 }
             }
         }

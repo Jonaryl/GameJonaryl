@@ -31,6 +31,7 @@ protected:
 public:	
 	void SharePlayerState(UStates_PlayerF::EStates_PlayerF playerState);
 	void SpawnEnemy();
+	void DeleteEnemy();
 
 	int GetidZone();
 	int GetidWave();

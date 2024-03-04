@@ -26,6 +26,7 @@ public:
 	//MOVE
 	bool GetisIdle();
 	bool GetisMoving();
+	bool GetisRuning();
 	float GetxMoving();
 	float GetyMoving();
 
@@ -35,7 +36,10 @@ public:
 	bool GetisAttackCombo();
 
 	///DASH
-	bool GetisDash();
+	bool GetisDashBack();
+	bool GetisDashLeft();
+	bool GetisDashRight();
+	int GetdashNumber();
 
 	//COUNTER
 	bool GetisCounterPose();
@@ -55,7 +59,6 @@ public:
 
 	bool GetisCounterTake();
 
-
 	/// EVENT ///
 	void EventAnim();
 
@@ -64,9 +67,13 @@ public:
 	virtual void CounterTake() override;
 	virtual void EndSlowMode() override;
 
+	virtual void AdvertAttack() override;
+
 	//////////////////////////// INFORMATION ////////////////////////////
 	FStruct_CharacterStats GetEnemyStats();
 	bool GetisEnemyDead();
+	float GetdeathAnimationCooldown();
+	int GetEnemyId();
 
 	FStruct_DeathData deathData;
 	FStruct_DeathData GetDeathData();

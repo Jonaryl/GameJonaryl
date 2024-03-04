@@ -33,6 +33,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isMoving;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isRuning;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		float xValueMove;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		float yValueMove;
@@ -47,7 +49,13 @@ protected:
 
 	///DASH
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
-		bool isDash;
+		bool isDashBack;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isDashLeft;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isDashRight;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		int dashNumber;
 
 	//COUNTER
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
@@ -76,6 +84,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		bool isCounterTake;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		bool isEnemyDead;
+
 
 
 	/////////////// EVENT ////////////////////
@@ -86,4 +97,6 @@ protected:
 		void LaunchParticle();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
 		void EnableDamage();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Event")
+		void AdvertAttack();
 };

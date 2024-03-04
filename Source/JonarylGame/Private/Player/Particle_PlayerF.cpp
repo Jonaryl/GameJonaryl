@@ -46,7 +46,7 @@ void AParticle_PlayerF::BeginPlay()
 		{
 			if (isSpeTimeDestroy == true)
 			//UE_LOG(LogTemp, Error, TEXT("Destroy timer"));
-	Destroy();
+			Destroy();
 		}, DelayBeforeDestroy, false);
 
 	if (isOnlyView)
@@ -213,14 +213,20 @@ void AParticle_PlayerF::DamageEnemy(AEnemies_Unit* enemy)
 	//////////////////// EDIT HUD VIEWED //////////////////////
 	if (currentEnemyLocked)
 	{
-		if (currentEnemyLocked == enemy)
+		UE_LOG(LogTemp, Log, TEXT(" 111111 currentEnemyLocked"));
+		if (currentEnemyLocked->GetEnemyId() == enemy->GetEnemyId())
 		{
+			UE_LOG(LogTemp, Log, TEXT(" 22222222 currentEnemyLocked->GetEnemyId() == enemy->GetEnemyId()"));
 			FStruct_CharacterStats enemyLockedStats = currentEnemyLocked->GetEnemyStats();
 
 			player->EditEnemyHealth(enemyLockedStats.MaxHealth, enemyLockedStats.Health);
 			player->EditEnemyArmor(enemyLockedStats.MaxArmor, enemyLockedStats.Armor);
 			if (enemyLockedStats.Health <= 0)
+			{
+			UE_LOG(LogTemp, Log, TEXT(" 33333  enemyLockedStats.Health <= 0"));
 				player->EnemyHudIsVisible(false);
+				player->EnemyLockedIsDead();
+			}
 			else
 				player->EnemyHudIsVisible(true);
 		}

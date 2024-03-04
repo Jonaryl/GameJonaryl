@@ -59,6 +59,9 @@ void UAnimInstance_PlayerF::UpdateAnimProperties()
 	isDamageRight = playerClass->GetisDamageRight();
 	damageAnimNumber = playerClass->GetdamageAnimNumber();
 
+	isCounterTake = playerClass->GetisCounterTake();
+	isRightCountered = playerClass->GetisRightCountered();
+
 	//ATTACK
 	isAttacking = playerClass->GetisAttacking();
 
@@ -87,4 +90,17 @@ void UAnimInstance_PlayerF::UpdateAnimProperties()
 void UAnimInstance_PlayerF::EventAnim_Implementation()
 {
 	playerClass->EventAnim();
+}
+void UAnimInstance_PlayerF::EventCanHitTurning_Implementation() 
+{
+	playerClass->EventCanHitTurning(); 
+}
+
+void UAnimInstance_PlayerF::EventRightHit_Implementation()
+{
+	playerClass->EventRightHit();
+}
+void UAnimInstance_PlayerF::EventLeftHit_Implementation()
+{
+	playerClass->EventLeftHit();
 }

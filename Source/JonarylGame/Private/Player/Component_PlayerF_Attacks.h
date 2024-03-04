@@ -20,7 +20,7 @@ public:
 	UComponent_PlayerF_Attacks();
 
 	void StartAttack(AActor* enemy, FStruct_CharacterStats playerStatistics);
-	void Attack();
+	void Attack(bool isCountered);
 	float GettimeCurrentAttack();
 
 	int GetattackID();
